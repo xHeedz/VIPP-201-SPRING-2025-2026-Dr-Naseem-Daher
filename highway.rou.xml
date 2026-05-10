@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+
+    <!-- Vehicle types -->
+    <vType id="ego_type" accel="3.0" decel="5.0" sigma="0.0" length="5.0" maxSpeed="30.0" color="0,200,0"/>
+    <vType id="npc_type" accel="2.5" decel="4.5" sigma="0.5" length="5.0" maxSpeed="30.0" color="100,100,255"/>
+
+    <route id="route_hw" edges="highway"/>
+
+    <!-- Ego vehicle: green, lane 1, position 600 m along 2000 m edge -->
+    <vehicle id="ego" type="ego_type" route="route_hw" depart="0.0"
+             departPos="600.0" departLane="1" departSpeed="20.0"/>
+
+    <!-- 15 NPC vehicles spread across all 4 lanes -->
+    <!-- Lane 0 -->
+    <vehicle id="npc_0"  type="npc_type" route="route_hw" depart="0.0" departPos="480.0" departLane="0" departSpeed="22.0"/>
+    <vehicle id="npc_1"  type="npc_type" route="route_hw" depart="0.0" departPos="570.0" departLane="0" departSpeed="19.0"/>
+    <vehicle id="npc_2"  type="npc_type" route="route_hw" depart="0.0" departPos="680.0" departLane="0" departSpeed="24.0"/>
+    <vehicle id="npc_3"  type="npc_type" route="route_hw" depart="0.0" departPos="780.0" departLane="0" departSpeed="21.0"/>
+
+    <!-- Lane 1 (ego is here at 600 m — NPCs placed clear of that position) -->
+    <vehicle id="npc_4"  type="npc_type" route="route_hw" depart="0.0" departPos="440.0" departLane="1" departSpeed="17.0"/>
+    <vehicle id="npc_5"  type="npc_type" route="route_hw" depart="0.0" departPos="720.0" departLane="1" departSpeed="23.0"/>
+    <vehicle id="npc_6"  type="npc_type" route="route_hw" depart="0.0" departPos="830.0" departLane="1" departSpeed="20.5"/>
+    <vehicle id="npc_7"  type="npc_type" route="route_hw" depart="0.0" departPos="940.0" departLane="1" departSpeed="18.5"/>
+
+    <!-- Lane 2 -->
+    <vehicle id="npc_8"  type="npc_type" route="route_hw" depart="0.0" departPos="510.0" departLane="2" departSpeed="20.0"/>
+    <vehicle id="npc_9"  type="npc_type" route="route_hw" depart="0.0" departPos="640.0" departLane="2" departSpeed="22.5"/>
+    <vehicle id="npc_10" type="npc_type" route="route_hw" depart="0.0" departPos="760.0" departLane="2" departSpeed="19.5"/>
+    <vehicle id="npc_11" type="npc_type" route="route_hw" depart="0.0" departPos="880.0" departLane="2" departSpeed="21.5"/>
+
+    <!-- Lane 3 -->
+    <vehicle id="npc_12" type="npc_type" route="route_hw" depart="0.0" departPos="530.0" departLane="3" departSpeed="23.0"/>
+    <vehicle id="npc_13" type="npc_type" route="route_hw" depart="0.0" departPos="660.0" departLane="3" departSpeed="20.0"/>
+    <vehicle id="npc_14" type="npc_type" route="route_hw" depart="0.0" departPos="810.0" departLane="3" departSpeed="18.0"/>
+
+</routes>

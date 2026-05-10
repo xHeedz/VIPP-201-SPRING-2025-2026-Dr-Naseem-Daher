@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edges xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/edges_file.xsd">
+    <!-- Ego approach road: west -> center (lower priority, must yield) -->
+    <edge id="w2c" from="west"   to="center" priority="1" numLanes="1" speed="13.89"/>
+    <edge id="c2e" from="center" to="east"   priority="1" numLanes="1" speed="13.89"/>
+
+    <!-- Cross traffic: north-south (higher priority) -->
+    <edge id="n2c" from="north"  to="center" priority="2" numLanes="1" speed="13.89"/>
+    <edge id="c2s" from="center" to="south"  priority="2" numLanes="1" speed="13.89"/>
+    <edge id="s2c" from="south"  to="center" priority="2" numLanes="1" speed="13.89"/>
+    <edge id="c2n" from="center" to="north"  priority="2" numLanes="1" speed="13.89"/>
+
+    <!-- Return paths (used for network completeness) -->
+    <edge id="e2c" from="east"   to="center" priority="1" numLanes="1" speed="13.89"/>
+    <edge id="c2w" from="center" to="west"   priority="1" numLanes="1" speed="13.89"/>
+</edges>

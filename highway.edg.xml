@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edges xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/edges_file.xsd">
+    <!-- 4-lane highway, 2000 m long, 30 m/s speed limit (~108 km/h) -->
+    <edge id="highway" from="start" to="end" priority="1" numLanes="4" speed="30.00" spreadType="center"/>
+</edges>

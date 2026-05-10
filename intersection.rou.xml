@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+
+    <vType id="ego_type"   accel="3.0" decel="5.0" sigma="0.0" length="4.5" maxSpeed="14.0" color="0,200,0"/>
+    <vType id="cross_type" accel="2.5" decel="4.5" sigma="0.3" length="4.5" maxSpeed="14.0" color="100,100,255"/>
+
+    <!-- Routes -->
+    <route id="route_ego" edges="w2c c2e"/>        <!-- ego: west → east       -->
+    <route id="route_ns"  edges="n2c c2s"/>        <!-- cross: north → south   -->
+    <route id="route_sn"  edges="s2c c2n"/>        <!-- cross: south → north   -->
+
+    <!-- Ego: starts 50 m into w2c (150 m from intersection), 10 m/s -->
+    <vehicle id="ego" type="ego_type" route="route_ego" depart="0.0"
+             departPos="50.0" departLane="0" departSpeed="10.0"/>
+
+    <!--
+        Cross traffic staggered so vehicles arrive at the intersection
+        at various times relative to the ego (ego reaches center ~t=15 s).
+        Vehicles from north and south alternate to stress both zones.
+    -->
+    <vehicle id="cross_0" type="cross_type" route="route_ns" depart="0.0"
+             departPos="0.0" departLane="0" departSpeed="11.0"/>
+
+    <vehicle id="cross_1" type="cross_type" route="route_sn" depart="2.0"
+             departPos="0.0" departLane="0" departSpeed="9.0"/>
+
+    <vehicle id="cross_2" type="cross_type" route="route_ns" depart="5.0"
+             departPos="0.0" departLane="0" departSpeed="12.0"/>
+
+    <vehicle id="cross_3" type="cross_type" route="route_sn" depart="8.0"
+             departPos="0.0" departLane="0" departSpeed="10.0"/>
+
+    <vehicle id="cross_4" type="cross_type" route="route_ns" depart="12.0"
+             departPos="0.0" departLane="0" departSpeed="13.0"/>
+
+    <vehicle id="cross_5" type="cross_type" route="route_sn" depart="16.0"
+             departPos="0.0" departLane="0" departSpeed="8.0"/>
+
+</routes>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<connections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/connections_file.xsd">
+    <!-- Ego: straight through west -> east -->
+    <connection from="w2c" to="c2e" fromLane="0" toLane="0"/>
+
+    <!-- Cross traffic: straight through north -> south -->
+    <connection from="n2c" to="c2s" fromLane="0" toLane="0"/>
+
+    <!-- Cross traffic: straight through south -> north -->
+    <connection from="s2c" to="c2n" fromLane="0" toLane="0"/>
+
+    <!-- Return path connections (unused in training but needed for valid network) -->
+    <connection from="e2c" to="c2w" fromLane="0" toLane="0"/>
+</connections>
