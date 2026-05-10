@@ -1,0 +1,1500 @@
+
+============================================================
+  INTERSECTION -- hand-calculation trace (all epochs)
+============================================================
+  Model weights from model.py:
+    w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  Scoring: score = (n_speed^2*w_speed + n_accel*w_accel + n_prox^2*w_prox + n_wave*w_wave) * 100
+
+
+--- EPOCH 1/5 ---
+
+  +-- cross_0 --+
+  | RAW      speed=41.93 km/h  accel=+0.000 m/s2  prox=245.68 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(41.93/150, 1.0)     = 0.27956
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.27956^2 * 0.5 = 0.039076
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.039076 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.039076
+  | FINAL AI Score = min(0.039076 * 100, 100) = 3.908
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 1 SUMMARY:  reward= 158.86  NPC_obs=562  avg_AI=48.9  C:18  N:518  A:26
+
+--- EPOCH 2/5 ---
+
+  +-- cross_0 --+
+  | RAW      speed=41.93 km/h  accel=-13.290 m/s2  prox=245.68 m  wave=69.1749 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(41.93/150, 1.0)     = 0.27956
+  |   n_accel = min(|-13.290|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(69.1749/1.5, 1.0)   = 1.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.27956^2 * 0.5 = 0.039076
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 1.00000   * 0.4 = 0.400000
+  | SUM  = 0.039076 + 0.200000 + 0.000000 + 0.400000
+  |      = 0.639076
+  | FINAL AI Score = min(0.639076 * 100, 100) = 63.908
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 2 SUMMARY:  reward=  68.53  NPC_obs=592  avg_AI=52.8  C:0  N:533  A:59
+
+--- EPOCH 3/5 ---
+
+  +-- cross_0 --+
+  | RAW      speed=41.93 km/h  accel=-13.131 m/s2  prox=245.68 m  wave=68.7555 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(41.93/150, 1.0)     = 0.27956
+  |   n_accel = min(|-13.131|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(68.7555/1.5, 1.0)   = 1.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.27956^2 * 0.5 = 0.039076
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 1.00000   * 0.4 = 0.400000
+  | SUM  = 0.039076 + 0.200000 + 0.000000 + 0.400000
+  |      = 0.639076
+  | FINAL AI Score = min(0.639076 * 100, 100) = 63.908
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 3 SUMMARY:  reward=  71.33  NPC_obs=585  avg_AI=49.2  C:0  N:568  A:17
+
+--- EPOCH 4/5 ---
+
+  +-- cross_0 --+
+  | RAW      speed=41.93 km/h  accel=-13.534 m/s2  prox=245.68 m  wave=68.7555 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(41.93/150, 1.0)     = 0.27956
+  |   n_accel = min(|-13.534|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(68.7555/1.5, 1.0)   = 1.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.27956^2 * 0.5 = 0.039076
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 1.00000   * 0.4 = 0.400000
+  | SUM  = 0.039076 + 0.200000 + 0.000000 + 0.400000
+  |      = 0.639076
+  | FINAL AI Score = min(0.639076 * 100, 100) = 63.908
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 4 SUMMARY:  reward= 136.89  NPC_obs=580  avg_AI=50.4  C:0  N:552  A:28
+
+--- EPOCH 5/5 ---
+
+  +-- cross_0 --+
+  | RAW      speed=41.93 km/h  accel=-13.534 m/s2  prox=245.68 m  wave=68.7555 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(41.93/150, 1.0)     = 0.27956
+  |   n_accel = min(|-13.534|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(68.7555/1.5, 1.0)   = 1.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.27956^2 * 0.5 = 0.039076
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 1.00000   * 0.4 = 0.400000
+  | SUM  = 0.039076 + 0.200000 + 0.000000 + 0.400000
+  |      = 0.639076
+  | FINAL AI Score = min(0.639076 * 100, 100) = 63.908
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 5 SUMMARY:  reward=-146.11  NPC_obs=584  avg_AI=50.4  C:0  N:564  A:20
+
+[Intersection] Saved 2903 rows -> C:\Users\hadis\Desktop\AUB\E2\SPRING 25-26\VIP 201A\presentation\sumo_npc_aggressiveness.csv
+
+============================================================
+  HIGHWAY -- hand-calculation trace (all epochs)
+============================================================
+  Model weights from model.py:
+    w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  Scoring: score = (n_speed^2*w_speed + n_accel*w_accel + n_prox^2*w_prox + n_wave*w_wave) * 100
+
+
+--- EPOCH 1/5 ---
+
+  +-- npc_0 --+
+  | RAW      speed=82.05 km/h  accel=+0.000 m/s2  prox=119.35 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(82.05/150, 1.0)     = 0.54697
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.54697^2 * 0.5 = 0.149588
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.149588 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.149588
+  | FINAL AI Score = min(0.149588 * 100, 100) = 14.959
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_1 --+
+  | RAW      speed=71.39 km/h  accel=+0.000 m/s2  prox=30.65 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(71.39/150, 1.0)     = 0.47592
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 1 - 30.65/50           = 0.38690  (closer = riskier)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.47592^2 * 0.5 = 0.113248
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.38690^2 * 0.8 = 0.119755
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.113248 + 0.000000 + 0.119755 + 0.000000
+  |      = 0.233004
+  | FINAL AI Score = min(0.233004 * 100, 100) = 23.300
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_10 --+
+  | RAW      speed=72.72 km/h  accel=+0.000 m/s2  prox=159.72 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(72.72/150, 1.0)     = 0.48482
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.48482^2 * 0.5 = 0.117527
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.117527 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.117527
+  | FINAL AI Score = min(0.117527 * 100, 100) = 11.753
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_11 --+
+  | RAW      speed=79.79 km/h  accel=+0.000 m/s2  prox=280.49 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.79/150, 1.0)     = 0.53195
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53195^2 * 0.5 = 0.141487
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.141487 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.141487
+  | FINAL AI Score = min(0.141487 * 100, 100) = 14.149
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_12 --+
+  | RAW      speed=85.72 km/h  accel=+0.000 m/s2  prox=69.19 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.72/150, 1.0)     = 0.57145
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57145^2 * 0.5 = 0.163279
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.163279 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.163279
+  | FINAL AI Score = min(0.163279 * 100, 100) = 16.328
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_13 --+
+  | RAW      speed=74.44 km/h  accel=+0.000 m/s2  prox=60.21 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.44/150, 1.0)     = 0.49630
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49630^2 * 0.5 = 0.123156
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.123156 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.123156
+  | FINAL AI Score = min(0.123156 * 100, 100) = 12.316
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_14 --+
+  | RAW      speed=67.27 km/h  accel=+0.000 m/s2  prox=209.18 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(67.27/150, 1.0)     = 0.44844
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.44844^2 * 0.5 = 0.100548
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.100548 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.100548
+  | FINAL AI Score = min(0.100548 * 100, 100) = 10.055
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_2 --+
+  | RAW      speed=85.93 km/h  accel=+0.000 m/s2  prox=81.43 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.93/150, 1.0)     = 0.57289
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57289^2 * 0.5 = 0.164100
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.164100 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.164100
+  | FINAL AI Score = min(0.164100 * 100, 100) = 16.410
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_3 --+
+  | RAW      speed=78.08 km/h  accel=+0.000 m/s2  prox=180.29 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(78.08/150, 1.0)     = 0.52052
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.52052^2 * 0.5 = 0.135472
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.135472 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.135472
+  | FINAL AI Score = min(0.135472 * 100, 100) = 13.547
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_4 --+
+  | RAW      speed=63.74 km/h  accel=+0.000 m/s2  prox=161.33 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(63.74/150, 1.0)     = 0.42496
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.42496^2 * 0.5 = 0.090295
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.090295 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.090295
+  | FINAL AI Score = min(0.090295 * 100, 100) = 9.030
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_5 --+
+  | RAW      speed=79.66 km/h  accel=+0.000 m/s2  prox=120.73 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.66/150, 1.0)     = 0.53104
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53104^2 * 0.5 = 0.141000
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.141000 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.141000
+  | FINAL AI Score = min(0.141000 * 100, 100) = 14.100
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_6 --+
+  | RAW      speed=76.62 km/h  accel=+0.000 m/s2  prox=230.10 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.62/150, 1.0)     = 0.51080
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51080^2 * 0.5 = 0.130460
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.130460 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.130460
+  | FINAL AI Score = min(0.130460 * 100, 100) = 13.046
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_7 --+
+  | RAW      speed=69.26 km/h  accel=+0.000 m/s2  prox=339.29 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(69.26/150, 1.0)     = 0.46175
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.46175^2 * 0.5 = 0.106606
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.106606 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.106606
+  | FINAL AI Score = min(0.106606 * 100, 100) = 10.661
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_8 --+
+  | RAW      speed=74.42 km/h  accel=+0.000 m/s2  prox=90.18 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.42/150, 1.0)     = 0.49610
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49610^2 * 0.5 = 0.123060
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.123060 + 0.000000 + 0.000000 + 0.000000
+  |      = 0.123060
+  | FINAL AI Score = min(0.123060 * 100, 100) = 12.306
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_9 --+
+  | RAW      speed=76.86 km/h  accel=+0.000 m/s2  prox=40.64 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.86/150, 1.0)     = 0.51242
+  |   n_accel = min(|0.000|/5.0, 1.0) = 0.00000
+  |   n_prox  = 1 - 40.64/50           = 0.18727  (closer = riskier)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51242^2 * 0.5 = 0.131288
+  |   n_accel  * w_accel  = 0.00000   * 0.2 = 0.000000
+  |   n_prox^2 * w_prox   = 0.18727^2 * 0.8 = 0.028056
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.131288 + 0.000000 + 0.028056 + 0.000000
+  |      = 0.159344
+  | FINAL AI Score = min(0.159344 * 100, 100) = 15.934
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 1 SUMMARY:  reward= 219.00  NPC_obs=1780  avg_AI=42.8  C:912  N:702  A:166
+
+--- EPOCH 2/5 ---
+
+  +-- npc_0 --+
+  | RAW      speed=82.05 km/h  accel=-52.777 m/s2  prox=119.35 m  wave=1.3660 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(82.05/150, 1.0)     = 0.54697
+  |   n_accel = min(|-52.777|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.3660/1.5, 1.0)   = 0.91067
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.54697^2 * 0.5 = 0.149588
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.91067   * 0.4 = 0.364267
+  | SUM  = 0.149588 + 0.200000 + 0.000000 + 0.364267
+  |      = 0.713855
+  | FINAL AI Score = min(0.713855 * 100, 100) = 71.386
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_1 --+
+  | RAW      speed=71.39 km/h  accel=-101.311 m/s2  prox=30.65 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(71.39/150, 1.0)     = 0.47592
+  |   n_accel = min(|-101.311|/5.0, 1.0) = 1.00000
+  |   n_prox  = 1 - 30.65/50           = 0.38690  (closer = riskier)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.47592^2 * 0.5 = 0.113248
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.38690^2 * 0.8 = 0.119755
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.113248 + 0.200000 + 0.119755 + 0.000000
+  |      = 0.433004
+  | FINAL AI Score = min(0.433004 * 100, 100) = 43.300
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_10 --+
+  | RAW      speed=72.72 km/h  accel=-97.181 m/s2  prox=159.72 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(72.72/150, 1.0)     = 0.48482
+  |   n_accel = min(|-97.181|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.48482^2 * 0.5 = 0.117527
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.117527 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.470705
+  | FINAL AI Score = min(0.470705 * 100, 100) = 47.070
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_11 --+
+  | RAW      speed=79.79 km/h  accel=-77.909 m/s2  prox=280.49 m  wave=1.4151 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.79/150, 1.0)     = 0.53195
+  |   n_accel = min(|-77.909|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.4151/1.5, 1.0)   = 0.94340
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53195^2 * 0.5 = 0.141487
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.94340   * 0.4 = 0.377358
+  | SUM  = 0.141487 + 0.200000 + 0.000000 + 0.377358
+  |      = 0.718845
+  | FINAL AI Score = min(0.718845 * 100, 100) = 71.885
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_12 --+
+  | RAW      speed=85.72 km/h  accel=-61.673 m/s2  prox=69.19 m  wave=1.5235 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.72/150, 1.0)     = 0.57145
+  |   n_accel = min(|-61.673|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.5235/1.5, 1.0)   = 1.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57145^2 * 0.5 = 0.163279
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 1.00000   * 0.4 = 0.400000
+  | SUM  = 0.163279 + 0.200000 + 0.000000 + 0.400000
+  |      = 0.763279
+  | FINAL AI Score = min(0.763279 * 100, 100) = 76.328
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_13 --+
+  | RAW      speed=74.44 km/h  accel=-90.312 m/s2  prox=60.21 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.44/150, 1.0)     = 0.49630
+  |   n_accel = min(|-90.312|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49630^2 * 0.5 = 0.123156
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.123156 + 0.200000 + 0.000000 + 0.000000
+  |      = 0.323156
+  | FINAL AI Score = min(0.323156 * 100, 100) = 32.316
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_14 --+
+  | RAW      speed=67.27 km/h  accel=-90.827 m/s2  prox=209.18 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(67.27/150, 1.0)     = 0.44844
+  |   n_accel = min(|-90.827|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.44844^2 * 0.5 = 0.100548
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.100548 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.453726
+  | FINAL AI Score = min(0.453726 * 100, 100) = 45.373
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_2 --+
+  | RAW      speed=85.93 km/h  accel=-53.844 m/s2  prox=81.43 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.93/150, 1.0)     = 0.57289
+  |   n_accel = min(|-53.844|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57289^2 * 0.5 = 0.164100
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.164100 + 0.200000 + 0.000000 + 0.000000
+  |      = 0.364100
+  | FINAL AI Score = min(0.364100 * 100, 100) = 36.410
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_3 --+
+  | RAW      speed=78.08 km/h  accel=-64.398 m/s2  prox=180.29 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(78.08/150, 1.0)     = 0.52052
+  |   n_accel = min(|-64.398|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.52052^2 * 0.5 = 0.135472
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.135472 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.488650
+  | FINAL AI Score = min(0.488650 * 100, 100) = 48.865
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_4 --+
+  | RAW      speed=63.74 km/h  accel=-71.928 m/s2  prox=161.33 m  wave=1.4151 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(63.74/150, 1.0)     = 0.42496
+  |   n_accel = min(|-71.928|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.4151/1.5, 1.0)   = 0.94340
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.42496^2 * 0.5 = 0.090295
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.94340   * 0.4 = 0.377358
+  | SUM  = 0.090295 + 0.200000 + 0.000000 + 0.377358
+  |      = 0.667653
+  | FINAL AI Score = min(0.667653 * 100, 100) = 66.765
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_5 --+
+  | RAW      speed=79.66 km/h  accel=-77.712 m/s2  prox=120.73 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.66/150, 1.0)     = 0.53104
+  |   n_accel = min(|-77.712|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53104^2 * 0.5 = 0.141000
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.141000 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.494178
+  | FINAL AI Score = min(0.494178 * 100, 100) = 49.418
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_6 --+
+  | RAW      speed=76.62 km/h  accel=-52.156 m/s2  prox=230.10 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.62/150, 1.0)     = 0.51080
+  |   n_accel = min(|-52.156|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51080^2 * 0.5 = 0.130460
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.130460 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.483638
+  | FINAL AI Score = min(0.483638 * 100, 100) = 48.364
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_7 --+
+  | RAW      speed=69.26 km/h  accel=-88.481 m/s2  prox=339.29 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(69.26/150, 1.0)     = 0.46175
+  |   n_accel = min(|-88.481|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.46175^2 * 0.5 = 0.106606
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.106606 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.459784
+  | FINAL AI Score = min(0.459784 * 100, 100) = 45.978
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_8 --+
+  | RAW      speed=74.42 km/h  accel=-49.405 m/s2  prox=90.18 m  wave=1.1488 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.42/150, 1.0)     = 0.49610
+  |   n_accel = min(|-49.405|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.1488/1.5, 1.0)   = 0.76589
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49610^2 * 0.5 = 0.123060
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.76589   * 0.4 = 0.306356
+  | SUM  = 0.123060 + 0.200000 + 0.000000 + 0.306356
+  |      = 0.629416
+  | FINAL AI Score = min(0.629416 * 100, 100) = 62.942
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_9 --+
+  | RAW      speed=76.86 km/h  accel=-85.646 m/s2  prox=40.64 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.86/150, 1.0)     = 0.51242
+  |   n_accel = min(|-85.646|/5.0, 1.0) = 1.00000
+  |   n_prox  = 1 - 40.64/50           = 0.18727  (closer = riskier)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51242^2 * 0.5 = 0.131288
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.18727^2 * 0.8 = 0.028056
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.131288 + 0.200000 + 0.028056 + 0.153178
+  |      = 0.512522
+  | FINAL AI Score = min(0.512522 * 100, 100) = 51.252
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 2 SUMMARY:  reward= 248.00  NPC_obs=1768  avg_AI=47.9  C:710  N:809  A:249
+
+--- EPOCH 3/5 ---
+
+  +-- npc_0 --+
+  | RAW      speed=82.05 km/h  accel=-53.127 m/s2  prox=119.35 m  wave=1.7976 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(82.05/150, 1.0)     = 0.54697
+  |   n_accel = min(|-53.127|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.7976/1.5, 1.0)   = 1.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.54697^2 * 0.5 = 0.149588
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 1.00000   * 0.4 = 0.400000
+  | SUM  = 0.149588 + 0.200000 + 0.000000 + 0.400000
+  |      = 0.749588
+  | FINAL AI Score = min(0.749588 * 100, 100) = 74.959
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_1 --+
+  | RAW      speed=71.39 km/h  accel=-101.603 m/s2  prox=30.65 m  wave=2.1038 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(71.39/150, 1.0)     = 0.47592
+  |   n_accel = min(|-101.603|/5.0, 1.0) = 1.00000
+  |   n_prox  = 1 - 30.65/50           = 0.38690  (closer = riskier)
+  |   n_wave  = min(2.1038/1.5, 1.0)   = 1.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.47592^2 * 0.5 = 0.113248
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.38690^2 * 0.8 = 0.119755
+  |   n_wave   * w_wave   = 1.00000   * 0.4 = 0.400000
+  | SUM  = 0.113248 + 0.200000 + 0.119755 + 0.400000
+  |      = 0.833004
+  | FINAL AI Score = min(0.833004 * 100, 100) = 83.300
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_10 --+
+  | RAW      speed=72.72 km/h  accel=-97.729 m/s2  prox=159.72 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(72.72/150, 1.0)     = 0.48482
+  |   n_accel = min(|-97.729|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.48482^2 * 0.5 = 0.117527
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.117527 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.470705
+  | FINAL AI Score = min(0.470705 * 100, 100) = 47.070
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_11 --+
+  | RAW      speed=79.79 km/h  accel=-78.312 m/s2  prox=280.49 m  wave=1.4151 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.79/150, 1.0)     = 0.53195
+  |   n_accel = min(|-78.312|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.4151/1.5, 1.0)   = 0.94340
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53195^2 * 0.5 = 0.141487
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.94340   * 0.4 = 0.377358
+  | SUM  = 0.141487 + 0.200000 + 0.000000 + 0.377358
+  |      = 0.718845
+  | FINAL AI Score = min(0.718845 * 100, 100) = 71.885
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_12 --+
+  | RAW      speed=85.72 km/h  accel=-61.604 m/s2  prox=69.19 m  wave=1.4508 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.72/150, 1.0)     = 0.57145
+  |   n_accel = min(|-61.604|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.4508/1.5, 1.0)   = 0.96722
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57145^2 * 0.5 = 0.163279
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.96722   * 0.4 = 0.386886
+  | SUM  = 0.163279 + 0.200000 + 0.000000 + 0.386886
+  |      = 0.750165
+  | FINAL AI Score = min(0.750165 * 100, 100) = 75.017
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_13 --+
+  | RAW      speed=74.44 km/h  accel=-89.898 m/s2  prox=60.21 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.44/150, 1.0)     = 0.49630
+  |   n_accel = min(|-89.898|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49630^2 * 0.5 = 0.123156
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.123156 + 0.200000 + 0.000000 + 0.000000
+  |      = 0.323156
+  | FINAL AI Score = min(0.323156 * 100, 100) = 32.316
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_14 --+
+  | RAW      speed=67.27 km/h  accel=-90.952 m/s2  prox=209.18 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(67.27/150, 1.0)     = 0.44844
+  |   n_accel = min(|-90.952|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.44844^2 * 0.5 = 0.100548
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.100548 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.453726
+  | FINAL AI Score = min(0.453726 * 100, 100) = 45.373
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_2 --+
+  | RAW      speed=85.93 km/h  accel=-53.660 m/s2  prox=81.43 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.93/150, 1.0)     = 0.57289
+  |   n_accel = min(|-53.660|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57289^2 * 0.5 = 0.164100
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.164100 + 0.200000 + 0.000000 + 0.000000
+  |      = 0.364100
+  | FINAL AI Score = min(0.364100 * 100, 100) = 36.410
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_3 --+
+  | RAW      speed=78.08 km/h  accel=-64.641 m/s2  prox=180.29 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(78.08/150, 1.0)     = 0.52052
+  |   n_accel = min(|-64.641|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.52052^2 * 0.5 = 0.135472
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.135472 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.488650
+  | FINAL AI Score = min(0.488650 * 100, 100) = 48.865
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_4 --+
+  | RAW      speed=63.74 km/h  accel=-71.409 m/s2  prox=161.33 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(63.74/150, 1.0)     = 0.42496
+  |   n_accel = min(|-71.409|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.42496^2 * 0.5 = 0.090295
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.090295 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.443473
+  | FINAL AI Score = min(0.443473 * 100, 100) = 44.347
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_5 --+
+  | RAW      speed=79.66 km/h  accel=-78.154 m/s2  prox=120.73 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.66/150, 1.0)     = 0.53104
+  |   n_accel = min(|-78.154|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53104^2 * 0.5 = 0.141000
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.141000 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.494178
+  | FINAL AI Score = min(0.494178 * 100, 100) = 49.418
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_6 --+
+  | RAW      speed=76.62 km/h  accel=-52.767 m/s2  prox=230.10 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.62/150, 1.0)     = 0.51080
+  |   n_accel = min(|-52.767|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51080^2 * 0.5 = 0.130460
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.130460 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.483638
+  | FINAL AI Score = min(0.483638 * 100, 100) = 48.364
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_7 --+
+  | RAW      speed=69.26 km/h  accel=-87.972 m/s2  prox=339.29 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(69.26/150, 1.0)     = 0.46175
+  |   n_accel = min(|-87.972|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.46175^2 * 0.5 = 0.106606
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.106606 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.459784
+  | FINAL AI Score = min(0.459784 * 100, 100) = 45.978
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_8 --+
+  | RAW      speed=74.42 km/h  accel=-49.966 m/s2  prox=90.18 m  wave=1.5857 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.42/150, 1.0)     = 0.49610
+  |   n_accel = min(|-49.966|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.5857/1.5, 1.0)   = 1.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49610^2 * 0.5 = 0.123060
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 1.00000   * 0.4 = 0.400000
+  | SUM  = 0.123060 + 0.200000 + 0.000000 + 0.400000
+  |      = 0.723060
+  | FINAL AI Score = min(0.723060 * 100, 100) = 72.306
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_9 --+
+  | RAW      speed=76.86 km/h  accel=-86.367 m/s2  prox=40.64 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.86/150, 1.0)     = 0.51242
+  |   n_accel = min(|-86.367|/5.0, 1.0) = 1.00000
+  |   n_prox  = 1 - 40.64/50           = 0.18727  (closer = riskier)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51242^2 * 0.5 = 0.131288
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.18727^2 * 0.8 = 0.028056
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.131288 + 0.200000 + 0.028056 + 0.153178
+  |      = 0.512522
+  | FINAL AI Score = min(0.512522 * 100, 100) = 51.252
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 3 SUMMARY:  reward= 151.00  NPC_obs=1810  avg_AI=49.0  C:714  N:857  A:239
+
+--- EPOCH 4/5 ---
+
+  +-- npc_0 --+
+  | RAW      speed=82.05 km/h  accel=-53.229 m/s2  prox=119.35 m  wave=1.2666 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(82.05/150, 1.0)     = 0.54697
+  |   n_accel = min(|-53.229|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.2666/1.5, 1.0)   = 0.84440
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.54697^2 * 0.5 = 0.149588
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.84440   * 0.4 = 0.337759
+  | SUM  = 0.149588 + 0.200000 + 0.000000 + 0.337759
+  |      = 0.687347
+  | FINAL AI Score = min(0.687347 * 100, 100) = 68.735
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_1 --+
+  | RAW      speed=71.39 km/h  accel=-101.377 m/s2  prox=30.65 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(71.39/150, 1.0)     = 0.47592
+  |   n_accel = min(|-101.377|/5.0, 1.0) = 1.00000
+  |   n_prox  = 1 - 30.65/50           = 0.38690  (closer = riskier)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.47592^2 * 0.5 = 0.113248
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.38690^2 * 0.8 = 0.119755
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.113248 + 0.200000 + 0.119755 + 0.000000
+  |      = 0.433004
+  | FINAL AI Score = min(0.433004 * 100, 100) = 43.300
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_10 --+
+  | RAW      speed=72.72 km/h  accel=-97.031 m/s2  prox=159.72 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(72.72/150, 1.0)     = 0.48482
+  |   n_accel = min(|-97.031|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.48482^2 * 0.5 = 0.117527
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.117527 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.470705
+  | FINAL AI Score = min(0.470705 * 100, 100) = 47.070
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_11 --+
+  | RAW      speed=79.79 km/h  accel=-78.192 m/s2  prox=280.49 m  wave=1.4151 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.79/150, 1.0)     = 0.53195
+  |   n_accel = min(|-78.192|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.4151/1.5, 1.0)   = 0.94340
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53195^2 * 0.5 = 0.141487
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.94340   * 0.4 = 0.377358
+  | SUM  = 0.141487 + 0.200000 + 0.000000 + 0.377358
+  |      = 0.718845
+  | FINAL AI Score = min(0.718845 * 100, 100) = 71.885
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_12 --+
+  | RAW      speed=85.72 km/h  accel=-61.105 m/s2  prox=69.19 m  wave=1.5857 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.72/150, 1.0)     = 0.57145
+  |   n_accel = min(|-61.105|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.5857/1.5, 1.0)   = 1.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57145^2 * 0.5 = 0.163279
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 1.00000   * 0.4 = 0.400000
+  | SUM  = 0.163279 + 0.200000 + 0.000000 + 0.400000
+  |      = 0.763279
+  | FINAL AI Score = min(0.763279 * 100, 100) = 76.328
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_13 --+
+  | RAW      speed=74.44 km/h  accel=-90.223 m/s2  prox=60.21 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.44/150, 1.0)     = 0.49630
+  |   n_accel = min(|-90.223|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49630^2 * 0.5 = 0.123156
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.123156 + 0.200000 + 0.000000 + 0.000000
+  |      = 0.323156
+  | FINAL AI Score = min(0.323156 * 100, 100) = 32.316
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_14 --+
+  | RAW      speed=67.27 km/h  accel=-90.255 m/s2  prox=209.18 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(67.27/150, 1.0)     = 0.44844
+  |   n_accel = min(|-90.255|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.44844^2 * 0.5 = 0.100548
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.100548 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.453726
+  | FINAL AI Score = min(0.453726 * 100, 100) = 45.373
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_2 --+
+  | RAW      speed=85.93 km/h  accel=-51.567 m/s2  prox=81.43 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.93/150, 1.0)     = 0.57289
+  |   n_accel = min(|-51.567|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57289^2 * 0.5 = 0.164100
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.164100 + 0.200000 + 0.000000 + 0.000000
+  |      = 0.364100
+  | FINAL AI Score = min(0.364100 * 100, 100) = 36.410
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_3 --+
+  | RAW      speed=78.08 km/h  accel=-64.089 m/s2  prox=180.29 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(78.08/150, 1.0)     = 0.52052
+  |   n_accel = min(|-64.089|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.52052^2 * 0.5 = 0.135472
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.135472 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.488650
+  | FINAL AI Score = min(0.488650 * 100, 100) = 48.865
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_4 --+
+  | RAW      speed=63.74 km/h  accel=-72.211 m/s2  prox=161.33 m  wave=1.4664 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(63.74/150, 1.0)     = 0.42496
+  |   n_accel = min(|-72.211|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.4664/1.5, 1.0)   = 0.97762
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.42496^2 * 0.5 = 0.090295
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.97762   * 0.4 = 0.391046
+  | SUM  = 0.090295 + 0.200000 + 0.000000 + 0.391046
+  |      = 0.681342
+  | FINAL AI Score = min(0.681342 * 100, 100) = 68.134
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_5 --+
+  | RAW      speed=79.66 km/h  accel=-77.862 m/s2  prox=120.73 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.66/150, 1.0)     = 0.53104
+  |   n_accel = min(|-77.862|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53104^2 * 0.5 = 0.141000
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.141000 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.494178
+  | FINAL AI Score = min(0.494178 * 100, 100) = 49.418
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_6 --+
+  | RAW      speed=76.62 km/h  accel=-52.472 m/s2  prox=230.10 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.62/150, 1.0)     = 0.51080
+  |   n_accel = min(|-52.472|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51080^2 * 0.5 = 0.130460
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.130460 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.483638
+  | FINAL AI Score = min(0.483638 * 100, 100) = 48.364
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_7 --+
+  | RAW      speed=69.26 km/h  accel=-88.670 m/s2  prox=339.29 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(69.26/150, 1.0)     = 0.46175
+  |   n_accel = min(|-88.670|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.46175^2 * 0.5 = 0.106606
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.106606 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.459784
+  | FINAL AI Score = min(0.459784 * 100, 100) = 45.978
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_8 --+
+  | RAW      speed=74.42 km/h  accel=-50.040 m/s2  prox=90.18 m  wave=1.1488 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.42/150, 1.0)     = 0.49610
+  |   n_accel = min(|-50.040|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.1488/1.5, 1.0)   = 0.76589
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49610^2 * 0.5 = 0.123060
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.76589   * 0.4 = 0.306356
+  | SUM  = 0.123060 + 0.200000 + 0.000000 + 0.306356
+  |      = 0.629416
+  | FINAL AI Score = min(0.629416 * 100, 100) = 62.942
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_9 --+
+  | RAW      speed=76.86 km/h  accel=-85.657 m/s2  prox=40.64 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.86/150, 1.0)     = 0.51242
+  |   n_accel = min(|-85.657|/5.0, 1.0) = 1.00000
+  |   n_prox  = 1 - 40.64/50           = 0.18727  (closer = riskier)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51242^2 * 0.5 = 0.131288
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.18727^2 * 0.8 = 0.028056
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.131288 + 0.200000 + 0.028056 + 0.153178
+  |      = 0.512522
+  | FINAL AI Score = min(0.512522 * 100, 100) = 51.252
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 4 SUMMARY:  reward= 251.00  NPC_obs=1774  avg_AI=44.5  C:819  N:774  A:181
+
+--- EPOCH 5/5 ---
+
+  +-- npc_0 --+
+  | RAW      speed=82.05 km/h  accel=-28.077 m/s2  prox=119.35 m  wave=1.2666 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(82.05/150, 1.0)     = 0.54697
+  |   n_accel = min(|-28.077|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.2666/1.5, 1.0)   = 0.84440
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.54697^2 * 0.5 = 0.149588
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.84440   * 0.4 = 0.337759
+  | SUM  = 0.149588 + 0.200000 + 0.000000 + 0.337759
+  |      = 0.687347
+  | FINAL AI Score = min(0.687347 * 100, 100) = 68.735
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_1 --+
+  | RAW      speed=71.39 km/h  accel=-101.529 m/s2  prox=30.65 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(71.39/150, 1.0)     = 0.47592
+  |   n_accel = min(|-101.529|/5.0, 1.0) = 1.00000
+  |   n_prox  = 1 - 30.65/50           = 0.38690  (closer = riskier)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.47592^2 * 0.5 = 0.113248
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.38690^2 * 0.8 = 0.119755
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.113248 + 0.200000 + 0.119755 + 0.153178
+  |      = 0.586182
+  | FINAL AI Score = min(0.586182 * 100, 100) = 58.618
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_10 --+
+  | RAW      speed=72.72 km/h  accel=-97.523 m/s2  prox=159.72 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(72.72/150, 1.0)     = 0.48482
+  |   n_accel = min(|-97.523|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.48482^2 * 0.5 = 0.117527
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.117527 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.470705
+  | FINAL AI Score = min(0.470705 * 100, 100) = 47.070
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_11 --+
+  | RAW      speed=79.79 km/h  accel=-77.742 m/s2  prox=280.49 m  wave=1.4151 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.79/150, 1.0)     = 0.53195
+  |   n_accel = min(|-77.742|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(1.4151/1.5, 1.0)   = 0.94340
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53195^2 * 0.5 = 0.141487
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.94340   * 0.4 = 0.377358
+  | SUM  = 0.141487 + 0.200000 + 0.000000 + 0.377358
+  |      = 0.718845
+  | FINAL AI Score = min(0.718845 * 100, 100) = 71.885
+  +-- LABEL: [Aggressive]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_12 --+
+  | RAW      speed=85.72 km/h  accel=-61.144 m/s2  prox=69.19 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.72/150, 1.0)     = 0.57145
+  |   n_accel = min(|-61.144|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57145^2 * 0.5 = 0.163279
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.163279 + 0.200000 + 0.000000 + 0.000000
+  |      = 0.363279
+  | FINAL AI Score = min(0.363279 * 100, 100) = 36.328
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_13 --+
+  | RAW      speed=74.44 km/h  accel=-89.862 m/s2  prox=60.21 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.44/150, 1.0)     = 0.49630
+  |   n_accel = min(|-89.862|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49630^2 * 0.5 = 0.123156
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.123156 + 0.200000 + 0.000000 + 0.000000
+  |      = 0.323156
+  | FINAL AI Score = min(0.323156 * 100, 100) = 32.316
+  +-- LABEL: [Conservative]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_14 --+
+  | RAW      speed=67.27 km/h  accel=-90.077 m/s2  prox=209.18 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(67.27/150, 1.0)     = 0.44844
+  |   n_accel = min(|-90.077|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.44844^2 * 0.5 = 0.100548
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.100548 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.453726
+  | FINAL AI Score = min(0.453726 * 100, 100) = 45.373
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_2 --+
+  | RAW      speed=85.93 km/h  accel=-53.729 m/s2  prox=81.43 m  wave=0.0000 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(85.93/150, 1.0)     = 0.57289
+  |   n_accel = min(|-53.729|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.0000/1.5, 1.0)   = 0.00000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.57289^2 * 0.5 = 0.164100
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.00000   * 0.4 = 0.000000
+  | SUM  = 0.164100 + 0.200000 + 0.000000 + 0.000000
+  |      = 0.364100
+  | FINAL AI Score = min(0.364100 * 100, 100) = 36.410
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_3 --+
+  | RAW      speed=78.08 km/h  accel=-65.070 m/s2  prox=180.29 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(78.08/150, 1.0)     = 0.52052
+  |   n_accel = min(|-65.070|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.52052^2 * 0.5 = 0.135472
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.135472 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.488650
+  | FINAL AI Score = min(0.488650 * 100, 100) = 48.865
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_4 --+
+  | RAW      speed=63.74 km/h  accel=-71.921 m/s2  prox=161.33 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(63.74/150, 1.0)     = 0.42496
+  |   n_accel = min(|-71.921|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.42496^2 * 0.5 = 0.090295
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.090295 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.443473
+  | FINAL AI Score = min(0.443473 * 100, 100) = 44.347
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_5 --+
+  | RAW      speed=79.66 km/h  accel=-77.712 m/s2  prox=120.73 m  wave=0.9600 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(79.66/150, 1.0)     = 0.53104
+  |   n_accel = min(|-77.712|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.9600/1.5, 1.0)   = 0.64000
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.53104^2 * 0.5 = 0.141000
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.64000   * 0.4 = 0.256000
+  | SUM  = 0.141000 + 0.200000 + 0.000000 + 0.256000
+  |      = 0.597000
+  | FINAL AI Score = min(0.597000 * 100, 100) = 59.700
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_6 --+
+  | RAW      speed=76.62 km/h  accel=-52.109 m/s2  prox=230.10 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.62/150, 1.0)     = 0.51080
+  |   n_accel = min(|-52.109|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51080^2 * 0.5 = 0.130460
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.130460 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.483638
+  | FINAL AI Score = min(0.483638 * 100, 100) = 48.364
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_7 --+
+  | RAW      speed=69.26 km/h  accel=-87.973 m/s2  prox=339.29 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(69.26/150, 1.0)     = 0.46175
+  |   n_accel = min(|-87.973|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.46175^2 * 0.5 = 0.106606
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.106606 + 0.200000 + 0.000000 + 0.153178
+  |      = 0.459784
+  | FINAL AI Score = min(0.459784 * 100, 100) = 45.978
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_8 --+
+  | RAW      speed=74.42 km/h  accel=-50.077 m/s2  prox=90.18 m  wave=0.7982 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(74.42/150, 1.0)     = 0.49610
+  |   n_accel = min(|-50.077|/5.0, 1.0) = 1.00000
+  |   n_prox  = 0.00000  (outside 50 m window)
+  |   n_wave  = min(0.7982/1.5, 1.0)   = 0.53215
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.49610^2 * 0.5 = 0.123060
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.00000^2 * 0.8 = 0.000000
+  |   n_wave   * w_wave   = 0.53215   * 0.4 = 0.212859
+  | SUM  = 0.123060 + 0.200000 + 0.000000 + 0.212859
+  |      = 0.535919
+  | FINAL AI Score = min(0.535919 * 100, 100) = 53.592
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  +-- npc_9 --+
+  | RAW      speed=76.86 km/h  accel=-86.361 m/s2  prox=40.64 m  wave=0.5744 m
+  | NORMALISE  (model.py normalize)
+  |   n_speed = min(76.86/150, 1.0)     = 0.51242
+  |   n_accel = min(|-86.361|/5.0, 1.0) = 1.00000
+  |   n_prox  = 1 - 40.64/50           = 0.18727  (closer = riskier)
+  |   n_wave  = min(0.5744/1.5, 1.0)   = 0.38295
+  | WEIGHTS from model.py:  w_speed=0.5  w_accel=0.2  w_prox=0.8  w_wave=0.4
+  | SCORE TERMS  (model.py get_ai_score)
+  |   n_speed^2 * w_speed = 0.51242^2 * 0.5 = 0.131288
+  |   n_accel  * w_accel  = 1.00000   * 0.2 = 0.200000
+  |   n_prox^2 * w_prox   = 0.18727^2 * 0.8 = 0.028056
+  |   n_wave   * w_wave   = 0.38295   * 0.4 = 0.153178
+  | SUM  = 0.131288 + 0.200000 + 0.028056 + 0.153178
+  |      = 0.512522
+  | FINAL AI Score = min(0.512522 * 100, 100) = 51.252
+  +-- LABEL: [Normal]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+
+
+  Epoch 5 SUMMARY:  reward= 101.50  NPC_obs=1792  avg_AI=46.5  C:788  N:799  A:205
+
+[Highway] Saved 8924 rows -> C:\Users\hadis\Desktop\AUB\E2\SPRING 25-26\VIP 201A\presentation\sumo_highway_npc_aggressiveness.csv
