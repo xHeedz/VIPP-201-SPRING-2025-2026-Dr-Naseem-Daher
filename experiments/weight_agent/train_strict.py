@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from paths import DATA_DIR, FIG_DIR
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -12,7 +16,7 @@ TRUE_W_HW = np.array([0.60, 0.25, 0.10, 0.05])
 TRUE_W_UR = np.array([0.10, 0.50, 0.30, 0.10])
 TRUE_W_WE = np.array([0.25, 0.25, 0.25, 0.25])
 
-def generate_strict_data(filename="strict_telemetry.csv"):
+def generate_strict_data(filename=os.path.join(DATA_DIR, "strict_telemetry.csv")):
     np.random.seed(42)
     data = []
     
@@ -53,7 +57,7 @@ class DynamicWeightAgent(nn.Module):
 agent = DynamicWeightAgent()
 # Increased learning rate and epochs to ensure it reaches the exact target
 optimizer = optim.Adam(agent.parameters(), lr=0.2) 
-df = pd.read_csv("strict_telemetry.csv")
+df = pd.read_csv(os.path.join(DATA_DIR, "strict_telemetry.csv"))
 epochs = 80
 
 history = {"loss": [], "highway": {0:[], 1:[], 2:[], 3:[]}, "urban": {0:[], 1:[], 2:[], 3:[]}, "weather": {0:[], 1:[], 2:[], 3:[]}}
@@ -115,6 +119,6 @@ for i in range(4):
 axs[1, 1].set_title("Weather: Target is [0.25, 0.25, 0.25, 0.25]"); axs[1, 1].legend(); axs[1, 1].grid(True, alpha=0.3)
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-plt.savefig("ultimate_proof.png")
-print("\n[SYSTEM] Check 'ultimate_proof.png'.")
+plt.savefig(os.path.join(FIG_DIR, "weight_convergence_strict.png"))
+print("\n[SYSTEM] Check 'weight_convergence_strict.png'.")
 plt.show()

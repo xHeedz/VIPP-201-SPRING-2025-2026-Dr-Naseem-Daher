@@ -5,6 +5,10 @@ Outputs:
   - sumo_highway_npc_aggressiveness.csv
   - quick_run_log.txt   (captured stdout with all hand-calc traces)
 """
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import DATA_DIR, LOG_DIR, sumo_binary_name
 import os, sys, io, contextlib
 
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -30,7 +34,7 @@ def patch_and_run(module_name, epochs=5):
         EGO_ID    = mod.EGO_ID
 
         use_gui  = False
-        binary   = "sumo.exe"
+        binary   = sumo_binary_name()
         sumo_bin = os.path.join(SUMO_HOME, "bin", binary)
         sumo_cmd = [sumo_bin, "-c", CFG_PATH]
 
@@ -100,20 +104,20 @@ def patch_and_run(module_name, epochs=5):
 
         _traci.close()
 
-        csv_name = f"sumo_npc_aggressiveness.csv" if "urban" in module_name else "sumo_highway_npc_aggressiveness.csv"
-        npc_collector.save_csv(csv_name)
+        csv_name = "sumo_npc_aggressiveness.csv" if "urban" in module_name else "sumo_highway_npc_aggressiveness.csv"
+        npc_collector.save_csv(os.path.join(DATA_DIR, csv_name))
 
         import pandas as _pd
         df = _pd.DataFrame(history, columns=["Epoch", "Reward"])
         hist_name = "sumo_intersection_history.csv" if "urban" in module_name else "sumo_highway_history.csv"
-        df.to_csv(hist_name, index=False)
+        df.to_csv(os.path.join(DATA_DIR, hist_name), index=False)
         print(f"[{module_name}] Done.\n")
 
     return patched_train
 
 
 if __name__ == "__main__":
-    log_path = os.path.join(BASE, "quick_run_log.txt")
+    log_path = os.path.join(LOG_DIR, "quick_run_log.txt")
     print(f"Writing all output to {log_path}  (also echoed to console)\n")
 
     class Tee:

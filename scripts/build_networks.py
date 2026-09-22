@@ -4,6 +4,8 @@ Requires SUMO to be installed with netconvert in PATH (or SUMO_HOME set).
 """
 import os
 import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import SUMO_DIR
 import subprocess
 from shutil import which
 
@@ -31,7 +33,7 @@ def find_netconvert():
 
 def build(name, folder, extra_flags=None):
     nc = find_netconvert()
-    d = os.path.join(BASE, "sumo", folder)
+    d = os.path.join(SUMO_DIR, folder)
     cmd = [
         nc,
         "--node-files",       os.path.join(d, f"{name}.nod.xml"),
@@ -47,7 +49,7 @@ def build(name, folder, extra_flags=None):
     if result.returncode != 0:
         print(result.stderr)
         sys.exit(1)
-    print(f"  -> sumo/{folder}/{name}.net.xml created.")
+    print(f"  -> env/sumo_scenarios/{folder}/{name}.net.xml created.")
 
 
 if __name__ == "__main__":
@@ -57,7 +59,7 @@ if __name__ == "__main__":
         "intersection",
         extra_flags=[
             "--connection-files",
-            os.path.join(BASE, "sumo", "intersection", "intersection.con.xml"),
+            os.path.join(SUMO_DIR, "intersection", "intersection.con.xml"),
         ],
     )
     print("\nAll networks built. You can now run sumo_highway_agent.py and sumo_urban_agent.py.")

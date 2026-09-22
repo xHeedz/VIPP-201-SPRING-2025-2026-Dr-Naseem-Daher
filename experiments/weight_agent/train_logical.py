@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from paths import DATA_DIR, FIG_DIR
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,7 +12,7 @@ import matplotlib.pyplot as plt
 import os
 
 # --- 1. THE FIX: MEANINGFUL SYNTHETIC DATA ---
-def generate_logical_data(filename="logical_telemetry.csv"):
+def generate_logical_data(filename=os.path.join(DATA_DIR, "logical_telemetry.csv")):
     """
     Instead of random targets, we establish SECRET RULES. 
     If the agent works, it will discover these exact weights.
@@ -62,7 +66,7 @@ class DynamicWeightAgent(nn.Module):
 agent = DynamicWeightAgent()
 # TUNING: Lowered learning rate slightly for smoother, predictable convergence
 optimizer = optim.Adam(agent.parameters(), lr=0.05) 
-df = pd.read_csv("logical_telemetry.csv")
+df = pd.read_csv(os.path.join(DATA_DIR, "logical_telemetry.csv"))
 
 epochs = 15
 history = {"loss": [], "highway": {0:[], 1:[], 2:[], 3:[]}, "urban": {0:[], 1:[], 2:[], 3:[]}, "weather": {0:[], 1:[], 2:[], 3:[]}}
@@ -122,6 +126,6 @@ axs[1, 1].set_title("Weather Weights (Target: All exactly 0.25)")
 axs[1, 1].legend(); axs[1, 1].grid(True, alpha=0.3)
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-plt.savefig("tuned_agent_results.png")
-print("\n[SYSTEM] Done! Check 'tuned_agent_results.png'")
+plt.savefig(os.path.join(FIG_DIR, "weight_agent_logical_results.png"))
+print("\n[SYSTEM] Done! Check 'weight_agent_logical_results.png'")
 plt.show()

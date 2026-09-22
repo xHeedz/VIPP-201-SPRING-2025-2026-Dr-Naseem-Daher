@@ -5,6 +5,10 @@ Builds a PowerPoint presentation comparing hand-calculated aggressiveness scores
 against model.py output for SUMO NPC vehicles.
 Outputs: aggressiveness_validation.pptx
 """
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import DATA_DIR, FIG_DIR, SLIDES_DIR
 import os, sys
 import numpy as np
 import pandas as pd
@@ -214,8 +218,8 @@ def make_dist_chart(df, title, out_path, subtitle=""):
 
 def make_comparison_chart(out_path):
     """Scatter: prox_m vs ai_score coloured by label."""
-    df  = pd.read_csv(os.path.join(BASE, "sumo_npc_aggressiveness.csv"))
-    df2 = pd.read_csv(os.path.join(BASE, "sumo_highway_npc_aggressiveness.csv"))
+    df  = pd.read_csv(os.path.join(DATA_DIR, "sumo_npc_aggressiveness.csv"))
+    df2 = pd.read_csv(os.path.join(DATA_DIR, "sumo_highway_npc_aggressiveness.csv"))
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.5), facecolor="#0D1B2A")
     palette = {"Conservative": "#27AE60", "Normal": "#F39C12", "Aggressive": "#E74C3C"}
@@ -305,13 +309,13 @@ def make_formula_diagram(out_path):
 # Generate charts
 # ----------------------------------------------------------------
 print("Generating charts...")
-df_int = pd.read_csv(os.path.join(BASE, "sumo_npc_aggressiveness.csv"))
-df_hw  = pd.read_csv(os.path.join(BASE, "sumo_highway_npc_aggressiveness.csv"))
+df_int = pd.read_csv(os.path.join(DATA_DIR, "sumo_npc_aggressiveness.csv"))
+df_hw  = pd.read_csv(os.path.join(DATA_DIR, "sumo_highway_npc_aggressiveness.csv"))
 
-CHART_INT   = os.path.join(BASE, "ppt_chart_intersection.png")
-CHART_HW    = os.path.join(BASE, "ppt_chart_highway.png")
-CHART_SCAT  = os.path.join(BASE, "ppt_chart_scatter.png")
-CHART_FORM  = os.path.join(BASE, "ppt_chart_formula.png")
+CHART_INT   = os.path.join(FIG_DIR, "ppt_chart_intersection.png")
+CHART_HW    = os.path.join(FIG_DIR, "ppt_chart_highway.png")
+CHART_SCAT  = os.path.join(FIG_DIR, "ppt_chart_scatter.png")
+CHART_FORM  = os.path.join(FIG_DIR, "ppt_chart_formula.png")
 
 make_dist_chart(df_int, "Intersection NPC Aggressiveness",
                 CHART_INT, f"Total: {len(df_int):,} observations across 5 epochs")
@@ -703,7 +707,7 @@ add_text(slide, "Slide 10 of 10", 11.5, 7.15, 1.8, 0.35,
 # ================================================================
 # Save
 # ================================================================
-out_path = os.path.join(BASE, "aggressiveness_validation.pptx")
+out_path = os.path.join(SLIDES_DIR, "aggressiveness_validation.pptx")
 prs.save(out_path)
 print(f"\n[DONE] Saved -> {out_path}")
 print(f"  10 slides")

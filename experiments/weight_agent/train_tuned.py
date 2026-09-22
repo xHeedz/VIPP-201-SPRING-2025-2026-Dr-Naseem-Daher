@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from paths import DATA_DIR, FIG_DIR
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,7 +12,7 @@ import matplotlib.pyplot as plt
 import os
 
 # 1. DATASET (Adding slight correlations so the agent actually has something to learn)
-def generate_synthetic_data(filename="telemetry_data.csv"):
+def generate_synthetic_data(filename=os.path.join(DATA_DIR, "telemetry_data.csv")):
     np.random.seed(42)
     data = []
     for _ in range(1000):
@@ -25,7 +29,7 @@ def generate_synthetic_data(filename="telemetry_data.csv"):
     df = pd.DataFrame(data, columns=['environment', 'metric_1', 'metric_2', 'metric_3', 'metric_4', 'ground_truth'])
     df.to_csv(filename, index=False)
 
-if not os.path.exists("telemetry_data.csv"):
+if not os.path.exists(os.path.join(DATA_DIR, "telemetry_data.csv")):
     generate_synthetic_data()
 
 # 2. THE TUNED AGENT
@@ -55,7 +59,7 @@ optimizer = optim.Adam(agent.parameters(), lr=0.1)
 # TUNE 2: Add a Learning Rate Scheduler. Every 5 epochs, cut the learning rate by half.
 scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
 
-df = pd.read_csv("telemetry_data.csv")
+df = pd.read_csv(os.path.join(DATA_DIR, "telemetry_data.csv"))
 epochs = 20
 
 history = {"loss": [], "highway": {0:[], 1:[], 2:[], 3:[]}, "urban": {0:[], 1:[], 2:[], 3:[]}, "weather": {0:[], 1:[], 2:[], 3:[]}}
@@ -116,6 +120,6 @@ for i in range(4): axs[1, 1].plot(range(1, epochs+1), history["weather"][i], lab
 axs[1, 1].set_title("Weather Weights"); axs[1, 1].legend(); axs[1, 1].grid(True, alpha=0.3)
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-plt.savefig("tuned_agent_results.png")
+plt.savefig(os.path.join(FIG_DIR, "tuned_agent_results.png"))
 print("\n[SYSTEM] Check 'tuned_agent_results.png' - Notice how smooth the lines are now!")
 plt.show()

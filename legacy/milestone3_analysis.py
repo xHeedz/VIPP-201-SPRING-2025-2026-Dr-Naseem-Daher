@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import DATA_DIR, FIG_DIR
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -5,7 +9,7 @@ import numpy as np
 def plot_correlation():
     print("Loading dataset...")
     try:
-        df = pd.read_csv("driving_behaviors_dataset.csv")
+        df = pd.read_csv(os.path.join(DATA_DIR, "driving_behaviors_dataset.csv"))
     except FileNotFoundError:
         print("❌ Error: 'driving_behaviors_dataset.csv' not found.")
         print("Make sure you run data_collector.py first to generate the data!")
@@ -55,7 +59,7 @@ def plot_correlation():
     plt.grid(True, linestyle='--', alpha=0.5)
     
     # 6. Save and Show
-    output_filename = "waviness_vs_ai_correlation.png"
+    output_filename = os.path.join(FIG_DIR, "waviness_vs_ai_correlation.png")
     plt.savefig(output_filename, dpi=300, bbox_inches='tight')
     print(f"✅ Success! Plot saved as '{output_filename}' ready for your report.")
     

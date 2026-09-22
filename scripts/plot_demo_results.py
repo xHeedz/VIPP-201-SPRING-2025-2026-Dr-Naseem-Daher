@@ -1,10 +1,14 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import DATA_DIR, FIG_DIR
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
 def show_results():
     try:
-        df = pd.read_csv("demo_data.csv")
+        df = pd.read_csv(os.path.join(DATA_DIR, "demo_data.csv"))
     except:
         print("Error: Run simulator.py first!")
         return
@@ -21,7 +25,7 @@ def show_results():
     plt.ylabel("Computed AI Score (0-100)", fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.5)
     
-    plt.savefig("results_graph.png")
+    plt.savefig(os.path.join(FIG_DIR, "results_graph.png"))
     print("--- Graph saved as results_graph.png ---")
     plt.show()
 

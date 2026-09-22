@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from paths import DATA_DIR, FIG_DIR
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,7 +12,7 @@ import matplotlib.pyplot as plt
 import os
 
 # --- 1. DATA GENERATION (from your original code) ---
-def generate_synthetic_data(filename="telemetry_data.csv"):
+def generate_synthetic_data(filename=os.path.join(DATA_DIR, "telemetry_data.csv")):
     np.random.seed(42)
     data = []
     # Creating obvious patterns so we can visually confirm the agent finds them
@@ -23,7 +27,7 @@ def generate_synthetic_data(filename="telemetry_data.csv"):
     df = pd.DataFrame(data, columns=['environment', 'metric_1', 'metric_2', 'metric_3', 'metric_4', 'ground_truth'])
     df.to_csv(filename, index=False)
 
-if not os.path.exists("telemetry_data.csv"):
+if not os.path.exists(os.path.join(DATA_DIR, "telemetry_data.csv")):
     generate_synthetic_data()
 
 # --- 2. AGENT DEFINITION ---
@@ -47,7 +51,7 @@ class DynamicWeightAgent(nn.Module):
 # --- 3. TRAINING & TRACKING LOGIC ---
 agent = DynamicWeightAgent()
 optimizer = optim.Adam(agent.parameters(), lr=0.01)
-df = pd.read_csv("telemetry_data.csv")
+df = pd.read_csv(os.path.join(DATA_DIR, "telemetry_data.csv"))
 
 epochs = 15
 history = {
@@ -129,6 +133,6 @@ axs[1, 1].legend()
 axs[1, 1].grid(True, alpha=0.3)
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-plt.savefig("agent_verification_dashboard.png")
+plt.savefig(os.path.join(FIG_DIR, "agent_verification_dashboard.png"))
 print("\n[SYSTEM] Dashboard saved as 'agent_verification_dashboard.png'. Displaying now...")
 plt.show()

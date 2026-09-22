@@ -9,6 +9,10 @@ Outputs:
   sumo_npc_aggressiveness.csv             - intersection NPC data
   sumo_highway_npc_aggressiveness.csv     - highway NPC data
 """
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import DATA_DIR, LOG_DIR, SUMO_DIR, sumo_binary_name
 import os, sys
 import numpy as np
 import pandas as pd
@@ -137,9 +141,9 @@ def run_intersection():
     import torch
     import torch.optim as optim
 
-    CFG = os.path.join(BASE, "sumo", "intersection", "intersection.sumocfg")
+    CFG = os.path.join(SUMO_DIR, "intersection", "intersection.sumocfg")
     EGO = "ego"
-    BIN = os.path.join(SUMO_HOME, "bin", "sumo.exe")
+    BIN = os.path.join(SUMO_HOME, "bin", sumo_binary_name())
 
     traci.start([BIN, "-c", CFG])
 
@@ -238,10 +242,10 @@ def run_intersection():
               f"A:{cats.count('Aggressive')}")
 
     traci.close()
-    out = os.path.join(BASE, "sumo_npc_aggressiveness.csv")
+    out = os.path.join(DATA_DIR, "sumo_npc_aggressiveness.csv")
     df  = collector.save(out)
     pd.DataFrame(history, columns=["Epoch", "Reward"]).to_csv(
-        os.path.join(BASE, "sumo_intersection_history.csv"), index=False)
+        os.path.join(DATA_DIR, "sumo_intersection_history.csv"), index=False)
     print(f"\n[Intersection] Saved {len(df)} rows -> {out}")
     return df
 
@@ -256,9 +260,9 @@ def run_highway():
     import torch
     import torch.optim as optim
 
-    CFG = os.path.join(BASE, "sumo", "highway", "highway.sumocfg")
+    CFG = os.path.join(SUMO_DIR, "highway", "highway.sumocfg")
     EGO = "ego"
-    BIN = os.path.join(SUMO_HOME, "bin", "sumo.exe")
+    BIN = os.path.join(SUMO_HOME, "bin", sumo_binary_name())
 
     traci.start([BIN, "-c", CFG])
 
@@ -358,10 +362,10 @@ def run_highway():
               f"A:{cats.count('Aggressive')}")
 
     traci.close()
-    out = os.path.join(BASE, "sumo_highway_npc_aggressiveness.csv")
+    out = os.path.join(DATA_DIR, "sumo_highway_npc_aggressiveness.csv")
     df  = collector.save(out)
     pd.DataFrame(history, columns=["Epoch", "Reward"]).to_csv(
-        os.path.join(BASE, "sumo_highway_history.csv"), index=False)
+        os.path.join(DATA_DIR, "sumo_highway_history.csv"), index=False)
     print(f"\n[Highway] Saved {len(df)} rows -> {out}")
     return df
 
@@ -370,7 +374,7 @@ def run_highway():
 # Main
 # ----------------------------------------------------------------
 if __name__ == "__main__":
-    log_path = os.path.join(BASE, "quick_run_log.txt")
+    log_path = os.path.join(LOG_DIR, "quick_run_log.txt")
 
     class Tee:
         def __init__(self, f):

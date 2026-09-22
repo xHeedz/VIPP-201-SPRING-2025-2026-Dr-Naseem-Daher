@@ -1,15 +1,17 @@
 """
 SUMO Highway RL Agent with NPC Aggressiveness Data Collection
-Ports rl_agent_26.py from highway-env to SUMO TraCI.
+Ports scripts/highway_env/rl_agent_tuned.py from highway-env to SUMO TraCI.
 
 Usage:
-    python sumo_highway_agent.py           # GUI mode with visualization (default)
-    python sumo_highway_agent.py --no-gui  # headless / fast batch training
+    python scripts/sumo_highway_agent.py           # GUI mode with visualization (default)
+    python scripts/sumo_highway_agent.py --no-gui  # headless / fast batch training
 
-Run build_networks.py first to generate highway.net.xml.
+Run scripts/build_networks.py first to generate highway.net.xml.
 """
 import os
 import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import DATA_DIR, FIG_DIR, SUMO_DIR, sumo_binary_name
 import numpy as np
 import torch
 import torch.nn as nn
@@ -37,7 +39,7 @@ sys.path.append(os.path.join(SUMO_HOME, "tools"))
 import traci
 
 BASE     = os.path.dirname(os.path.abspath(__file__))
-CFG_PATH = os.path.join(BASE, "sumo", "highway", "highway.sumocfg")
+CFG_PATH = os.path.join(SUMO_DIR, "highway", "highway.sumocfg")
 EGO_ID   = "ego"
 
 POLICY_FREQ = 4     # 0.1 s × 4 = 0.4 s between decisions (~5 Hz)
@@ -166,7 +168,7 @@ class NPCDataCollector:
               f"A:{cats.count('Aggressive'):3d}")
 
     # ----------------------------------------------------------
-    def save_csv(self, filename="sumo_npc_aggressiveness.csv"):
+    def save_csv(self, filename=os.path.join(DATA_DIR, "sumo_npc_aggressiveness.csv")):
         if not self.records:
             return
         df = pd.DataFrame(self.records)
@@ -180,7 +182,7 @@ class NPCDataCollector:
 
 
 # ============================================================
-# AI BRAIN  (4 inputs, 5 actions — mirrors rl_agent_26.py)
+# AI BRAIN  (4 inputs, 5 actions — mirrors rl_agent_tuned.py)
 # ============================================================
 class SmartDriverAI(nn.Module):
     def __init__(self):
@@ -343,7 +345,7 @@ def train():
     print("=" * 60)
 
     use_gui  = "--no-gui" not in sys.argv    # GUI is ON by default
-    binary   = "sumo-gui.exe" if use_gui else "sumo.exe"
+    binary   = sumo_binary_name(use_gui)
     sumo_bin = os.path.join(SUMO_HOME, "bin", binary)
 
     sumo_cmd = [sumo_bin, "-c", CFG_PATH]
@@ -424,10 +426,10 @@ def train():
 
     # ---- Save training history ----
     df_hist = pd.DataFrame(history, columns=["Epoch", "Reward"])
-    df_hist.to_csv("sumo_highway_history.csv", index=False)
+    df_hist.to_csv(os.path.join(DATA_DIR, "sumo_highway_history.csv"), index=False)
 
     # ---- Save NPC aggressiveness dataset (linked to model.py) ----
-    npc_collector.save_csv("sumo_highway_npc_aggressiveness.csv")
+    npc_collector.save_csv(os.path.join(DATA_DIR, "sumo_highway_npc_aggressiveness.csv"))
 
     # ---- Learning curve plot ----
     plt.figure(figsize=(10, 5))
@@ -440,10 +442,10 @@ def train():
     plt.legend()
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
-    plt.savefig("sumo_highway_curve.png")
+    plt.savefig(os.path.join(FIG_DIR, "sumo_highway_curve.png"))
 
     # ---- NPC aggressiveness distribution plot ----
-    df_npc = pd.read_csv("sumo_highway_npc_aggressiveness.csv")
+    df_npc = pd.read_csv(os.path.join(DATA_DIR, "sumo_highway_npc_aggressiveness.csv"))
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
     axes[0].hist(df_npc["ai_score"], bins=40, color="#3498db", edgecolor="white", alpha=0.85)
@@ -467,7 +469,7 @@ def train():
 
     plt.suptitle("Highway NPC Aggressiveness Data Collection", fontsize=13, y=1.02)
     plt.tight_layout()
-    plt.savefig("sumo_highway_npc_aggressiveness_plot.png")
+    plt.savefig(os.path.join(FIG_DIR, "sumo_highway_npc_aggressiveness_plot.png"))
 
     print("\n[SYSTEM] Done.")
     print("  sumo_highway_curve.png")

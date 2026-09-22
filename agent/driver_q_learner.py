@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import DATA_DIR, FIG_DIR
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -36,7 +40,7 @@ class DriverQLearner:
         plt.title("Q-Table: Behavioral Probability Mapping")
         plt.xlabel("Label (0:Cons, 1:Norm, 2:Aggr)")
         plt.ylabel("State (AI Score Bucket)")
-        plt.savefig("q_learning_heatmap.png")
+        plt.savefig(os.path.join(FIG_DIR, "q_learning_heatmap.png"))
         print("--- Heatmap saved as q_learning_heatmap.png ---")
 
         # Plot 2: Learning Curve (The Intelligence)
@@ -47,10 +51,10 @@ class DriverQLearner:
         plt.xlabel("Training Samples")
         plt.ylabel("Prediction Confidence")
         plt.grid(True, alpha=0.3)
-        plt.savefig("learning_curve.png")
+        plt.savefig(os.path.join(FIG_DIR, "learning_curve.png"))
         print("--- Learning Curve saved as learning_curve.png ---")
         plt.show()
 
 if __name__ == "__main__":
     learner = DriverQLearner()
-    learner.train_from_csv("demo_data.csv")
+    learner.train_from_csv(os.path.join(DATA_DIR, "demo_data.csv"))

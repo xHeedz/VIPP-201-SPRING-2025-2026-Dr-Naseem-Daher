@@ -1,5 +1,7 @@
-import sys
 import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import DATA_DIR
 
 # Ensure we can import modules from the test2 directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -91,7 +93,7 @@ def run_collection():
     
     # Save the deliverables
     df = pd.DataFrame(dataset)
-    output_path = os.path.join(SCRIPT_DIR, "driving_behaviors_dataset.csv")
+    output_path = os.path.join(DATA_DIR, "driving_behaviors_dataset.csv")
     df.to_csv(output_path, index=False)
     print("✅ Collection Complete! Saved to 'driving_behaviors_dataset.csv'")
     print(df.head())

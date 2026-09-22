@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from paths import DATA_DIR
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,7 +12,7 @@ import os
 
 
 # 1. CREATE A DUMMY CSV DATASET
-def generate_synthetic_data(filename="telemetry_data.csv"):
+def generate_synthetic_data(filename=os.path.join(DATA_DIR, "telemetry_data.csv")):
     np.random.seed(42)
     data = []
     
@@ -24,7 +28,7 @@ def generate_synthetic_data(filename="telemetry_data.csv"):
     df.to_csv(filename, index=False)
     print(f"[SYSTEM] Created synthetic dataset: {filename} with {len(df)} rows.\n")
 
-if not os.path.exists("telemetry_data.csv"):
+if not os.path.exists(os.path.join(DATA_DIR, "telemetry_data.csv")):
     generate_synthetic_data()
 
 
@@ -66,7 +70,7 @@ def print_weights(epoch, title=""):
 
 # 4. TRAIN DIRECTLY FROM CSV
 
-df = pd.read_csv("telemetry_data.csv")
+df = pd.read_csv(os.path.join(DATA_DIR, "telemetry_data.csv"))
 
 print_weights(0, "INITIAL RANDOM WEIGHTS")
 

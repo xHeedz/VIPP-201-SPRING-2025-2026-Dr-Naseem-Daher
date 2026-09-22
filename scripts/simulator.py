@@ -1,3 +1,7 @@
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from paths import DATA_DIR
 import gymnasium as gym
 import highway_env
 import pandas as pd
@@ -75,7 +79,7 @@ def run_demo():
             break
 
     env.close()
-    pd.DataFrame(dataset).to_csv("demo_data.csv", index=False)
+    pd.DataFrame(dataset).to_csv(os.path.join(DATA_DIR, "demo_data.csv"), index=False)
     print("--- Simulation Complete: Smooth Data Captured ---")
 
 if __name__ == "__main__":
