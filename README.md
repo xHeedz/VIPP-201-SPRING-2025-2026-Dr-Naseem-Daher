@@ -40,9 +40,12 @@ results/figures/        plots and charts
 results/videos/         simulation and dashboard recordings
 docs/                   final and progress reports, weekly and monthly reports, research notebook, bibliography, slides
 paths.py                shared folder locations used by every script
+what_was_missing/       components the reports describe but the project files lack, recreated by Claude in September 2026
 ```
 
 All scripts resolve paths through `paths.py`, so they can be launched from any working directory.
+
+`what_was_missing/` is self-contained, with its own tests and requirements. Nothing in it is original project code, and nothing in it produced any result in `docs/`; its README lists what each file recreates, what was verified, and what could not be recreated.
 
 ## setup
 

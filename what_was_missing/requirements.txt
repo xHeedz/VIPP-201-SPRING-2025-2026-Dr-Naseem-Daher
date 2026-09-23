@@ -1,0 +1,6 @@
+torch
+eclipse-sumo
+traci
+sumolib
+matplotlib
+pytest
