@@ -27,11 +27,12 @@ Accuracy is measured by scoring every vehicle twice. `GroundTruthAssessor` reads
 ## repository layout
 
 ```
-model/                  closed-form AI (AggressivenessModel) and the two-track assessors
+model/                  closed-form AI, calibrated AI, two-track assessors, noise models, shockwave factor
 agent/                  tabular Q-learner (DriverQLearner) and the shared reward function
 env/scenarios/          highway, urban and weather RL scenarios in highway-env
 env/sumo_scenarios/     SUMO networks and routes for the highway and intersection scenarios
-scripts/                entry points: SUMO agents, validation runner, data collection, plots
+datasets/               loaders for UAH-DriveSet and NGSIM
+scripts/                entry points: SUMO agents, validation runner, real-data training, experiments, plots
 scripts/highway_env/    PyTorch policy agents trained in highway-env
 experiments/            dynamic weight agent experiments on synthetic telemetry
 legacy/                 phase 1 scripts kept for reference
@@ -56,6 +57,29 @@ pip install -r requirements.txt
 ```
 
 The SUMO scripts need SUMO installed (tested with 1.26) and the `SUMO_HOME` environment variable pointing to the installation folder, since TraCI is loaded from `$SUMO_HOME/tools`.
+
+## real data
+
+UAH-DriveSet (labeled normal, aggressive and drowsy trips) calibrates the index; NGSIM (unlabeled US freeway and arterial trajectories) is scored and replayed in SUMO. Neither dataset is stored in the repository.
+
+```
+python scripts/train_uah.py --root /path/to/UAH-DRIVESET-v1                         # learn weights and thresholds, test on unseen drivers
+python scripts/score_ngsim.py --file /path/to/ngsim.csv --location us-101 --minutes 5 # index and shockwave factor for every real vehicle
+python scripts/ngsim_replay_sumo.py --file /path/to/ngsim.csv --location us-101 --minutes 2 --gui
+```
+
+`model/calibrated_index.py` keeps the structure of the closed-form index (same features, same normalization) and learns one weight vector and one aggressive threshold per road type from the labels. Once `data/calibrated_index.json` exists, `score_ngsim.py` uses it.
+
+## noise and shockwaves
+
+`model/noise.py` provides nine sensor error types (gaussian, bias, drift, colored, multiplicative, spikes, quantization, dropout, delay) that can be stacked per signal and passed to `SumoAgentAssessor(noise=...)`. Without that argument the original Gaussian noise is used.
+
+`model/shockwave.py` computes a shockwave factor per driver: how much braking and slowdown appears in the traffic behind it, minus what its own leader was already doing. It applies to aggressive and conservative drivers alike and works on SUMO telemetry and NGSIM trajectories.
+
+```
+python scripts/noise_robustness.py        # agreement with ground truth for every noise type and severity
+python scripts/shockwave_experiment.py    # 0 to 30 percent aggressive or conservative drivers at a lane drop
+```
 
 ## running
 

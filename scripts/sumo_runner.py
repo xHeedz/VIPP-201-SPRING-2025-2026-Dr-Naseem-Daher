@@ -368,7 +368,11 @@ class SumoAgentAssessor:
     SIGMA_GAP = 0.8    # m     lidar/radar range noise
     DT        = 1.0
 
-    def __init__(self, noise_scale=1.0, speed_ref=35.0, gap_ref=25.0, thresh_aggr=55):
+    def __init__(self, noise_scale=1.0, speed_ref=35.0, gap_ref=25.0, thresh_aggr=55,
+                 noise=None):
+        # noise: optional {signal: model} from model/noise.py (noise_suite). When
+        # omitted, the original Gaussian noise below is used unchanged.
+        self.noise       = noise
         self.ns          = noise_scale
         self.speed_ref   = speed_ref
         self.gap_ref     = gap_ref
@@ -379,19 +383,29 @@ class SumoAgentAssessor:
     def reset(self):
         self._spd.clear()
         self._yh.clear()
+        if self.noise:
+            for m in self.noise.values():
+                m.reset()
+
+    def _n(self, signal, value, vid, gaussian_sigma):
+        if self.noise:
+            return self.noise[signal](value, vid)
+        return value + np.random.normal(0, gaussian_sigma)
 
     def assess(self, vid):
         s = self.ns
 
-        speed_ms = max(0.0,
-            traci.vehicle.getSpeed(vid) + np.random.normal(0, self.SIGMA_VEL * s))
+        speed_ms = max(0.0, self._n("speed", traci.vehicle.getSpeed(vid), vid, self.SIGMA_VEL * s))
 
         hist = self._spd.setdefault(vid, deque(maxlen=5))
         if len(hist) >= 2:
             speeds = list(hist) + [speed_ms]
             t      = np.arange(len(speeds), dtype=float) * self.DT
             slope  = float(np.polyfit(t, speeds, 1)[0])
-            accel  = abs(slope) + abs(np.random.normal(0, self.SIGMA_ACC * s))
+            if self.noise:
+                accel = abs(self.noise["accel"](slope, vid))
+            else:
+                accel = abs(slope) + abs(np.random.normal(0, self.SIGMA_ACC * s))
         else:
             accel = 0.0
         hist.append(speed_ms)
@@ -399,14 +413,12 @@ class SumoAgentAssessor:
         # Noisy gap-to-leader (radar range measurement)
         leader = traci.vehicle.getLeader(vid, 150.0)
         if leader:
-            gap_m = max(0.0,
-                float(leader[1]) + np.random.normal(0, self.SIGMA_GAP * s))
+            gap_m = max(0.0, self._n("gap", float(leader[1]), vid, self.SIGMA_GAP * s))
         else:
             gap_m = 150.0
 
         # Waviness from noisy y-position history
-        veh_y = traci.vehicle.getPosition(vid)[1] + \
-                np.random.normal(0, self.SIGMA_GAP * s)
+        veh_y = self._n("lateral", traci.vehicle.getPosition(vid)[1], vid, self.SIGMA_GAP * s)
         yh = self._yh.setdefault(vid, deque(maxlen=5))
         yh.append(veh_y)
         if len(yh) >= 3:
@@ -426,13 +438,13 @@ class SumoAgentAssessor:
 
 def run_scenario(label, sumocfg, ego_id, n_steps=200,
                  noise_scale=1.0, friction=1.0,
-                 speed_ref=38.0, gap_ref=25.0, thresh_aggr=55):
+                 speed_ref=38.0, gap_ref=25.0, thresh_aggr=55, noise=None):
 
     gt    = SumoGroundTruth(speed_ref=speed_ref, gap_ref=gap_ref,
                              thresh_aggr=thresh_aggr)
     agent = SumoAgentAssessor(noise_scale=noise_scale,
                                speed_ref=speed_ref, gap_ref=gap_ref,
-                               thresh_aggr=thresh_aggr)
+                               thresh_aggr=thresh_aggr, noise=noise)
 
     gt_labels: list = []
     ag_labels: list = []
