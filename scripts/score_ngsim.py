@@ -1,9 +1,9 @@
 """
 Score real NGSIM traffic: Aggressiveness Index and shockwave factor for every
-vehicle, using the weights learned on UAH-DriveSet when available.
+vehicle, using the dynamic weight agent trained on UAH-DriveSet when available.
 
 NGSIM has no behavior labels, so nothing is trained here. The point is to see
-how the index trained on labeled data behaves on thousands of real drivers,
+how the dynamic weight agent trained on labeled data behaves on thousands of real drivers,
 and which drivers disturb the traffic behind them.
 
     python scripts/score_ngsim.py --file /path/to/ngsim.csv --location us-101 --minutes 5
@@ -20,31 +20,32 @@ import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from paths import DATA_DIR, FIG_DIR  # noqa: E402
-from datasets.ngsim import context_for, read_raw, trajectories  # noqa: E402
-from model.calibrated_index import CalibratedIndex, original_ai, phi  # noqa: E402
+from datasets.ngsim import environment_for, read_raw, trajectories  # noqa: E402
+from model.aggressiveness_model import index_features, original_score  # noqa: E402
+from model.dynamic_weight_agent import DynamicWeightAgent  # noqa: E402
 from model.shockwave import shockwave_factor  # noqa: E402
 
 
-def main(path, location, minutes, context=None):
+def main(path, location, minutes, environment=None):
     traj = trajectories(read_raw(path, location, minutes))
-    ctx = context or context_for(location)
-    f = phi(traj["speed"] * 3.6, traj["accel"], traj["gap"], traj["wave"])
-    traj["ai_original"] = original_ai(f)
-    cal_path = os.path.join(DATA_DIR, "calibrated_index.json")
-    calibrated = os.path.exists(cal_path)
-    if calibrated:
-        model = CalibratedIndex.load(cal_path)
-        traj["ai_calibrated"] = model.ai(f, ctx)
+    env = environment or environment_for(location)
+    f = index_features(traj["speed"] * 3.6, traj["accel"], traj["gap"], traj["wave"])
+    traj["ai_original"] = original_score(f)
+    agent_path = os.path.join(DATA_DIR, "dynamic_weight_agent.json")
+    trained = os.path.exists(agent_path)
+    if trained:
+        agent = DynamicWeightAgent.load(agent_path)
+        traj["ai_agent"] = agent.ai(f, env)
     one_hz = traj[np.isclose(traj["t"] % 1.0, 0.0, atol=0.05)]      # SF at 1 Hz keeps it fast
     sf = shockwave_factor(one_hz[["t", "vehicle_id", "lane", "pos", "speed", "accel"]])
-    cols = ["ai_original"] + (["ai_calibrated"] if calibrated else [])
+    cols = ["ai_original"] + (["ai_agent"] if trained else [])
     per = traj.groupby("vehicle_id").agg(mean_speed=("speed", "mean"), **{c: (c, "mean") for c in cols}).join(sf)
-    key = "ai_calibrated" if calibrated else "ai_original"
-    thr = model.thresholds[ctx] if calibrated else 70.0
+    key = "ai_agent" if trained else "ai_original"
+    thr = agent.threshold(env) if trained else 70.0
     per["category"] = np.where(per[key] >= thr, "aggressive", np.where(per[key] < 35, "conservative", "normal"))
     per.to_csv(os.path.join(DATA_DIR, "ngsim_vehicles.csv"))
-    print(f"{len(per)} vehicles, {traj['t'].max() / 60:.1f} min, context {ctx}, "
-          f"{'calibrated' if calibrated else 'original'} index")
+    print(f"{len(per)} vehicles, {traj['t'].max() / 60:.1f} min, environment {env}, "
+          f"{'trained dynamic weight agent' if trained else 'original index'}")
     print(per["category"].value_counts(normalize=True).round(3).to_string())
     print(per[["mean_speed"] + cols + ["shockwave_factor"]].describe().round(3).to_string())
     plots(traj, per, key)
@@ -82,6 +83,6 @@ if __name__ == "__main__":
     ap.add_argument("--file", required=True)
     ap.add_argument("--location", default=None, help="us-101, i-80, lankershim or peachtree (combined CSV only)")
     ap.add_argument("--minutes", type=float, default=5.0, help="first N minutes only; NGSIM files are large")
-    ap.add_argument("--context", choices=["motorway", "secondary"], default=None)
+    ap.add_argument("--environment", choices=["highway", "urban"], default=None)
     a = ap.parse_args()
-    main(a.file, a.location, a.minutes, a.context)
+    main(a.file, a.location, a.minutes, a.environment)

@@ -36,22 +36,9 @@ def generate_strict_data(filename=os.path.join(DATA_DIR, "strict_telemetry.csv")
 generate_strict_data()
 
 # --- 2. THE AGENT ---
-class DynamicWeightAgent(nn.Module):
-    def __init__(self):
-        super(DynamicWeightAgent, self).__init__()
-        torch.manual_seed(42)
-        self.raw_weights_highway = nn.Parameter(torch.zeros(4))
-        self.raw_weights_urban = nn.Parameter(torch.zeros(4))
-        self.raw_weights_weather = nn.Parameter(torch.zeros(4))
-
-    def get_weights(self, env_type):
-        if env_type == 'highway': return F.softmax(self.raw_weights_highway, dim=0)
-        elif env_type == 'urban': return F.softmax(self.raw_weights_urban, dim=0)
-        elif env_type == 'weather': return F.softmax(self.raw_weights_weather, dim=0)
-
-    def forward(self, env_type, trial_metrics):
-        weights = self.get_weights(env_type)
-        return torch.sum(weights * trial_metrics)
+# The agent class now lives in model/dynamic_weight_agent.py so it can be reused
+# (this semester it also trains on real drivers in scripts/train_uah.py).
+from model.dynamic_weight_agent import DynamicWeightAgent  # noqa: E402
 
 # --- 3. TRAINING LOOP (Tuned for Exact Convergence) ---
 agent = DynamicWeightAgent()

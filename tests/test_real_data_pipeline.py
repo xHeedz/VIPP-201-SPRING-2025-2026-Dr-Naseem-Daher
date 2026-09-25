@@ -13,20 +13,21 @@ from fixtures import make_ngsim, make_uah  # noqa: E402
 from datasets.ngsim import read_raw, trajectories  # noqa: E402
 from datasets.uah import find_trips, load_trip, load_windows  # noqa: E402
 from model.aggressiveness_model import AggressivenessModel  # noqa: E402
-from model.calibrated_index import CalibratedIndex, original_ai, phi  # noqa: E402
+from model.aggressiveness_model import index_features, original_score  # noqa: E402
+from model.dynamic_weight_agent import DynamicWeightAgent  # noqa: E402
 from model.noise import KINDS, make_noise, noise_suite  # noqa: E402
 from model.shockwave import shockwave_factor  # noqa: E402
 
 
-def test_phi_matches_the_original_model():
+def test_index_features_match_the_original_model():
     m = AggressivenessModel()
     rng = np.random.default_rng(1)
     for _ in range(300):
         a = (rng.uniform(0, 200), rng.uniform(-8, 8), rng.choice([0.0, rng.uniform(0.1, 120)]), rng.uniform(-3, 3))
-        assert abs(m.get_ai_score(*a)[0] - original_ai(phi(*a))) < 1e-9
+        assert abs(m.get_ai_score(*a)[0] - original_score(index_features(*a))) < 1e-9
 
 
-def test_uah_loader_and_calibration(tmp_path):
+def test_uah_loader_and_agent_training(tmp_path):
     root = make_uah(str(tmp_path))
     trips = find_trips(root)
     assert len(trips) == 6 * 7
@@ -36,11 +37,16 @@ def test_uah_loader_and_calibration(tmp_path):
     win, report = load_windows(root)
     b = win[win["behavior"].isin(["normal", "aggressive"])]
     feats = ["phi_speed", "phi_accel", "phi_prox", "phi_wave"]
-    m = CalibratedIndex()
-    m.fit(b[feats].to_numpy(), (b["behavior"] == "aggressive").astype(int), b["road"], epochs=200)
-    for c in ("motorway", "secondary"):
-        assert abs(m.weights[c].sum() - 1) < 1e-5 and (m.weights[c] >= 0).all()
-    p = np.array([m.prob_aggressive(x, c) for x, c in zip(b[feats].to_numpy(), b["road"])])
+    assert set(win["environment"]) == {"highway", "urban"}
+    agent = DynamicWeightAgent()
+    agent.fit_labels(b[feats].to_numpy(), (b["behavior"] == "aggressive").astype(int), b["environment"], epochs=200)
+    for e in ("highway", "urban"):
+        w = agent.weights_np(e)
+        assert abs(w.sum() - 1) < 1e-5 and (w >= 0).all()
+    import torch
+    with torch.no_grad():
+        p = np.array([float(agent.prob_aggressive(e, torch.tensor(x, dtype=torch.float32)))
+                      for x, e in zip(b[feats].to_numpy(), b["environment"])])
     y = (b["behavior"] == "aggressive").to_numpy()
     assert p[y].mean() > p[~y].mean()
 
@@ -85,3 +91,14 @@ def test_delay_and_dropout_semantics():
     assert vals[0] == 0.0 and len(set(vals)) < 30                 # mostly held values
     suite = noise_suite(["gaussian", "bias"], 1.0)
     assert set(suite) == {"speed", "accel", "gap", "lateral"}
+
+
+def test_agent_keeps_last_semesters_behaviour_and_round_trips(tmp_path):
+    import torch
+    agent = DynamicWeightAgent()
+    m = torch.tensor([0.2, 0.4, 0.6, 0.8])
+    assert torch.allclose(agent("highway", m), torch.tensor(0.5))       # uniform weights at the start
+    agent.save(str(tmp_path / "a.json"))
+    again = DynamicWeightAgent.load(str(tmp_path / "a.json"))
+    assert np.allclose(again.weights_np("urban"), agent.weights_np("urban"), atol=1e-4)
+    assert again.threshold("highway") == agent.threshold("highway")

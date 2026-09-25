@@ -92,5 +92,6 @@ def trajectories(raw, smooth_s=1.0):
         ["t", "vehicle_id", "lane", "pos", "x_lat", "speed", "accel", "gap", "wave"]].reset_index(drop=True)
 
 
-def context_for(location):
-    return "motorway" if (location or "").lower() in FREEWAYS else "secondary"
+def environment_for(location):
+    """Freeway sites map to the agent's highway environment, arterials to urban."""
+    return "highway" if (location or "").lower() in FREEWAYS else "urban"

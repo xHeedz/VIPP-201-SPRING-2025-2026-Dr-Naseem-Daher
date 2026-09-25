@@ -22,3 +22,22 @@ class AggressivenessModel:
         if final_score < 35: return final_score, "Conservative"
         elif final_score < 70: return final_score, "Normal"
         else: return final_score, "Aggressive"
+
+
+# Vectorized versions of the formula above, for datasets and training.
+WEIGHTS = (0.5, 0.2, 0.8, 0.4)
+
+
+def index_features(speed_kmh, accel_ms2, prox_m, wave_m):
+    """(n_speed^2, n_accel, n_prox^2, n_wave) for arrays; prox_m <= 0 means no car ahead."""
+    speed_kmh, accel_ms2, prox_m, wave_m = (np.asarray(x, dtype=float) for x in (speed_kmh, accel_ms2, prox_m, wave_m))
+    ns = np.minimum(speed_kmh / 150.0, 1.0)
+    na = np.minimum(np.abs(accel_ms2) / 5.0, 1.0)
+    npx = np.where((prox_m > 0) & (prox_m <= 50.0), 1.0 - prox_m / 50.0, 0.0)
+    nw = np.minimum(np.abs(wave_m) / 1.5, 1.0)
+    return np.stack([ns ** 2, na, npx ** 2, nw], axis=-1)
+
+
+def original_score(features):
+    """The score get_ai_score gives, computed from index_features."""
+    return np.minimum(100.0 * np.asarray(features) @ np.array(WEIGHTS), 100.0)

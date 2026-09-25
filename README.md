@@ -27,7 +27,7 @@ Accuracy is measured by scoring every vehicle twice. `GroundTruthAssessor` reads
 ## repository layout
 
 ```
-model/                  closed-form AI, calibrated AI, two-track assessors, noise models, shockwave factor
+model/                  closed-form AI, dynamic weight agent, two-track assessors, noise models, shockwave factor
 agent/                  tabular Q-learner (DriverQLearner) and the shared reward function
 env/scenarios/          highway, urban and weather RL scenarios in highway-env
 env/sumo_scenarios/     SUMO networks and routes for the highway and intersection scenarios
@@ -60,15 +60,15 @@ The SUMO scripts need SUMO installed (tested with 1.26) and the `SUMO_HOME` envi
 
 ## real data
 
-UAH-DriveSet (labeled normal, aggressive and drowsy trips) calibrates the index; NGSIM (unlabeled US freeway and arterial trajectories) is scored and replayed in SUMO. Neither dataset is stored in the repository.
+UAH-DriveSet (labeled normal, aggressive and drowsy trips) trains the dynamic weight agent; NGSIM (unlabeled US freeway and arterial trajectories) is scored and replayed in SUMO. Neither dataset is stored in the repository.
 
 ```
-python scripts/train_uah.py --root /path/to/UAH-DRIVESET-v1                         # learn weights and thresholds, test on unseen drivers
+python scripts/train_uah.py --root /path/to/UAH-DRIVESET-v1                         # train the agent, test it on unseen drivers
 python scripts/score_ngsim.py --file /path/to/ngsim.csv --location us-101 --minutes 5 # index and shockwave factor for every real vehicle
 python scripts/ngsim_replay_sumo.py --file /path/to/ngsim.csv --location us-101 --minutes 2 --gui
 ```
 
-`model/calibrated_index.py` keeps the structure of the closed-form index (same features, same normalization) and learns one weight vector and one aggressive threshold per road type from the labels. Once `data/calibrated_index.json` exists, `score_ngsim.py` uses it.
+`model/dynamic_weight_agent.py` holds the DynamicWeightAgent: one set of index weights per environment (highway, urban, weather), learned through a softmax. It was first trained on generated telemetry (`experiments/weight_agent/train_strict.py`). It now also learns an aggressive threshold per environment and trains on real drivers: UAH motorway trips train its highway weights, secondary-road trips its urban weights. Once `data/dynamic_weight_agent.json` exists, `score_ngsim.py` uses it.
 
 ## noise and shockwaves
 

@@ -21,6 +21,9 @@ import re
 import numpy as np
 import pandas as pd
 
+# UAH road types mapped onto the agent's environments (UAH has no weather trips)
+ROAD_TO_ENV = {"motorway": "highway", "secondary": "urban"}
+
 TRIP_RE = re.compile(r"(?P<date>\d{14})-(?:(?P<km>[\d.]+)km-)?(?P<driver>D\d+)-"
                      r"(?P<behavior>NORMAL\d?|AGGRESSIVE|DROWSY)-(?P<road>MOTORWAY|SECONDARY)", re.I)
 
@@ -37,6 +40,7 @@ def find_trips(root):
                     "driver": m.group("driver").upper(),
                     "behavior": re.sub(r"\d", "", m.group("behavior").lower()),
                     "road": m.group("road").lower(),
+                    "environment": ROAD_TO_ENV[m.group("road").lower()],
                 })
     if not trips:
         raise FileNotFoundError(f"no UAH-DriveSet trip folders found under {root}")
@@ -85,8 +89,8 @@ def load_trip(trip):
 
 def windows(per_second, trip, length_s=10.0, step_s=5.0):
     """Mean index features over sliding windows; one row per window."""
-    from model.calibrated_index import phi
-    f = phi(per_second["speed_kmh"], per_second["accel"], per_second["gap_m"], per_second["wave_m"])
+    from model.aggressiveness_model import index_features
+    f = index_features(per_second["speed_kmh"], per_second["accel"], per_second["gap_m"], per_second["wave_m"])
     t = per_second["t"].to_numpy()
     rows = []
     start = t[0] if len(t) else 0.0
@@ -95,6 +99,7 @@ def windows(per_second, trip, length_s=10.0, step_s=5.0):
         if m.sum() >= length_s * 0.6:
             mean = f[m].mean(axis=0)
             rows.append({"trip": trip["trip"], "driver": trip["driver"], "road": trip["road"],
+                         "environment": trip["environment"],
                          "behavior": trip["behavior"], "t0": start,
                          "phi_speed": mean[0], "phi_accel": mean[1], "phi_prox": mean[2], "phi_wave": mean[3],
                          "speed_kmh": per_second["speed_kmh"].to_numpy()[m].mean()})
