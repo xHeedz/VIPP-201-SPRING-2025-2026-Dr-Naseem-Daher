@@ -1,0 +1,48 @@
+{
+  "weights": {
+    "highway": [
+      0.1525,
+      0.6916,
+      0.1184,
+      0.0375
+    ],
+    "urban": [
+      0.3805,
+      0.3659,
+      0.1902,
+      0.0634
+    ],
+    "weather": [
+      0.25,
+      0.25,
+      0.25,
+      0.25
+    ]
+  },
+  "thresholds": {
+    "highway": 12.46,
+    "urban": 22.15,
+    "weather": 70.0
+  },
+  "tau": 2.215,
+  "feature_order": [
+    "speed^2",
+    "accel",
+    "prox^2",
+    "wave"
+  ],
+  "trained_on": "UAH-DriveSet normal and aggressive windows, all 6 drivers; weather weights are untrained (no weather trips in UAH)",
+  "normal_mean_score": {
+    "highway": 11.011,
+    "urban": 16.73
+  },
+  "lodo_mean": {
+    "agent_auc": 0.761,
+    "agent_window_acc": 0.813,
+    "agent_trip_acc": 0.9,
+    "agent_n_windows": 692.167,
+    "original_auc": 0.829,
+    "original_window_acc": 0.707,
+    "original_trip_acc": 0.611
+  }
+}

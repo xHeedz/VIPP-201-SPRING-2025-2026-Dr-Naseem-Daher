@@ -87,6 +87,18 @@ def load_trip(trip):
     return out
 
 
+def apply_noise(per_second, suite, key):
+    """Copy of a load_trip table as the car's own sensors would report it, using a
+    noise suite from model/noise.py (see sensor_view there). Seconds without a lane
+    detection keep a lane offset of 0."""
+    from model.noise import sensor_view
+    ps = per_second.copy()
+    v, a, g, lat = sensor_view(ps["t"], ps["speed_kmh"] / 3.6, ps["accel"], ps["gap_m"], ps["wave_m"], suite, key)
+    ps["speed_kmh"], ps["accel"], ps["gap_m"] = v * 3.6, a, g
+    ps["wave_m"] = np.where(ps["lane_valid"], lat, 0.0)
+    return ps
+
+
 def windows(per_second, trip, length_s=10.0, step_s=5.0):
     """Mean index features over sliding windows; one row per window."""
     from model.aggressiveness_model import index_features

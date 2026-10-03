@@ -36,12 +36,21 @@ def read_raw(path, location=None, minutes=None, chunksize=500_000):
     """Raw rows (imperial) for one location, optionally only the first `minutes` of it."""
     if _has_header(path):
         parts = []
-        for chunk in pd.read_csv(path, chunksize=chunksize, low_memory=False):
+        t_min = None                       # earliest Global_Time seen so far (ms)
+        # thousands=",": the data.transportation.gov CSV writes numbers like "1,759.977"
+        for chunk in pd.read_csv(path, chunksize=chunksize, low_memory=False, thousands=","):
             chunk.columns = [_CANON.get(c.strip().lower(), c.strip()) for c in chunk.columns]
             if location and "Location" in chunk.columns:
                 chunk = chunk[chunk["Location"].astype(str).str.lower() == location.lower()]
             if len(chunk):
-                parts.append(chunk[[c for c in NEEDED + ["Location"] if c in chunk.columns]])
+                chunk = chunk[[c for c in NEEDED + ["Location"] if c in chunk.columns]]
+                if minutes:
+                    # keep memory small on the 2 GB file: drop rows that are already later than
+                    # the first `minutes` after the earliest time seen (t_min only ever decreases)
+                    t_min = min(t_min, chunk["Global_Time"].min()) if t_min is not None else chunk["Global_Time"].min()
+                    parts = [p[p["Global_Time"] <= t_min + minutes * 60_000] for p in parts]
+                    chunk = chunk[chunk["Global_Time"] <= t_min + minutes * 60_000]
+                parts.append(chunk)
         if not parts:
             raise ValueError(f"no rows for location {location!r} in {path}")
         df = pd.concat(parts, ignore_index=True)
@@ -88,8 +97,29 @@ def trajectories(raw, smooth_s=1.0):
     centers = d.groupby("Lane_ID")["lat_s"].median()
     d["wave"] = (d["lat_s"] - d["Lane_ID"].map(centers)).abs()
 
+    d["accel_1hz"] = _accel_1hz(d)
+
     return d.rename(columns={"Vehicle_ID": "vehicle_id", "Lane_ID": "lane"})[
-        ["t", "vehicle_id", "lane", "pos", "x_lat", "speed", "accel", "gap", "wave"]].reset_index(drop=True)
+        ["t", "vehicle_id", "lane", "pos", "x_lat", "speed", "accel", "accel_1hz", "gap", "wave"]].reset_index(drop=True)
+
+
+def _accel_1hz(d):
+    """Acceleration measured the way UAH-DriveSet measures it (datasets/uah.py load_trip):
+    speed once per second, smoothed over 3 seconds, then its time derivative. The index
+    uses this one, so the agent sees NGSIM acceleration on the same scale it was trained
+    on. The 10 Hz "accel", twice differentiated from video-tracked positions, is several
+    times larger and is kept for the shockwave factor."""
+    key = pd.DataFrame({"vid": d["Vehicle_ID"].to_numpy(), "sec": np.floor(d["t"].to_numpy()).astype(int),
+                        "v": d["speed"].to_numpy()})
+    ps = key.groupby(["vid", "sec"], sort=True)["v"].mean().reset_index()
+    ps["v"] = ps.groupby("vid")["v"].transform(lambda s: s.rolling(3, center=True, min_periods=1).mean())
+
+    def slope(g):
+        v, sec = g["v"].to_numpy(), g["sec"].to_numpy(dtype=float)
+        return pd.Series(np.gradient(v, sec) if len(g) > 1 else np.zeros(len(g)), index=g.index)
+
+    ps["a"] = ps.groupby("vid", group_keys=False).apply(slope).clip(-9.0, 9.0)
+    return key.merge(ps[["vid", "sec", "a"]], on=["vid", "sec"], how="left")["a"].fillna(0.0).to_numpy()
 
 
 def environment_for(location):

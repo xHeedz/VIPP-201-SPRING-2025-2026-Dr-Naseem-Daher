@@ -203,3 +203,28 @@ def noise_suite(kinds, level=1.0, seed=0):
 def reset_suite(suite):
     for p in suite.values():
         p.reset()
+
+
+def sensor_view(t, speed_ms, accel, gap_m, lateral_m, suite, key="series"):
+    """One vehicle's signals as its own sensors would report them.
+
+    speed, gap and lateral offset each go through their noise pipeline from
+    `suite` (noise_suite). Acceleration is not measured directly: like an onboard
+    estimator it is re-derived from the noisy speed (3-sample smoothing, then the
+    time derivative) and then gets its own noise, so speed errors carry into it.
+    A gap of 0 means no vehicle ahead and stays 0. Returns four numpy arrays.
+    """
+    import numpy as np
+    t = np.asarray(t, dtype=float)
+    v = np.clip([suite["speed"](x, key) for x in np.asarray(speed_ms, dtype=float)], 0.0, None)
+    if len(v) > 2:
+        vs = np.convolve(np.pad(v, 1, mode="edge"), np.ones(3) / 3.0, mode="valid")
+        a = np.gradient(vs, t)
+    else:
+        a = np.asarray(accel, dtype=float).copy()
+    a = np.clip([suite["accel"](x, key) for x in a], -9.0, 9.0)
+    g = np.asarray(gap_m, dtype=float)
+    g_noisy = np.array([suite["gap"](x, key) for x in g])
+    g = np.where(g > 0, np.clip(g_noisy, 0.1, None), 0.0)
+    lat = np.abs([suite["lateral"](x, key) for x in np.asarray(lateral_m, dtype=float)])
+    return v, a, g, lat

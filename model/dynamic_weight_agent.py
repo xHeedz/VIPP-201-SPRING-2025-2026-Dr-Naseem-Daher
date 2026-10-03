@@ -104,7 +104,9 @@ class DynamicWeightAgent(nn.Module):
 
     def ai(self, features, env_type):
         """Scores for a (N, 4) or (4,) numpy array of index features."""
-        return 100.0 * np.asarray(features) @ self.weights_np(env_type)
+        # written as multiply-then-sum rather than "@": the result is identical, and it avoids
+        # the false divide-by-zero / overflow warnings numpy's "@" prints on some Macs
+        return 100.0 * (np.asarray(features, dtype=float) * self.weights_np(env_type)).sum(axis=-1)
 
     def to_dict(self):
         return {"weights": {e: [round(float(v), 4) for v in self.weights_np(e)] for e in ENVIRONMENTS},

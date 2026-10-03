@@ -1,0 +1,35 @@
+{
+  "weights": {
+    "highway": [
+      0.159,
+      0.7125,
+      0.1255,
+      0.0031
+    ],
+    "urban": [
+      0.3716,
+      0.3787,
+      0.1774,
+      0.0723
+    ],
+    "weather": [
+      0.25,
+      0.25,
+      0.25,
+      0.25
+    ]
+  },
+  "thresholds": {
+    "highway": 12.12,
+    "urban": 21.71,
+    "weather": 70.0
+  },
+  "tau": 2.277,
+  "feature_order": [
+    "speed^2",
+    "accel",
+    "prox^2",
+    "wave"
+  ],
+  "held_out_driver": "D2"
+}

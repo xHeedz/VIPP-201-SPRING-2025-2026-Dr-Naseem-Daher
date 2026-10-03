@@ -17,7 +17,9 @@ What happens:
      data/dynamic_weight_agent.json.
 
 Outputs: data/uah_windows.csv, data/uah_lodo_results.csv, data/uah_summary.json,
-data/dynamic_weight_agent.json, results/figures/uah_*.png
+data/dynamic_weight_agent.json, results/figures/uah_*.png, and the six
+leave-one-driver-out agents in data/uah_lodo_agents/ (scripts/noise_uah.py
+re-tests them under sensor noise).
 """
 import argparse
 import json
@@ -34,6 +36,7 @@ from model.aggressiveness_model import original_score  # noqa: E402
 from model.dynamic_weight_agent import DynamicWeightAgent  # noqa: E402
 
 FEATS = ["phi_speed", "phi_accel", "phi_prox", "phi_wave"]
+LODO_DIR = os.path.join(DATA_DIR, "uah_lodo_agents")
 ORIGINAL_THRESHOLD = 70.0
 
 
@@ -83,6 +86,8 @@ def main(root, epochs):
     rows = []
     for d in sorted(binary["driver"].unique()):
         agent = train(binary[binary["driver"] != d], epochs)
+        os.makedirs(LODO_DIR, exist_ok=True)
+        agent.save(os.path.join(LODO_DIR, f"agent_without_{d}.json"), {"held_out_driver": d})
         test = binary[binary["driver"] == d]
         new, base = evaluate(test, agent), evaluate(test, "original")
         rows.append({"held_out_driver": d, **{f"agent_{k}": v for k, v in new.items()},
@@ -105,9 +110,12 @@ def main(root, epochs):
     }
     with open(os.path.join(DATA_DIR, "uah_summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
+    normal = win[win["behavior"] == "normal"]
+    normal_mean = {e: round(float(g["score_agent"].mean()), 3) for e, g in normal.groupby("environment")}
     final.save(os.path.join(DATA_DIR, "dynamic_weight_agent.json"),
                {"trained_on": "UAH-DriveSet normal and aggressive windows, all 6 drivers; "
                               "weather weights are untrained (no weather trips in UAH)",
+                "normal_mean_score": normal_mean,      # used by model/context.py
                 "lodo_mean": summary["lodo_mean"]})
     plots(win, lodo, final)
     print(json.dumps({k: summary[k] for k in ("lodo_mean", "single_feature_auc")}, indent=2))

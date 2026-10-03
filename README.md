@@ -58,6 +58,19 @@ pip install -r requirements.txt
 
 The SUMO scripts need SUMO installed (tested with 1.26) and the `SUMO_HOME` environment variable pointing to the installation folder, since TraCI is loaded from `$SUMO_HOME/tools`.
 
+## one command for everything
+
+`main.py` runs the whole real-data pipeline in order and prints each command before running it:
+
+```
+python main.py                   # check, test, train, noise, sample, score, replay
+python main.py --only train      # one stage
+python main.py --skip replay     # everything except the SUMO window
+python main.py --experiments     # also re-run the synthetic SUMO experiments
+```
+
+It expects the data next to the repository, in a folder named `28:9:2026` (see the top of `main.py`), and sets `SUMO_HOME` by itself when SUMO was installed with `pip install eclipse-sumo`.
+
 ## real data
 
 UAH-DriveSet (labeled normal, aggressive and drowsy trips) trains the dynamic weight agent; NGSIM (unlabeled US freeway and arterial trajectories) is scored and replayed in SUMO. Neither dataset is stored in the repository.
@@ -65,8 +78,13 @@ UAH-DriveSet (labeled normal, aggressive and drowsy trips) trains the dynamic we
 ```
 python scripts/train_uah.py --root /path/to/UAH-DRIVESET-v1                         # train the agent, test it on unseen drivers
 python scripts/score_ngsim.py --file /path/to/ngsim.csv --location us-101 --minutes 5 # index and shockwave factor for every real vehicle
-python scripts/ngsim_replay_sumo.py --file /path/to/ngsim.csv --location us-101 --minutes 2 --gui
+python scripts/noise_uah.py --root /path/to/UAH-DRIVESET-v1                          # re-test the agent on unseen drivers through noisy sensors
+python scripts/ngsim_replay_sumo.py --file /path/to/ngsim.csv --location us-101 --minutes 2 --gui --ellipses
 ```
+
+With `--ellipses` every vehicle in the replay is drawn as its body ellipse and a see-through influence ellipse that stretches forward with speed and grows with its Aggressiveness Index, coloured green, yellow or red, plus a purple ring while it disturbs the traffic behind it (`model/ellipses.py`). `score_ngsim.py` also reports how many vehicles keep their category when the signals pass through each kind of sensor noise.
+
+Two adjustments make the UAH-trained agent comparable on NGSIM. Acceleration for the index is measured the way UAH measures it, from speed once per second (`accel_1hz` in `datasets/ngsim.py`); twice-differentiated video positions give accelerations several times larger. And dense stop-and-go traffic makes every vehicle brake and follow closely, so vehicles are also scored relative to the traffic within 100 m (`model/context.py`): a vehicle that moves like the jam around it scores like a normal UAH driver. The replay colours by this context score by default; `--color-by absolute` shows the index alone and `--color-by rank` (display only) colours the top and bottom 10 percent at each moment.
 
 `model/dynamic_weight_agent.py` holds the DynamicWeightAgent: one set of index weights per environment (highway, urban, weather), learned through a softmax. It was first trained on generated telemetry (`experiments/weight_agent/train_strict.py`). It now also learns an aggressive threshold per environment and trains on real drivers: UAH motorway trips train its highway weights, secondary-road trips its urban weights. Once `data/dynamic_weight_agent.json` exists, `score_ngsim.py` uses it.
 
