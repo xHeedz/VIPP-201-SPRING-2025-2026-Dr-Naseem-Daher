@@ -6,7 +6,8 @@ read `CLAUDE.md` first (working style, writing style, repo map, history), then t
 
 - repo `main` on GitHub (`github.com/xHeedz/VIPP-201-SPRING-2025-2026-Dr-Naseem-Daher`), 66 tests pass (`python -m pytest -q`).
 - reference index: `model/aggressiveness_model.py`, gap in metres, cut offs 29 / 42 (fitted). time headway variant: `headway_features`.
-- October deck: `../28:9:2026/Presentation/VIPP 301A Session Results October 2026.pptx`, rebuilt by `python scripts/build_october_deck.py` (reads `data/`, so rerun after any new result).
+- October deck: `../28:9:2026/Presentation/VIPP 301A Session Results October 2026.pptx` (18 slides), rebuilt by `python scripts/build_october_deck.py` (reads `data/`, so rerun after any new result).
+- full deck to present: `../28:9:2026/Presentation/VIPP 301A Project Recap and October 2026 Update.pptx` (45 slides: project recap 1 to 25, September session 26 to 29, October update 30 to 43, glossary, thank you), rebuilt by `python scripts/merge_recap_deck.py` after the October deck. the recap's own 9 charts do not render in Keynote (also in the original recap file); check them in PowerPoint.
 - data next to the repo in `../28:9:2026/`: UAH, NGSIM (US-101 5 min, I-80, Lankershim, Peachtree), pNEUMA (10 drones, 24 Oct 2018 08:30), DriveDNA-Sample (signal CSVs only).
 - Hugging Face: logged in as xHeedz (`hf auth login`); DriveDNA-Sample granted; full DriveDNA not yet.
 
