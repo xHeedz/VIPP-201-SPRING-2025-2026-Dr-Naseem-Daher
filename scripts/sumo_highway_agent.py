@@ -19,11 +19,12 @@ import torch.nn.functional as F
 import torch.optim as optim
 import pandas as pd
 import matplotlib.pyplot as plt
-from collections import deque
 
 # --- Link back to model.py (AggressivenessModel is the shared scoring engine) ---
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from model import AggressivenessModel
+from model.aggressiveness_model import breakdown
+from model.sumo_features import npc_features
 
 # --- SUMO / TraCI setup ---
 SUMO_HOME = os.environ.get(
@@ -63,7 +64,6 @@ class NPCDataCollector:
 
     def __init__(self):
         self.model   = AggressivenessModel()
-        self.history = {}    # vid -> {'prev_speed_ms': float, 'ys': deque}
         self.records = []    # all rows accumulated for CSV
 
     # ----------------------------------------------------------
@@ -72,25 +72,7 @@ class NPCDataCollector:
             if vid == EGO_ID:
                 continue
 
-            speed_ms  = traci.vehicle.getSpeed(vid)
-            speed_kmh = speed_ms * 3.6                        # m/s → km/h
-            vx, vy    = traci.vehicle.getPosition(vid)
-            prox_m    = float(np.sqrt((vx - ego_x) ** 2 + (vy - ego_y) ** 2))
-
-            if vid not in self.history:
-                self.history[vid] = {
-                    'prev_speed_ms': speed_ms,
-                    'ys': deque([vy], maxlen=30),
-                }
-                accel_ms2 = 0.0
-            else:
-                h = self.history[vid]
-                accel_ms2          = (speed_ms - h['prev_speed_ms']) / 0.1   # Δv / Δt
-                h['prev_speed_ms'] = speed_ms
-                h['ys'].append(vy)
-
-            ys     = list(self.history[vid]['ys'])
-            wave_m = float(np.std(ys)) if len(ys) > 3 else 0.0
+            speed_kmh, accel_ms2, prox_m, wave_m = npc_features(traci, vid)
 
             ai_score, label = self.model.get_ai_score(speed_kmh, accel_ms2, prox_m, wave_m)
 
@@ -119,18 +101,11 @@ class NPCDataCollector:
         """
         m = self.model
 
-        # Step 1 – Normalise  (replicates model.py AggressivenessModel.normalize)
-        n_speed = min(speed_kmh / 150.0, 1.0)
-        n_accel = min(abs(accel_ms2) / 5.0, 1.0)
-        n_prox  = (1.0 - prox_m / 50.0) if 0 < prox_m <= 50 else 0.0
-        n_wave  = min(abs(wave_m) / 1.5, 1.0)
-
-        # Step 2 – Weighted contributions  (replicates model.py get_ai_score)
-        c_speed = n_speed ** 2 * m.w_speed
-        c_accel = n_accel      * m.w_accel
-        c_prox  = n_prox  ** 2 * m.w_prox
-        c_wave  = n_wave       * m.w_wave
-        raw_sum = c_speed + c_accel + c_prox + c_wave
+        # All intermediate numbers come from the reference index (model/aggressiveness_model.py)
+        b = breakdown(speed_kmh, accel_ms2, prox_m, wave_m)
+        n_speed, n_accel, n_prox, n_wave = b["n_speed"], b["n_accel"], b["n_prox"], b["n_wave"]
+        c_speed, c_accel, c_prox, c_wave = b["c_speed"], b["c_accel"], b["c_prox"], b["c_wave"]
+        raw_sum = b["raw"]
 
         print(f"\n  ╔══ NPC Aggressiveness: {vid} ══╗")
         print(f"  │  Raw inputs  : speed={speed_kmh:.1f} km/h  "
@@ -282,10 +257,10 @@ def run_episode(agent, epoch, exploration_noise, npc_collector, verbose_epoch):
         return [], []
 
     # --- Phantom-stop fix ---
-    # Mode 0: SUMO applies NO safety constraints — the agent has full speed
-    # authority. This prevents SUMO from ghost-braking the ego between policy
-    # steps and stops the vehicle from drifting to 0 due to safety overrides.
-    traci.vehicle.setSpeedMode(EGO_ID, 0)
+    # Mode 6 = respect the vType's max accel (bit 1) and max decel (bit 2), no safe-speed
+    # override (bit 0 off), so SUMO cannot ghost-brake the ego between setSpeed() calls but
+    # a brake action is spread over several steps instead of one 0.1 s step (mode 0 gave 30 m/s2).
+    traci.vehicle.setSpeedMode(EGO_ID, 6)
     traci.vehicle.setLaneChangeMode(EGO_ID, 0)
 
     # Initialise to the depart speed in rou.xml (20 m/s).

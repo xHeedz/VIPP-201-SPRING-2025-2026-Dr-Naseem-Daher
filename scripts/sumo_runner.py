@@ -2,25 +2,10 @@
 sumo_runner.py  —  SUMO TraCI aggressiveness comparison
 Runs highway, urban, and weather scenarios. Compares GroundTruth vs Agent assessors.
 
-Formula calibration per scenario
----------------------------------
-  _W_SPEED=0.8  _W_ACCEL=0.05 (near-zero: suppress noisy accel term)
-  _W_PROX=0.6   _W_WAVE=0.05   MAX=1.5
-
-  Highway:  speed_ref=38 m/s  gap_ref=25 m
-    Conservative (max 18m/s, gap>25m):  score ~24%  → Conservative
-    Normal       (24-28m/s,  gap>25m):  score 34-40% → Normal
-    Aggressive   (35-40m/s,  gap~15m):  score 62-70% → Aggressive
-
-  Urban:    speed_ref=28 m/s  gap_ref=15 m
-    Conservative (max 14m/s, gap>15m):  score ~24%  → Conservative
-    Normal       (16-18m/s,  gap>15m):  score 29-34% → Normal
-    Aggressive   (20-22m/s,  gap~9m ):  score 55-58% → Aggressive
-
-  Weather:  speed_ref=25 m/s  gap_ref=35 m  (speeds reduced 30% by friction)
-    Conservative (~13m/s,    gap>35m):  score ~28%  → Conservative
-    Normal       (~17m/s,    gap>35m):  score 36%   → Normal
-    Aggressive   (~29m/s,    gap~12m):  score 79%   → Aggressive
+Both assessors score with the reference index (model/aggressiveness_model.py) and
+measure the same quantities (speed, signed accel, gap to the leader, offset from the
+lane centre); the agent sees them through sensor noise. Reported per scenario:
+category agreement and the mean agent minus GT bias of each feature.
 """
 
 import os
@@ -31,6 +16,8 @@ import os, sys, subprocess, textwrap
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import deque
+
+from model.aggressiveness_model import breakdown
 
 # ── SUMO PATH ────────────────────────────────────────────────────────────────
 SUMO_HOME = os.environ.get("SUMO_HOME", r"C:\Program Files (x86)\Eclipse\Sumo")
@@ -299,31 +286,21 @@ def write_sumocfg(out_path, net_file, rou_file, step_length=1.0):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# AGGRESSIVENESS FORMULA
+# AGGRESSIVENESS FORMULA  (the reference index, model/aggressiveness_model.py)
 #
-# Proximity = gap to leader (tailgating measure), NOT distance to ego.
-# Low accel weight (0.05) suppresses noise-induced boundary errors.
-# Thresholds: Conservative <30, Normal 30-55, Aggressive >=55
+# Both assessors measure the same four quantities; only the agent adds noise.
+#   speed: m/s, gap: bumper to bumper gap to the leader (0 = none),
+#   accel: signed m/s^2 (the formula takes |a|), wave: |offset from lane centre|.
 # ─────────────────────────────────────────────────────────────────────────────
 
-_W_SPEED = 0.8
-_W_ACCEL = 0.05   # near-zero: prevents noisy accel estimates from flipping categories
-_W_PROX  = 0.6
-_W_WAVE  = 0.05
-_MAX     = _W_SPEED + _W_ACCEL + _W_PROX + _W_WAVE   # 1.5
-_LANE_W  = 3.2
+def _formula(speed_ms, accel, gap_m, wave_m):
+    b = breakdown(speed_ms * 3.6, accel, gap_m, wave_m)
+    return round(b["score"], 2), b["label"]
 
 
-def _agg_formula(speed_ms, accel, gap_m, wave_m, speed_ref, gap_ref,
-                 thresh_aggr=55):
-    ns  = np.clip(speed_ms / speed_ref, 0.0, 1.0)
-    na  = np.clip(abs(accel) / 4.0, 0.0, 1.0)
-    np_ = max(0.0, 1.0 - gap_m / gap_ref) if gap_m < gap_ref else 0.0
-    nw  = np.clip(wave_m / 2.0, 0.0, 1.0)
-    raw = ns * _W_SPEED + na * _W_ACCEL + np_ * _W_PROX + nw * _W_WAVE
-    sc  = (raw / _MAX) * 100.0
-    cat = "Conservative" if sc < 30 else ("Normal" if sc < thresh_aggr else "Aggressive")
-    return round(sc, 2), cat
+def _true_gap(vid):
+    leader = traci.vehicle.getLeader(vid, 150.0)
+    return float(leader[1] + traci.vehicle.getMinGap(vid)) if leader and leader[0] else 0.0
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -331,13 +308,11 @@ def _agg_formula(speed_ms, accel, gap_m, wave_m, speed_ref, gap_ref,
 # ─────────────────────────────────────────────────────────────────────────────
 
 class SumoGroundTruth:
-    DT = 1.0
+    DT = 1.0    # step-length of the validation configs (write_sumocfg)
 
-    def __init__(self, speed_ref, gap_ref, thresh_aggr=55):
-        self.speed_ref   = speed_ref
-        self.gap_ref     = gap_ref
-        self.thresh_aggr = thresh_aggr
+    def __init__(self):
         self._spd: dict  = {}
+        self.last = None    # (speed_ms, accel, gap_m, wave_m) of the last call
 
     def reset(self):
         self._spd.clear()
@@ -349,13 +324,11 @@ class SumoGroundTruth:
         accel = (speed_ms - hist[-1]) / self.DT if hist else 0.0
         hist.append(speed_ms)
 
-        leader = traci.vehicle.getLeader(vid, 150.0)
-        gap_m  = float(leader[1]) if leader else 150.0
-
+        gap_m  = _true_gap(vid)
         wave_m = abs(traci.vehicle.getLateralLanePosition(vid))
 
-        return _agg_formula(speed_ms, accel, gap_m, wave_m,
-                            self.speed_ref, self.gap_ref, self.thresh_aggr)
+        self.last = (speed_ms, accel, gap_m, wave_m)
+        return _formula(*self.last)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -366,19 +339,17 @@ class SumoAgentAssessor:
     SIGMA_VEL = 0.5    # m/s   radar Doppler
     SIGMA_ACC = 0.3    # m/s²  indirect accel estimation noise
     SIGMA_GAP = 0.8    # m     lidar/radar range noise
+    SIGMA_LAT = 0.2    # m     lane offset from a lane camera (model/noise.py BASE_SCALE)
     DT        = 1.0
 
-    def __init__(self, noise_scale=1.0, speed_ref=35.0, gap_ref=25.0, thresh_aggr=55,
-                 noise=None):
+    def __init__(self, noise_scale=1.0, noise=None):
         # noise: optional {signal: model} from model/noise.py (noise_suite). When
-        # omitted, the original Gaussian noise below is used unchanged.
+        # omitted, the Gaussian noise below is used.
         self.noise       = noise
         self.ns          = noise_scale
-        self.speed_ref   = speed_ref
-        self.gap_ref     = gap_ref
-        self.thresh_aggr = thresh_aggr
         self._spd: dict  = {}
         self._yh:  dict  = {}
+        self.last = None
 
     def reset(self):
         self._spd.clear()
@@ -397,39 +368,33 @@ class SumoAgentAssessor:
 
         speed_ms = max(0.0, self._n("speed", traci.vehicle.getSpeed(vid), vid, self.SIGMA_VEL * s))
 
+        # Signed slope of the noisy speeds plus signed noise; the formula takes |a|.
         hist = self._spd.setdefault(vid, deque(maxlen=5))
         if len(hist) >= 2:
             speeds = list(hist) + [speed_ms]
             t      = np.arange(len(speeds), dtype=float) * self.DT
             slope  = float(np.polyfit(t, speeds, 1)[0])
             if self.noise:
-                accel = abs(self.noise["accel"](slope, vid))
+                accel = self.noise["accel"](slope, vid)
             else:
-                accel = abs(slope) + abs(np.random.normal(0, self.SIGMA_ACC * s))
+                accel = slope + np.random.normal(0, self.SIGMA_ACC * s)
         else:
             accel = 0.0
         hist.append(speed_ms)
 
-        # Noisy gap-to-leader (radar range measurement)
-        leader = traci.vehicle.getLeader(vid, 150.0)
-        if leader:
-            gap_m = max(0.0, self._n("gap", float(leader[1]), vid, self.SIGMA_GAP * s))
-        else:
-            gap_m = 150.0
+        # Noisy gap to the leader (radar range); no leader stays 0
+        gap_true = _true_gap(vid)
+        gap_m = max(0.0, self._n("gap", gap_true, vid, self.SIGMA_GAP * s)) if gap_true > 0 else 0.0
 
-        # Waviness from noisy y-position history
-        veh_y = self._n("lateral", traci.vehicle.getPosition(vid)[1], vid, self.SIGMA_GAP * s)
+        # Same quantity as the ground truth (offset from the lane centre), noisy,
+        # averaged over the last 5 readings
+        lat = self._n("lateral", traci.vehicle.getLateralLanePosition(vid), vid, self.SIGMA_LAT * s)
         yh = self._yh.setdefault(vid, deque(maxlen=5))
-        yh.append(veh_y)
-        if len(yh) >= 3:
-            y_arr  = np.array(yh)
-            lc_est = round(float(np.mean(y_arr)) / _LANE_W) * _LANE_W
-            wave_m = float(np.std(y_arr - lc_est))
-        else:
-            wave_m = 0.0
+        yh.append(lat)
+        wave_m = abs(float(np.mean(yh)))
 
-        return _agg_formula(speed_ms, accel, gap_m, wave_m,
-                            self.speed_ref, self.gap_ref, self.thresh_aggr)
+        self.last = (speed_ms, accel, gap_m, wave_m)
+        return _formula(*self.last)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -437,17 +402,15 @@ class SumoAgentAssessor:
 # ─────────────────────────────────────────────────────────────────────────────
 
 def run_scenario(label, sumocfg, ego_id, n_steps=200,
-                 noise_scale=1.0, friction=1.0,
-                 speed_ref=38.0, gap_ref=25.0, thresh_aggr=55, noise=None):
+                 noise_scale=1.0, friction=1.0, noise=None):
 
-    gt    = SumoGroundTruth(speed_ref=speed_ref, gap_ref=gap_ref,
-                             thresh_aggr=thresh_aggr)
-    agent = SumoAgentAssessor(noise_scale=noise_scale,
-                               speed_ref=speed_ref, gap_ref=gap_ref,
-                               thresh_aggr=thresh_aggr, noise=noise)
+    gt    = SumoGroundTruth()
+    agent = SumoAgentAssessor(noise_scale=noise_scale, noise=noise)
 
     gt_labels: list = []
     ag_labels: list = []
+    gt_feats:  list = []    # (speed_ms, accel, gap_m, wave_m) per sample
+    ag_feats:  list = []
 
     traci.start([SUMO_BIN, "-c", sumocfg, "--seed", "42"])
     seen: set = set()
@@ -474,6 +437,8 @@ def run_scenario(label, sumocfg, ego_id, n_steps=200,
                 _, ag_lbl = agent.assess(vid)
                 gt_labels.append(gt_lbl)
                 ag_labels.append(ag_lbl)
+                gt_feats.append(gt.last)
+                ag_feats.append(agent.last)
 
     finally:
         traci.close()
@@ -487,7 +452,13 @@ def run_scenario(label, sumocfg, ego_id, n_steps=200,
         f"  [{label:25s}]  samples={n:4d}  accuracy={acc:5.1f}%  "
         f"(GT: C={dist['Conservative']}  N={dist['Normal']}  A={dist['Aggressive']})"
     )
-    return {"label": label, "accuracy": acc,
+    # Bias of the agent's measurement: mean(agent - truth) per feature, with the
+    # magnitude the formula actually uses (|accel|, |wave|)
+    g, a = np.abs(np.array(gt_feats)), np.abs(np.array(ag_feats))
+    bias = dict(zip(["speed_ms", "abs_accel", "gap_m", "wave_m"], (a - g).mean(axis=0))) if n else {}
+    if bias:
+        print("      agent - GT bias: " + "  ".join(f"{k}={v:+.3f}" for k, v in bias.items()))
+    return {"label": label, "accuracy": acc, "bias": bias,
             "gt_labels": gt_labels, "ag_labels": ag_labels, "n": n}
 
 
@@ -624,28 +595,14 @@ def main():
     print("[SUMO] Running scenarios ...\n")
 
     results = [
-        # speed_ref=38: conservative@18m/s → 24% (Conservative)
-        #               normal@26m/s       → 37% (Normal)
-        #               aggressive@38m/s   → 64-70% (Aggressive, via gap)
         run_scenario("Highway (clear)",      hw_cfg,   "ego", n_steps=200,
-                     noise_scale=1.5, friction=1.0,
-                     speed_ref=38.0, gap_ref=25.0),
+                     noise_scale=1.5, friction=1.0),
 
-        # speed_ref=22, thresh_aggr=47: aggressive vehicles score 48-72% → Aggressive
-        #   conservative@11m/s → 26% (Conservative)
-        #   normal@18m/s,no-leader → 44% (Normal, below 47)
-        #   aggressive@13m/s+gap=10m → 48% (Aggressive, above 47)
         run_scenario("Urban (intersection)", int_cfg,  "ego", n_steps=250,
-                     noise_scale=1.0, friction=1.0,
-                     speed_ref=22.0, gap_ref=17.0, thresh_aggr=50),
+                     noise_scale=1.0, friction=1.0),
 
-        # speed_ref=25, noise_scale=1.0: weather speed scale 0.7 applied in routes
-        #   conservative~13m/s → 28% (Conservative)
-        #   normal~17m/s       → 36% (Normal)
-        #   aggressive~28m/s+gap=12m → 80% (Aggressive)
         run_scenario("Weather (rain/wet)",   wthr_cfg, "ego", n_steps=200,
-                     noise_scale=1.0, friction=0.3,
-                     speed_ref=25.0, gap_ref=35.0),
+                     noise_scale=1.0, friction=0.3),
     ]
 
     print_summary_table(results)

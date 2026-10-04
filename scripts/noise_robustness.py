@@ -26,9 +26,9 @@ from model.noise import KINDS, noise_suite  # noqa: E402
 
 SCENARIOS = [
     # label, cfg key, n_steps, kwargs (same settings as sumo_runner.main)
-    ("highway", "hw", 200, dict(friction=1.0, speed_ref=38.0, gap_ref=25.0)),
-    ("urban", "int", 250, dict(friction=1.0, speed_ref=22.0, gap_ref=17.0, thresh_aggr=50)),
-    ("weather", "wthr", 200, dict(friction=0.3, speed_ref=25.0, gap_ref=35.0)),
+    ("highway", "hw", 200, dict(friction=1.0)),
+    ("urban", "int", 250, dict(friction=1.0)),
+    ("weather", "wthr", 200, dict(friction=0.3)),
 ]
 
 

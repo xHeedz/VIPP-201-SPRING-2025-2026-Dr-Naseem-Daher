@@ -81,6 +81,9 @@ def main(root, epochs):
     print(f"{len(report)} trips, {len(win)} windows")
     print(f"lane detection available {report['lane_coverage'].mean():.0%} of the time, "
           f"vehicle ahead detected {report['leader_coverage'].mean():.0%}")
+    report.to_csv(os.path.join(DATA_DIR, "uah_trip_coverage.csv"), index=False)
+    print("per trip:")
+    print(report[["trip", "seconds", "windows", "lane_coverage", "leader_coverage"]].round(3).to_string(index=False))
 
     binary = win[win["behavior"].isin(["normal", "aggressive"])]
     rows = []

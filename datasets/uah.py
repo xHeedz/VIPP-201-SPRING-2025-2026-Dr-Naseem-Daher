@@ -99,10 +99,12 @@ def apply_noise(per_second, suite, key):
     return ps
 
 
-def windows(per_second, trip, length_s=10.0, step_s=5.0):
-    """Mean index features over sliding windows; one row per window."""
+def windows(per_second, trip, length_s=10.0, step_s=5.0, features=None):
+    """Mean index features over sliding windows; one row per window. `features` is the
+    feature function (default index_features; headway_features for the time headway variant)."""
     from model.aggressiveness_model import index_features
-    f = index_features(per_second["speed_kmh"], per_second["accel"], per_second["gap_m"], per_second["wave_m"])
+    features = features or index_features
+    f = features(per_second["speed_kmh"], per_second["accel"], per_second["gap_m"], per_second["wave_m"])
     t = per_second["t"].to_numpy()
     rows = []
     start = t[0] if len(t) else 0.0
@@ -119,12 +121,12 @@ def windows(per_second, trip, length_s=10.0, step_s=5.0):
     return pd.DataFrame(rows)
 
 
-def load_windows(root, length_s=10.0, step_s=5.0, min_speed_kmh=5.0):
+def load_windows(root, length_s=10.0, step_s=5.0, min_speed_kmh=5.0, features=None):
     """All trips -> window table, dropping windows where the car is essentially stopped."""
     frames, report = [], []
     for trip in find_trips(root):
         ps = load_trip(trip)
-        w = windows(ps, trip, length_s, step_s)
+        w = windows(ps, trip, length_s, step_s, features)
         if len(w):
             w = w[w["speed_kmh"] >= min_speed_kmh]
         frames.append(w)

@@ -28,7 +28,8 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 
 from model import AggressivenessModel
-from collections import deque
+from model.aggressiveness_model import breakdown
+from model.sumo_features import npc_features
 
 SUMO_HOME = os.environ.get("SUMO_HOME", r"C:\Program Files (x86)\Eclipse\Sumo")
 sys.path.append(os.path.join(SUMO_HOME, "tools"))
@@ -43,29 +44,13 @@ N_EPOCHS = 5   # fast run for data collection + ground-truth verification
 class NPCDataCollector:
     def __init__(self):
         self.model   = AggressivenessModel()
-        self.history = {}
         self.records = []
 
     def update(self, epoch, step, ego_x, ego_y, ego_id, print_breakdown=False):
         for vid in traci.vehicle.getIDList():
             if vid == ego_id:
                 continue
-            speed_ms  = traci.vehicle.getSpeed(vid)
-            speed_kmh = speed_ms * 3.6
-            vx, vy    = traci.vehicle.getPosition(vid)
-            prox_m    = float(np.sqrt((vx - ego_x)**2 + (vy - ego_y)**2))
-
-            if vid not in self.history:
-                self.history[vid] = {"prev": speed_ms, "ys": deque([vy], maxlen=30)}
-                accel_ms2 = 0.0
-            else:
-                h = self.history[vid]
-                accel_ms2  = (speed_ms - h["prev"]) / 0.1
-                h["prev"]  = speed_ms
-                h["ys"].append(vy)
-
-            wave_m = float(np.std(list(self.history[vid]["ys"]))) \
-                     if len(self.history[vid]["ys"]) > 3 else 0.0
+            speed_kmh, accel_ms2, prox_m, wave_m = npc_features(traci, vid)
 
             ai_score, label = self.model.get_ai_score(speed_kmh, accel_ms2, prox_m, wave_m)
 
@@ -93,18 +78,11 @@ class NPCDataCollector:
 
 def _print_breakdown(m, vid, speed_kmh, accel_ms2, prox_m, wave_m, ai_score, label):
     """Ground-truth hand-calculation trace -- every intermediate step shown."""
-    # Step 1: Normalise  (mirrors model.py AggressivenessModel.normalize)
-    n_speed = min(speed_kmh / 150.0, 1.0)
-    n_accel = min(abs(accel_ms2) / 5.0, 1.0)
-    n_prox  = (1.0 - prox_m / 50.0) if 0 < prox_m <= 50 else 0.0
-    n_wave  = min(abs(wave_m) / 1.5, 1.0)
-
-    # Step 2: Weighted contributions  (mirrors model.py get_ai_score)
-    c_speed = n_speed**2 * m.w_speed
-    c_accel = n_accel    * m.w_accel
-    c_prox  = n_prox**2  * m.w_prox
-    c_wave  = n_wave     * m.w_wave
-    raw_sum = c_speed + c_accel + c_prox + c_wave
+    # All intermediate numbers come from the reference index (model/aggressiveness_model.py)
+    b = breakdown(speed_kmh, accel_ms2, prox_m, wave_m)
+    n_speed, n_accel, n_prox, n_wave = b["n_speed"], b["n_accel"], b["n_prox"], b["n_wave"]
+    c_speed, c_accel, c_prox, c_wave = b["c_speed"], b["c_accel"], b["c_prox"], b["c_wave"]
+    raw_sum = b["raw"]
 
     print(f"\n  +-- {vid} --+")
     print(f"  | RAW      speed={speed_kmh:.2f} km/h  accel={accel_ms2:+.3f} m/s2  "
@@ -174,7 +152,7 @@ def run_intersection():
             print(f"  [skip epoch {epoch}] ego did not spawn")
             continue
 
-        traci.vehicle.setSpeedMode(EGO, 0)
+        traci.vehicle.setSpeedMode(EGO, 6)   # respect vType accel/decel limits
         traci.vehicle.setLaneChangeMode(EGO, 0)
 
         tracker          = VehicleTracker(history_len=8)
@@ -293,7 +271,7 @@ def run_highway():
             print(f"  [skip epoch {epoch}] ego did not spawn")
             continue
 
-        traci.vehicle.setSpeedMode(EGO, 0)
+        traci.vehicle.setSpeedMode(EGO, 6)   # respect vType accel/decel limits
         traci.vehicle.setLaneChangeMode(EGO, 0)
 
         ego_speed_target = 20.0

@@ -25,6 +25,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
+from model.aggressiveness_model import label
 from model.aggressiveness_core import (
     AgentAssessor,
     GroundTruthAssessor,
@@ -300,7 +301,7 @@ def train(epochs: int = 100, render: bool = False):
                         best_d, best_tid = d, tid
                 if best_tid is not None and best_d < 8.0:
                     ag_score = tracker.aggressiveness.get(best_tid, 0.0) * 100.0
-                    ag_label = "Conservative" if ag_score < 30 else ("Normal" if ag_score < 65 else "Aggressive")
+                    ag_label = label(ag_score)
                     all_gt.append(gt_step[slot][1])
                     all_ag.append(ag_label)
 

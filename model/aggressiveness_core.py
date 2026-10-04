@@ -14,35 +14,19 @@ Observation format expected by AgentAssessor:
 import numpy as np
 from collections import deque
 
+from model.aggressiveness_model import breakdown
+
 
 # ─────────────────────────────────────────────────────────────────────────────
-# SHARED CONSTANTS
+# SHARED FORMULA  (the reference index in model/aggressiveness_model.py)
 # ─────────────────────────────────────────────────────────────────────────────
-_W_SPEED = 0.5
-_W_ACCEL = 0.2
-_W_PROX  = 0.8
-_W_WAVE  = 0.3
-_MAX_RAW = _W_SPEED + _W_ACCEL + _W_PROX + _W_WAVE   # 1.8
 _LANE_W  = 4.0   # highway_env lane width in metres
 
 
-def _label(score: float) -> str:
-    if score < 30:
-        return "Conservative"
-    if score < 65:
-        return "Normal"
-    return "Aggressive"
-
-
 def _formula(speed_kmh: float, accel_ms2: float, prox_m: float, wave_m: float):
-    """Core aggressiveness formula shared by both assessors."""
-    ns  = np.clip(speed_kmh / 150.0, 0, 1)
-    na  = np.clip(abs(accel_ms2) / 5.0, 0, 1)
-    np_ = max(0.0, 1.0 - prox_m / 50.0) if 0 < prox_m <= 50 else 0.0
-    nw  = np.clip(wave_m / 2.0, 0, 1)
-    raw = ns**2 * _W_SPEED + na * _W_ACCEL + np_ * _W_PROX + nw * _W_WAVE
-    score = (raw / _MAX_RAW) * 100.0
-    return round(score, 2), _label(score)
+    """Reference index for both assessors: (score rounded to 2 decimals, label)."""
+    b = breakdown(speed_kmh, accel_ms2, prox_m, wave_m)
+    return round(b["score"], 2), b["label"]
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -74,7 +58,7 @@ class GroundTruthAssessor:
         # True speed (m/s → km/h)
         speed_kmh = vehicle.speed * 3.6
 
-        # True acceleration via finite differences on speed history
+        # True acceleration (signed) via finite differences on speed history
         hist = self._speed_hist.setdefault(vid, deque(maxlen=5))
         accel = (vehicle.speed - hist[-1]) / self._DT if hist else 0.0
         hist.append(vehicle.speed)
@@ -158,12 +142,11 @@ class AgentAssessor:
             n = len(speeds)
             t = np.arange(n) * self._DT
             if n >= 3:
-                slope = np.polyfit(t, speeds, 1)[0]   # m/s per second
-                accel_est = abs(slope)
+                accel_est = np.polyfit(t, speeds, 1)[0]   # signed, m/s per second
             else:
-                accel_est = abs(spd_ms - hist[-1]) / self._DT
-            # Add residual noise that represents real estimation uncertainty
-            accel_est += abs(np.random.normal(0, self._SIGMA_ACC * s))
+                accel_est = (spd_ms - hist[-1]) / self._DT
+            # Signed residual noise (real estimation uncertainty); the formula takes |a|
+            accel_est += np.random.normal(0, self._SIGMA_ACC * s)
         else:
             accel_est = 0.0
         hist.append(spd_ms)
@@ -171,15 +154,12 @@ class AgentAssessor:
         # Feature 3 — proximity from longitudinal offset to ego
         prox_est = abs(x - ego_x)
 
-        # Feature 4 — lane waviness estimated from lateral position history
+        # Feature 4 — offset from the nearest lane centre (same quantity as the
+        # ground truth), from the noisy y averaged over the last 5 readings
         yh = self._y_hist.setdefault(slot, deque(maxlen=5))
         yh.append(y)
-        if len(yh) >= 3:
-            y_arr = np.array(yh)
-            lc_est = round(float(np.mean(y_arr)) / _LANE_W) * _LANE_W
-            wave_est = float(np.std(y_arr - lc_est))
-        else:
-            wave_est = 0.0
+        y_mean = float(np.mean(yh))
+        wave_est = abs(y_mean - round(y_mean / _LANE_W) * _LANE_W)
 
         return _formula(spd_kmh, accel_est, prox_est, wave_est)
 

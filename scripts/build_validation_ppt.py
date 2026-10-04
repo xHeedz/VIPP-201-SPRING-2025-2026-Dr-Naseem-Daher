@@ -25,6 +25,7 @@ from pptx.util import Inches, Pt
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 from model import AggressivenessModel
+from model.aggressiveness_model import breakdown
 
 # ----------------------------------------------------------------
 # Colour palette
@@ -159,17 +160,9 @@ EXAMPLES = {
 }
 
 def hand_calc(ex):
-    n_s = min(ex["speed_kmh"] / 150.0, 1.0)
-    n_a = min(abs(ex["accel_ms2"]) / 5.0, 1.0)
-    n_p = (1.0 - ex["prox_m"] / 50.0) if 0 < ex["prox_m"] <= 50 else 0.0
-    n_w = min(abs(ex["wave_m"]) / 1.5, 1.0)
-    c_s = n_s**2 * m.w_speed
-    c_a = n_a    * m.w_accel
-    c_p = n_p**2 * m.w_prox
-    c_w = n_w    * m.w_wave
-    total = (c_s + c_a + c_p + c_w) * 100
-    return dict(n_s=n_s, n_a=n_a, n_p=n_p, n_w=n_w,
-                c_s=c_s, c_a=c_a, c_p=c_p, c_w=c_w, total=min(total, 100))
+    b = breakdown(ex["speed_kmh"], ex["accel_ms2"], ex["prox_m"], ex["wave_m"])
+    return dict(n_s=b["n_speed"], n_a=b["n_accel"], n_p=b["n_prox"], n_w=b["n_wave"],
+                c_s=b["c_speed"], c_a=b["c_accel"], c_p=b["c_prox"], c_w=b["c_wave"], total=b["score"])
 
 
 # ----------------------------------------------------------------
