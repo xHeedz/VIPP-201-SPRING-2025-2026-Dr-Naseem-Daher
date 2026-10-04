@@ -42,7 +42,7 @@
     "agent_trip_acc": 0.9,
     "agent_n_windows": 692.167,
     "original_auc": 0.829,
-    "original_window_acc": 0.707,
-    "original_trip_acc": 0.611
+    "original_window_acc": 0.768,
+    "original_trip_acc": 0.967
   }
 }

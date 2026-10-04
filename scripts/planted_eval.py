@@ -8,7 +8,7 @@ Per run (scenario, density, seed), windows of 10 s built exactly like UAH window
     time headway variant, the UAH trained agent (data/dynamic_weight_agent.json), and each
     single term
   * AUC conservative vs normal (does the index place calm drivers below normal ones)
-  * vehicle level 3 x 3 confusion matrix with the reference cut offs 35 / 70
+  * vehicle level 3 x 3 confusion matrix with the reference cut offs (model/aggressiveness_model.py THRESHOLDS)
   * median score of normal drivers (density sweep: should not climb with density)
   * with sensor noise (model/noise.py gaussian): highway medium at 1x, weather at 2x
 Mean and 95% CI over seeds (t distribution). Calibration: speed and time headway of the
@@ -28,7 +28,7 @@ import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from paths import DATA_DIR, FIG_DIR  # noqa: E402
 from datasets.sumo_log import windows_from_per_second  # noqa: E402
-from model.aggressiveness_model import headway_features, label, original_score  # noqa: E402
+from model.aggressiveness_model import THRESHOLDS, headway_features, label, original_score  # noqa: E402
 from model.dynamic_weight_agent import DynamicWeightAgent  # noqa: E402
 from model.noise import noise_suite, sensor_view  # noqa: E402
 
@@ -86,7 +86,7 @@ def run_metrics(path, agent):
     w = w.assign(score=ref)
     for c in CATS:
         out[f"median_score_{c}"] = float(w.loc[w["behavior"] == c, "score"].median())
-    out["share_aggressive_label_normal_drivers"] = float((w.loc[w["behavior"] == "normal", "score"] >= 70).mean())
+    out["share_aggressive_label_normal_drivers"] = float((w.loc[w["behavior"] == "normal", "score"] >= THRESHOLDS[1]).mean())
     per_vehicle = w.groupby("trip").agg(score=("score", "mean"), truth=("behavior", "first"))
     per_vehicle["pred"] = per_vehicle["score"].apply(lambda s: label(s).lower())
     conf = pd.crosstab(per_vehicle["truth"], per_vehicle["pred"]).reindex(index=CATS, columns=CATS, fill_value=0)
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     with pd.option_context("display.width", 250, "display.max_columns", 60):
         print(summary.round(3).to_string(index=False))
         conf = pd.concat(confs).groupby(level=0).sum(numeric_only=True).drop(columns="seed").reindex(CATS)
-        print("\nvehicle level confusion, all runs (rows truth, columns label from 35 / 70):")
+        print(f"\nvehicle level confusion, all runs (rows truth, columns label from {THRESHOLDS[0]:g} / {THRESHOLDS[1]:g}):")
         print(conf.to_string())
         if cal is not None:
             print(cal[0].round(3).to_string(index=False))

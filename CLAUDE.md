@@ -46,12 +46,12 @@ Context file for Claude Code. Read fully before doing anything in this repo.
 ## repo state
 
 - `main` at `9ac0465` "Add sensor noise on real drivers, context score, NGSIM ellipse replay and main.py" (committed and pushed 3 Oct 2026). Before it: `9ad8b3c`, `6ff1d4a`, `ca0a88c`.
-- 62 tests pass (`python -m pytest -q`).
+- 65 tests pass (`python -m pytest -q`).
 - Gotcha: never leave `.git/index.lock` behind. If git says another process is running, check for a stale `.git/index.lock` and remove it.
 
 ## repo map (what matters for today)
 
-- `model/aggressiveness_model.py`: THE reference index (constants, `label`, `index_features`, `original_score`, `breakdown`; `AggressivenessModel` is a thin scalar wrapper). weights 0.5/0.2/0.8/0.4, squared speed and prox, wave / 1.5, labels < 35 / < 70.
+- `model/aggressiveness_model.py`: THE reference index (constants, `label`, `index_features`, `original_score`, `breakdown`, `headway_features`; `AggressivenessModel` is a thin scalar wrapper). weights 0.5/0.2/0.8/0.4, squared speed and prox, wave / 1.5, labels < 29 / < 42 (fitted 4 Oct, were 35 / 70).
 - `model/sumo_features.py`: `npc_features(traci, vid)`, the one way SUMO inputs are measured.
 - `model/aggressiveness_core.py`: highway-env `GroundTruthAssessor`, `AgentAssessor` (signed accel noise, lane offset wave), `_formula` wraps the reference.
 - `model/dynamic_weight_agent.py`: DynamicWeightAgent, one softmax weight set and one learned threshold per environment (highway, urban, weather). `ai()` at line 105.
@@ -201,3 +201,12 @@ Diagram: window + context -> retriever -> similar labelled windows -> scorer (pe
 - write-up: `docs/research_notebook/fall_2026_10_04_part4_rag.md`. Code: `model/rag.py`, `datasets/contexts.py`, `knowledge/`, `scripts/rag_ablation.py`, bibliography J.
 - RAG helps only where situations are mixed (pooled SUMO 0.751 -> 0.778, headway 0.830 -> 0.849), loses 0.028 on UAH. Headway adds more than context. Uncalibrated SUMO is a bad reference set for real traffic.
 - Open items for next session: tune SUMO tau to NGSIM, fit or replace the 35/70 cut-offs, decide metres vs headway (Dr. Daher), labelled dense-traffic reference set, highD/exiD application (Hadi), hand check one arterial and one pNEUMA window, UAH lane estimator state (finding 10), ego right of way.
+
+## where things stood (4 Oct 2026, open items done)
+- write-up: `docs/research_notebook/fall_2026_10_04_open_items.md`.
+- SUMO types calibrated: tau x 0.7 (1.26 / 0.84 / 0.42 s); jam headway KS 0.087 vs NGSIM; speed still off (network, not parameters). Uncalibrated results kept as `data/*_tau1.csv`.
+- Cut-offs adopted 29 / 42 (Hadi, 4 Oct). WARNING: in metres this labels 60 to 79% of NGSIM windows aggressive; do not report dense-traffic shares in metres. Metres vs headway is the decision for Dr. Daher.
+- Arterial lane centre per 10 m (curvature was read as wave). Hand checks for Lankershim and pNEUMA pass.
+- Ego: highway lane change mode 512 (collisions 176 -> 1); urban speed mode 30 (13 collisions / 200 episodes; 31 stalls).
+- Labelled dense data: route = 100-DrivingStyle (email drafted in `../drafts/email_100_drivingstyle.md`) + DriveDNA (needs Hadi's HF licence + `huggingface-cli login`). highD/exiD skipped (Hadi).
+- Everything is merged into `main` and pushed.

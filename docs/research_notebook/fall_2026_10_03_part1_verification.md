@@ -10,7 +10,7 @@ AI = min(100 (0.5 n_s^2 + 0.2 n_a + 0.8 n_p^2 + 0.4 n_w), 100)
 - n_a = min(|a| / 5 m/s2, 1)
 - n_p = 1 - gap / 50 m if 0 < gap <= 50 m, else 0 (gap = bumper to bumper gap to the car ahead in the same lane, 0 = no car ahead)
 - n_w = min(|offset from the lane centre| / 1.5 m, 1)
-- labels: < 35 conservative, < 70 normal, else aggressive
+- labels: < 29 conservative, < 42 normal, else aggressive (fitted on UAH and calibrated SUMO, `fall_2026_10_04_open_items.md`; the numbers on this page were computed with the earlier cut offs 35 / 70)
 
 constants `SPEED_MAX_KMH`, `ACCEL_MAX_MS2`, `PROX_MAX_M`, `WAVE_MAX_M`, `WEIGHTS`, `THRESHOLDS`; functions `index_features`, `original_score`, `label`, `breakdown`. every script imports these. SUMO inputs come from one function, `model/sumo_features.py` `npc_features`.
 
@@ -96,7 +96,7 @@ changes: reference formula in both; agent accel = slope + signed noise (was abs(
 
 reproduction of the old code at HEAD: 92.8 / 82.8 / 89.0%, not the reported 91.0 / 81.6 / 88.3%. the numpy noise was never seeded, so every run differs.
 
-5 seeds each:
+5 seeds each (cut offs 35 / 70; with the fitted 29 / 42 see `fall_2026_10_04_open_items.md`):
 
 | scenario | n | agreement | majority baseline | GT conservative / normal / aggressive | bias abs(a) (m/s2) old rule | new rule | bias wave (m) |
 |---|---|---|---|---|---|---|---|

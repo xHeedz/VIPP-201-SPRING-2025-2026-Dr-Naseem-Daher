@@ -28,7 +28,7 @@ import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from paths import DATA_DIR  # noqa: E402
 from datasets.uah import find_trips, load_trip, windows  # noqa: E402
-from model.aggressiveness_model import headway_features, index_features, original_score  # noqa: E402
+from model.aggressiveness_model import THRESHOLDS, headway_features, index_features, original_score  # noqa: E402
 from model.dynamic_weight_agent import DynamicWeightAgent  # noqa: E402
 from model.rag import Context, WindowIndex, explain  # noqa: E402
 from datasets.contexts import ngsim_context, sumo_context as sumo_ctx, uah_context as uah_ctx  # noqa: E402
@@ -179,7 +179,7 @@ def ngsim_flags(uah_w, sumo_w):
         pct = idx.score_many(ng["score"].to_numpy(), ctx)
         for site, g in ng.assign(pct=pct).groupby("site"):
             rows.append({"reference": name, "site": site, "windows": len(g), "share_flagged_95": float((g["pct"] >= 95).mean()),
-                         "share_raw_ge_70": float((g["score"] >= 70).mean()), "median_pct": float(g["pct"].median())})
+                         "share_raw_aggressive": float((g["score"] >= THRESHOLDS[1]).mean()), "median_pct": float(g["pct"].median())})
     return pd.DataFrame(rows)
 
 
@@ -225,7 +225,7 @@ def ngsim_flags_headway(uah_w, sumo_w):
         pct = WindowIndex(s, c).score_many(ng["score_headway"].to_numpy(), ctx)
         for site, g in ng.assign(pct=pct).groupby("site"):
             rows.append({"reference": name, "site": site, "share_flagged_95": float((g["pct"] >= 95).mean()),
-                         "share_raw_ge_70": float((g["score_headway"] >= 70).mean()), "median_pct": float(g["pct"].median())})
+                         "share_raw_aggressive": float((g["score_headway"] >= THRESHOLDS[1]).mean()), "median_pct": float(g["pct"].median())})
     return pd.DataFrame(rows)
 
 

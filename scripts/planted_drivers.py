@@ -51,10 +51,11 @@ NETCONV = os.path.join(SUMO_HOME, "bin", "netconvert")
 NET_DIR = os.path.join(SUMO_DIR, "planted")
 OUT_DIR = os.path.join(DATA_DIR, "sumo_planted")
 
-TYPES = {   # plan table (part 2), starting guess
-    "conservative": dict(tau=1.8, accel=1.5, decel=3.0, speedFactor=0.9, lcAssertive=0.5, sigma=0.2),
-    "normal":       dict(tau=1.2, accel=2.6, decel=4.5, speedFactor=1.0, lcAssertive=1.0, sigma=0.5),
-    "aggressive":   dict(tau=0.6, accel=3.5, decel=6.0, speedFactor=1.2, lcAssertive=3.0, sigma=0.7),
+TYPES = {   # plan table (part 2) with tau x 0.7: calibrated on the time headway of NGSIM US-101
+    # (KS distance 0.09 to 0.11 against 0.28 to 0.31 for the table values; scripts/planted_tau_sweep.py)
+    "conservative": dict(tau=1.26, accel=1.5, decel=3.0, speedFactor=0.9, lcAssertive=0.5, sigma=0.2),
+    "normal":       dict(tau=0.84, accel=2.6, decel=4.5, speedFactor=1.0, lcAssertive=1.0, sigma=0.5),
+    "aggressive":   dict(tau=0.42, accel=3.5, decel=6.0, speedFactor=1.2, lcAssertive=3.0, sigma=0.7),
 }
 MIX = {"conservative": 0.2, "normal": 0.6, "aggressive": 0.2}
 LC_SIGMA = 0.2

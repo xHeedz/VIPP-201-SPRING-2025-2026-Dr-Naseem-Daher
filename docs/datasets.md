@@ -8,7 +8,7 @@ every source goes through the same table before scoring: one row per second with
 | UAH, window labels | `scripts/uah_relabel.py` | DriveSafe "ratio aggressive WINDOW" (last 60 s), SEMANTIC_ONLINE col 14 | second | | | | |
 | SUMO planted drivers | `scripts/planted_drivers.py`, `datasets/sumo_log.py` | conservative / normal / aggressive by vType (IDM tau, accel, decel, speedFactor, lcAssertive) | vehicle | TraCI, sampled 1 Hz | derivative of 3 s smoothed speed | getLeader + minGap | lateral lane position (SL2015, lcSigma 0.2 for all) |
 | NGSIM US-101, I-80 | `datasets/ngsim.py` | none | | Local_Y derivative | accel_1hz (UAH way) | Space_Headway minus leader length | Local_X minus lane median |
-| NGSIM Lankershim, Peachtree | `datasets/ngsim.py` (planar) | none | | 2-D path derivative | accel_1hz | as above | Local_X minus median per (direction, section, lane); through traffic on sections only |
+| NGSIM Lankershim, Peachtree | `datasets/ngsim.py` (planar) | none | | 2-D path derivative | accel_1hz | as above | Local_X minus median per (direction, section, lane, 10 m of road: the arterials curve in the Local_X frame); through traffic on sections only |
 | pNEUMA (Athens) | `datasets/pneuma.py` | none | | pNEUMA speed, 1 Hz | derivative of 3 s smoothed speed | nearest vehicle ahead in a +-1.6 m, 30 deg cone, minus half lengths | not measurable without a lane map: 0 (three term score) |
 
 ## label definitions

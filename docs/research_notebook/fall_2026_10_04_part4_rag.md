@@ -31,39 +31,41 @@ UAH, leave one driver out (reference: normal windows of the other five drivers),
 | D6 | 0.852 | 0.827 | 0.831 | 0.819 | 0.853 |
 | pooled | 0.840 | 0.740 | 0.812 | 0.779 | 0.802 |
 
-SUMO planted drivers, split by seed (reference seeds 0 to 4, test 5 to 9 and the reverse), AUC aggressive vs normal (`data/rag_ablation_sumo.csv`):
+SUMO planted drivers (calibrated tau, see `fall_2026_10_04_open_items.md`), split by seed (reference seeds 0 to 4, test 5 to 9 and the reverse), AUC aggressive vs normal (`data/rag_ablation_sumo.csv`):
 
 | | no context | no context, headway | 3 environments (agent) | RAG | RAG, headway |
 |---|---|---|---|---|---|
-| pooled over all scenarios | 0.751 | 0.830 | 0.730 | 0.778 | 0.849 |
-| highway low | 0.897 | 0.891 | 0.876 | 0.900 | 0.895 |
-| highway medium | 0.834 | 0.875 | 0.744 | 0.834 | 0.875 |
-| jam | 0.714 | 0.785 | 0.658 | 0.729 | 0.790 |
-| merge | 0.752 | 0.862 | 0.679 | 0.755 | 0.859 |
-| roundabout | 0.916 | 0.981 | 0.886 | 0.915 | 0.977 |
-| urban | 0.876 | 0.932 | 0.864 | 0.872 | 0.927 |
-| weather | 0.822 | 0.869 | 0.838 | 0.821 | 0.869 |
+| pooled over all scenarios | 0.759 | 0.802 | 0.712 | 0.790 | 0.806 |
+| highway low | 0.885 | 0.843 | 0.883 | 0.887 | 0.846 |
+| highway medium | 0.864 | 0.830 | 0.812 | 0.859 | 0.829 |
+| jam | 0.743 | 0.759 | 0.636 | 0.758 | 0.754 |
+| merge | 0.781 | 0.839 | 0.697 | 0.758 | 0.837 |
+| roundabout | 0.924 | 0.975 | 0.884 | 0.925 | 0.968 |
+| urban | 0.868 | 0.904 | 0.857 | 0.865 | 0.901 |
+| weather | 0.805 | 0.824 | 0.833 | 0.801 | 0.824 |
+
+(with the uncalibrated driver types, `data/rag_ablation_sumo_tau1.csv`: pooled 0.751 / 0.830 / 0.730 / 0.778 / 0.849.)
 
 reading:
-- inside one situation a percentile is a monotone rescaling of the raw score, so RAG cannot change the AUC much there (per scenario rows). it helps only where situations are mixed: pooled SUMO +0.027 (metres) and +0.019 (headway).
+- inside one situation a percentile is a monotone rescaling of the raw score, so RAG cannot change the AUC much there (per scenario rows). it helps only where situations are mixed: pooled SUMO +0.031 (metres), +0.004 (headway).
 - on UAH, RAG loses 0.028: UAH has two road types, no traffic state and free flow only, so there is little context to use, and many aggressive windows sit at the 100th percentile together (ties lose ranking information).
-- measurement beats context: headway alone adds +0.079 on pooled SUMO, RAG adds +0.019 on top. best combination: headway + RAG, 0.849.
+- measurement first: headway alone adds +0.043 on pooled SUMO; RAG adds +0.031 to the metres score and almost nothing on top of headway (both remove the same density effect). best: headway + RAG, 0.806.
 - the per environment agent is the weakest everywhere except weather: three weight sets learned from trip labels do not carry the situation.
 
 ## NGSIM: what the reference set does (no labels, `data/rag_ngsim_flags.csv`, `data/rag_ngsim_flags_headway.csv`)
 
-share of NGSIM windows flagged (context score >= 95), against the raw cut off 70:
+share of NGSIM windows flagged (context score >= 95):
 
-| site | raw >= 70, metres | RAG metres, ref UAH | RAG metres, ref UAH + SUMO | raw >= 70, headway | RAG headway, ref UAH | RAG headway, ref UAH + SUMO |
-|---|---|---|---|---|---|---|
-| US-101 | 10.2% | 18.3% | 24.3% | 3.1% | 0.7% | 40.6% |
-| I-80 | 20.7% | 32.6% | 31.4% | 1.3% | 0.5% | 24.1% |
-| Lankershim | 31.1% | 60.7% | 45.8% | 5.1% | 12.4% | 81.2% |
-| Peachtree | 15.8% | 38.6% | 26.2% | 1.5% | 3.7% | 61.6% |
+| site | RAG metres, ref UAH | RAG metres, ref UAH + calibrated SUMO | RAG headway, ref UAH | RAG headway, ref UAH + calibrated SUMO | same, uncalibrated SUMO |
+|---|---|---|---|---|---|
+| US-101 | 18.3% | 35.8% | 0.7% | 15.5% | 40.6% |
+| I-80 | 32.6% | 27.1% | 0.5% | 7.5% | 24.1% |
+| Lankershim | 45.6% | 27.7% | 3.1% | 32.2% | 81.2% |
+| Peachtree | 28.5% | 15.5% | 0.7% | 13.6% | 61.6% |
 
-- with UAH as the only reference, dense US traffic has no matching situation (UAH has no jams, no freeways), the index falls back to all UAH normal windows, and in metres 18 to 61% of NGSIM windows look extreme. retrieval cannot invent a reference that does not exist.
-- with headway and UAH as reference the shares drop to 0.5 to 12%.
-- adding the SUMO planted normal drivers as a jam reference makes it worse (24 to 81% with headway): SUMO normal drivers keep longer headways than real US-101 drivers (part 2 calibration: NGSIM headways peak at 1.0 s, simulated ones at 1.4 s), so real traffic looks aggressive against them. an uncalibrated simulator is a bad reference set. calibrating tau to NGSIM (part 2, open) is a precondition for using simulated windows as references.
+- with UAH as the only reference, dense US traffic has no matching situation (UAH has no jams, no freeways), the index falls back to all UAH normal windows, and in metres 18 to 46% of NGSIM windows look extreme. retrieval cannot invent a reference that does not exist.
+- with headway and UAH as reference the shares drop to 0.5 to 3%.
+- adding the SUMO planted normal drivers as the jam reference: uncalibrated, 24 to 81% flagged (SUMO normal drivers kept longer headways than real drivers); calibrated (tau x 0.7), 7.5 to 32%. calibration removes most of the gap; the rest follows from the speed distribution, which the lane drop network does not match (stop and go or free flow, never 48 km/h synchronized flow).
 
 ## explanation examples (`docs/hand_checks/rag_explanations.md`)
 
@@ -84,4 +86,4 @@ share of NGSIM windows flagged (context score >= 95), against the raw cut off 70
 - [x] knowledge folder and an explanation that cites the file it used
 - [x] 4 papers for bibliography J
 - [ ] a labelled reference set from dense traffic (the missing piece for RAG on real traffic)
-- [ ] calibrate SUMO before using simulated windows as references
+- [x] calibrate SUMO before using simulated windows as references (time headway; speed still off)

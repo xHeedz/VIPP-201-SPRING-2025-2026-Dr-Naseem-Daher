@@ -43,7 +43,7 @@ def score_terms(speed_kmh, accel, gap, wave):
 
 
 def lbl(s):
-    return "Conservative" if s < 35 else ("Normal" if s < 70 else "Aggressive")
+    return "Conservative" if s < 29 else ("Normal" if s < 42 else "Aggressive")
 
 
 def gradient_at(t, v, i):
@@ -206,7 +206,7 @@ def write_page(path):
          "files, no pipeline code). pipeline numbers: `datasets/uah.py` `windows` and `datasets/ngsim.py` `trajectories`.", "",
          "formula: AI = min(100 (0.5 n_s^2 + 0.2 n_a + 0.8 n_p^2 + 0.4 n_w), 100); n_s = min(v_kmh/150, 1),",
          "n_a = min(|a|/5, 1), n_p = 1 - gap/50 if 0 < gap <= 50 else 0, n_w = min(|wave|/1.5, 1);",
-         "labels: < 35 conservative, < 70 normal, else aggressive.", ""]
+         "labels: < 29 conservative, < 42 normal, else aggressive (fitted, scripts/fit_cutoffs.py).", ""]
     for name, folder, t0 in UAH_WINDOWS:
         h, p = uah_window(folder, t0), uah_pipeline(folder, t0)
         L += [f"## {name.lower()}, window t0 = {t0} s, 10 s", "",

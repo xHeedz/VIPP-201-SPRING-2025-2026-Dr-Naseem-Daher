@@ -29,11 +29,12 @@ UAH_AGGRESSIVE = [(127.666667, -0.319629, 13.52, 0.061), (125.700000, -0.343670,
                   (125.166667, -0.224746, 11.43, 0.181), (124.200000, -0.301814, 11.49, 0.134),
                   (123.066667, -0.189928, 11.69, 0.270)]
 # hand results: mean features (n_s^2, n_a, n_p^2, n_w), score, label
-UAH_NORMAL_HAND = ([0.506495, 0.018218, 0.179814, 0.056200], 42.32, "Normal")
+# labels with the fitted cut offs 29 / 42: the median window of a normal trip (107 km/h, 1.0 s headway) is at 42.32
+UAH_NORMAL_HAND = ([0.506495, 0.018218, 0.179814, 0.056200], 42.32, "Aggressive")
 UAH_AGGRESSIVE_HAND = ([0.696416, 0.034045, 0.574431, 0.135758], 86.89, "Aggressive")
 # NGSIM US-101 car 983, t = 259.0 s: inputs and hand score
 NGSIM_983 = (33.884555, 0.761317, 15.797784, 0.355183)
-NGSIM_983_HAND = (52.50, "Normal")
+NGSIM_983_HAND = (52.50, "Aggressive")
 
 
 @pytest.mark.parametrize("seconds, hand", [(UAH_NORMAL, UAH_NORMAL_HAND), (UAH_AGGRESSIVE, UAH_AGGRESSIVE_HAND)])
@@ -96,3 +97,29 @@ def test_ngsim_loader_reproduces_hand_row():
     row = car.iloc[int((car["t"] - 259.0).abs().argmin())]
     got = (row["speed"] * 3.6, row["accel_1hz"], row["gap"], row["wave"])
     assert np.allclose(got, NGSIM_983, atol=1e-5)
+
+
+# ── arterial and pNEUMA (docs/hand_checks/hand_check_arterial_pneuma.md) ────
+LANK_100065 = (13.354879, -1.202448, 4.608576, 0.224180, 77.12)     # speed, accel, gap, wave, score at t = 29 s
+PNEUMA_19 = (13.671933, -0.912782, 9.256161, 0.0, 57.19)            # second 37, leader 46 stopped ahead
+
+
+def test_arterial_and_pneuma_hand_scores():
+    for s, a, g, w, score in (LANK_100065, PNEUMA_19):
+        assert round(float(original_score(index_features(s, a, g, w))), 2) == score
+
+
+@pytest.mark.skipif(not os.path.isfile(os.path.join(DATA, "ngsim_lankershim.csv")), reason="Lankershim extract not present")
+def test_lankershim_loader_reproduces_hand_row():
+    from datasets.ngsim import per_second, read_raw, trajectories
+    ps = per_second(trajectories(read_raw(os.path.join(DATA, "ngsim_lankershim.csv"), "lankershim"), planar=True))
+    row = ps[(ps["vehicle_id"] == 100065) & (ps["t"] == 29)].iloc[0]
+    assert np.allclose((row["speed_kmh"], row["accel"], row["gap_m"], row["wave_m"]), LANK_100065[:4], atol=1e-5)
+
+
+@pytest.mark.skipif(not os.path.isfile(os.path.join(DATA, "pneuma", "20181024_d1_0830_0900.csv")), reason="pNEUMA slice not present")
+def test_pneuma_loader_reproduces_hand_second():
+    from datasets.pneuma import per_second, read_raw
+    ps = per_second(read_raw(os.path.join(DATA, "pneuma", "20181024_d1_0830_0900.csv")))
+    row = ps[(ps["vehicle_id"] == 19) & (ps["t"] == 37)].iloc[0]
+    assert np.allclose((row["speed_kmh"], row["accel"], row["gap_m"]), PNEUMA_19[:3], atol=1e-5)

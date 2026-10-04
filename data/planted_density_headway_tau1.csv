@@ -1,0 +1,9 @@
+,,median,median,median,prox_points,prox_points,prox_points
+density,,low,medium,jam,low,medium,jam
+prox,type,,,,,,
+metres,conservative,27.0,24.0,27.8,0.0,5.0,22.7
+metres,normal,31.8,29.5,45.7,0.2,8.7,33.0
+metres,aggressive,45.3,47.9,62.4,3.1,17.9,44.9
+headway,conservative,27.3,22.7,13.5,0.4,1.1,2.3
+headway,normal,34.1,32.8,23.0,2.5,8.1,10.6
+headway,aggressive,50.8,58.7,44.5,10.2,25.0,28.0

@@ -120,7 +120,13 @@ def trajectories(raw, smooth_s=1.0, planar=False):
     d["gap"] = np.where((d["Preceding"] > 0) & (d["Space_Headway"] > 0), gap.clip(lower=0.1), 0.0)
 
     # lateral offset from the lane centre (median lateral position of each lane)
-    keys = ["Lane_ID"] + ([c for c in ("Direction", "Section_ID") if c in d.columns] if planar else [])
+    keys = ["Lane_ID"]
+    if planar:
+        # arterials curve in the fixed Local_X / Local_Y frame (within-lane spread of Local_X about 2.1 m on
+        # Lankershim and Peachtree against 0.6 m on US-101), so one centre per lane turns the road's curvature
+        # into "wave"; the centre is taken per 10 m of road instead
+        d["_ybin"] = np.floor(d["pos_s"] / 10.0)
+        keys = keys + [c for c in ("Direction", "Section_ID") if c in d.columns] + ["_ybin"]
     d["wave"] = (d["lat_s"] - d.groupby(keys)["lat_s"].transform("median")).abs()
 
     d["accel_1hz"] = _accel_1hz(d)

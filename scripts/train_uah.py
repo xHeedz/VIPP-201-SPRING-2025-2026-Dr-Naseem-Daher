@@ -32,12 +32,12 @@ import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from paths import DATA_DIR, FIG_DIR  # noqa: E402
 from datasets.uah import load_windows  # noqa: E402
-from model.aggressiveness_model import original_score  # noqa: E402
+from model.aggressiveness_model import THRESHOLDS, original_score  # noqa: E402
 from model.dynamic_weight_agent import DynamicWeightAgent  # noqa: E402
 
 FEATS = ["phi_speed", "phi_accel", "phi_prox", "phi_wave"]
 LODO_DIR = os.path.join(DATA_DIR, "uah_lodo_agents")
-ORIGINAL_THRESHOLD = 70.0
+ORIGINAL_THRESHOLD = THRESHOLDS[1]
 
 
 def auc(scores, labels):

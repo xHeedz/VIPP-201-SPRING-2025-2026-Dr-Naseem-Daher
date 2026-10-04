@@ -18,9 +18,9 @@ Worked example: L = 4.5 m, W = 1.8 m, speed 25 m/s, AI 80
 The same vehicle at AI 20 gets T = 0.8 s and a = 22.25 m.
 
 The colour follows the three categories: red aggressive (AI at or above the
-aggressive threshold), green conservative (below half of it, which is 35 for the
-original threshold of 70), yellow normal in between. The trained agent learns its
-own threshold, so both boundaries move with it.
+aggressive threshold), green conservative (below 29/42 of it, the reference cut offs
+29 and 42), yellow normal in between. The trained agent learns its own threshold,
+so both boundaries move with it.
 
 Everything here is plain math on numbers, with no SUMO inside, so the shapes can
 be tested on their own and reused by any script (SUMO, plots, ROS2).
@@ -28,6 +28,8 @@ Coordinates are metres; heading is the direction of travel in radians,
 0 meaning along +x.
 """
 import math
+
+from model.aggressiveness_model import THRESHOLDS
 
 N_POINTS = 24            # points used to trace each ellipse
 
@@ -37,7 +39,7 @@ B_BASE = 0.5             # m   extra half-width at AI 0
 B_AI = 1.0               # m   extra half-width at AI 100
 FORWARD_SHIFT = 0.5      # fraction of the speed stretch the centre moves forward
 
-CONSERVATIVE_SHARE = 0.5     # conservative below this share of the aggressive threshold (35 / 70)
+CONSERVATIVE_SHARE = THRESHOLDS[0] / THRESHOLDS[1]     # conservative below this share of the aggressive threshold (29 / 42)
 
 GREEN = (46, 160, 67)
 YELLOW = (230, 180, 0)
@@ -81,7 +83,7 @@ def influence_ellipse(x_front, y, length, width, speed, ai, heading=0.0):
     return ellipse_points(cx, cy, a, b, heading)
 
 
-def category(ai, aggressive_from=70.0):
+def category(ai, aggressive_from=THRESHOLDS[1]):
     if ai >= aggressive_from:
         return "aggressive"
     if ai < CONSERVATIVE_SHARE * aggressive_from:
@@ -89,7 +91,7 @@ def category(ai, aggressive_from=70.0):
     return "normal"
 
 
-def color_for(ai, aggressive_from=70.0, alpha=255):
+def color_for(ai, aggressive_from=THRESHOLDS[1], alpha=255):
     """RGBA colour for a score: green, yellow or red."""
     rgb = {"conservative": GREEN, "normal": YELLOW, "aggressive": RED}[category(ai, aggressive_from)]
     return rgb + (alpha,)

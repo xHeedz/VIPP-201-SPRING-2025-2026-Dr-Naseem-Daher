@@ -28,11 +28,11 @@ scenarios, 10 seeds each (70 runs, 900 s, first 120 s discarded, 0.1 s steps):
 
 the density levels were measured, not guessed: a first version with a 1 lane work zone jammed at every demand (cars stall at the end of the closing lane, 12% of rows below 30 km/h even at 600 veh/h); with `departLane="best"` every car was inserted in the lanes that continue, which capped insertion and never formed a queue. both fixed before the 70 runs used here.
 
-one code path: every vehicle logged at 10 Hz (speed, accel, gap to the leader + minGap, offset from the lane centre, lane, edge), reduced to one row per second the UAH way (`datasets/sumo_log.py`: speed once per second, 3 s mean, derivative as accel), then `datasets/uah.py` `windows` (10 s, step 5 s) and `index_features`, exactly like UAH. raw logs: `data/sumo_planted/` (not in git, about 270 MB); summaries `data/planted_*.csv`.
+one code path: every vehicle logged at 10 Hz (speed, accel, gap to the leader + minGap, offset from the lane centre, lane, edge), reduced to one row per second the UAH way (`datasets/sumo_log.py`: speed once per second, 3 s mean, derivative as accel), then `datasets/uah.py` `windows` (10 s, step 5 s) and `index_features`, exactly like UAH. summaries of these runs: `data/planted_*_tau1.csv` (the logs in `data/sumo_planted/` now hold the calibrated runs, see `fall_2026_10_04_open_items.md`).
 
-## results (`scripts/planted_eval.py`, mean and 95% CI over 10 seeds)
+## results (`scripts/planted_eval.py`, mean and 95% CI over 10 seeds, `data/planted_summary_tau1.csv`)
 
-AUC aggressive vs normal, window level (`results/figures/planted_auc.png`):
+AUC aggressive vs normal, window level:
 
 | scenario | reference (gap in m) | time headway variant | UAH trained agent | conservative vs normal (reference) |
 |---|---|---|---|---|
@@ -59,7 +59,7 @@ vehicle level labels with the cut offs 35 / 70 (all 70 runs):
 
 the ranking works, the cut offs do not: 56 of 6434 planted aggressive vehicles (0.9%) reach 70, all in the jam; most normal drivers fall below 35. the cut offs 35 / 70 were never fitted to anything. the agent's learned threshold, or a percentile threshold (part 4), is the fix; the hand-set cut offs should not be used to report shares of aggressive drivers.
 
-## density sweep (same highway, `results/figures/planted_density_sweep.png`, `data/planted_density_headway.csv`)
+## density sweep (same highway, `data/planted_density_headway_tau1.csv`)
 
 median window score per true type, and mean points from the proximity term:
 
@@ -91,7 +91,7 @@ reading the two together:
 - UAH is mostly free flow on motorways and secondary roads with no jams, so it cannot show the density effect that headway removes; and UAH gaps come from a phone camera that sees a car ahead only 47% of the time.
 - decision for Dr. Daher: headway removes the density climb (SUMO) at a cost of 0.03 AUC on free flow real drivers (UAH). a labelled set with dense traffic (part 3) is needed to settle it. until then the reference stays in metres and every result reports both.
 
-## calibration against NGSIM US-101 (`data/planted_calibration.csv`, `results/figures/planted_calibration.png`)
+## calibration against NGSIM US-101 (`data/planted_calibration_tau1.csv`)
 
 | density | sim speed median (km/h) | NGSIM | KS D | sim headway median (s) | NGSIM | KS D |
 |---|---|---|---|---|---|---|
@@ -129,6 +129,6 @@ the 30 m/s2 braking is gone. collisions rise a little because the ego can no lon
 - [x] weather: lower speedFactor and decel, sensor noise 2x
 - [x] calibration check against NGSIM (fails, direction known)
 - [x] NGSIM ellipse replay on the verified features
-- [ ] tune tau to US-101 and repeat the KS test
+- [x] tune tau to US-101 and repeat the KS test (`fall_2026_10_04_open_items.md`)
 - [ ] fit the cut offs (or drop them for percentiles in part 4)
 - [ ] ego right of way

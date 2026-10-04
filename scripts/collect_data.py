@@ -28,7 +28,7 @@ BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 
 from model import AggressivenessModel
-from model.aggressiveness_model import breakdown
+from model.aggressiveness_model import THRESHOLDS, breakdown
 from model.sumo_features import npc_features
 
 SUMO_HOME = os.environ.get("SUMO_HOME", r"C:\Program Files (x86)\Eclipse\Sumo")
@@ -105,7 +105,7 @@ def _print_breakdown(m, vid, speed_kmh, accel_ms2, prox_m, wave_m, ai_score, lab
     print(f"  | SUM  = {c_speed:.6f} + {c_accel:.6f} + {c_prox:.6f} + {c_wave:.6f}")
     print(f"  |      = {raw_sum:.6f}")
     print(f"  | FINAL AI Score = min({raw_sum:.6f} * 100, 100) = {ai_score:.3f}")
-    print(f"  +-- LABEL: [{label}]  (score<35=Conservative  35-70=Normal  >=70=Aggressive) --+")
+    print(f"  +-- LABEL: [{label}]  (score<{THRESHOLDS[0]:g}=Conservative  {THRESHOLDS[0]:g}-{THRESHOLDS[1]:g}=Normal  >={THRESHOLDS[1]:g}=Aggressive) --+")
 
 
 # ----------------------------------------------------------------
@@ -153,7 +153,7 @@ def run_intersection():
             continue
 
         traci.vehicle.setSpeedMode(EGO, 6)   # respect vType accel/decel limits
-        traci.vehicle.setLaneChangeMode(EGO, 0)
+        traci.vehicle.setLaneChangeMode(EGO, 512)   # requested changes respect safe gaps
 
         tracker          = VehicleTracker(history_len=8)
         ego_speed_target = 10.0
@@ -272,7 +272,7 @@ def run_highway():
             continue
 
         traci.vehicle.setSpeedMode(EGO, 6)   # respect vType accel/decel limits
-        traci.vehicle.setLaneChangeMode(EGO, 0)
+        traci.vehicle.setLaneChangeMode(EGO, 512)   # requested changes respect safe gaps
 
         ego_speed_target = 20.0
         log_probs, rewards = [], []

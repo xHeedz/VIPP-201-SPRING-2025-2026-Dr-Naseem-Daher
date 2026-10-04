@@ -24,7 +24,7 @@ from collections import deque
 # --- Link back to model.py (AggressivenessModel is the shared scoring engine) ---
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from model import AggressivenessModel
-from model.aggressiveness_model import breakdown
+from model.aggressiveness_model import THRESHOLDS, breakdown
 from model.sumo_features import npc_features
 
 # --- SUMO / TraCI setup ---
@@ -129,7 +129,7 @@ class NPCDataCollector:
         print(f"  │    wave  ×w_wave  : {n_wave:.4f}  × {m.w_wave} = {c_wave:.5f}")
         print(f"  │  Sum = {c_speed:.5f}+{c_accel:.5f}+{c_prox:.5f}+{c_wave:.5f} = {raw_sum:.5f}")
         print(f"  │  AI Score = min({raw_sum:.5f}×100, 100) = {ai_score:.2f}")
-        print(f"  ╚══ Label: [{label}]  (< 35 Conservative | 35-70 Normal | ≥ 70 Aggressive) ══╝")
+        print(f"  ╚══ Label: [{label}]  (< {THRESHOLDS[0]:g} Conservative | {THRESHOLDS[0]:g}-{THRESHOLDS[1]:g} Normal | ≥ {THRESHOLDS[1]:g} Aggressive) ══╝")
 
     # ----------------------------------------------------------
     def epoch_summary(self, epoch):
@@ -384,8 +384,10 @@ def run_episode(agent, exploration_noise, epoch, npc_collector, verbose_epoch):
     # Mode 6 = respect the vType's max accel (bit 1) and max decel (bit 2), no safe-speed
     # override (bit 0 off), so SUMO cannot ghost-brake the ego between setSpeed() calls but
     # a brake action is spread over several steps instead of one 0.1 s step (mode 0 gave 30 m/s2).
-    traci.vehicle.setSpeedMode(EGO_ID, 6)
-    traci.vehicle.setLaneChangeMode(EGO_ID, 0)
+    # + bit 3 (8): right of way at intersections, + bit 4 (16): brake for red lights -> 30
+    traci.vehicle.setSpeedMode(EGO_ID, 30)
+    # 512: no lane changes of its own, requested ones respect the safe gaps of other drivers
+    traci.vehicle.setLaneChangeMode(EGO_ID, 512)
 
     tracker = VehicleTracker(history_len=8)
 
@@ -552,8 +554,8 @@ def train():
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
     axes[0].hist(df_npc["ai_score"], bins=40, color="#3498db", edgecolor="white", alpha=0.85)
-    axes[0].axvline(35, color="#f39c12", linestyle="--", label="Conservative/Normal boundary (35)")
-    axes[0].axvline(70, color="#e74c3c", linestyle="--", label="Normal/Aggressive boundary (70)")
+    axes[0].axvline(THRESHOLDS[0], color="#f39c12", linestyle="--", label=f"Conservative/Normal boundary ({THRESHOLDS[0]:g})")
+    axes[0].axvline(THRESHOLDS[1], color="#e74c3c", linestyle="--", label=f"Normal/Aggressive boundary ({THRESHOLDS[1]:g})")
     axes[0].set_title("NPC AI Score Distribution\n(linked to model.py AggressivenessModel)")
     axes[0].set_xlabel("AI Score")
     axes[0].set_ylabel("Count")

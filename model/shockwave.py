@@ -138,5 +138,6 @@ def _wave_speed(d, road_length_m, spacing):
 
 def driver_profile(ai, sf, sf_threshold):
     """AI category plus a 'disruptive' flag when SF exceeds the threshold."""
-    cat = "conservative" if ai < 35 else ("normal" if ai < 70 else "aggressive")
+    from model.aggressiveness_model import label
+    cat = label(ai).lower()
     return f"{cat}, disruptive" if sf >= sf_threshold else cat

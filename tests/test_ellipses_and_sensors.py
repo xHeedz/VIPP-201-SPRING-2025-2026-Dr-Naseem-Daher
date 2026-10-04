@@ -35,7 +35,7 @@ def test_categories_scale_with_the_threshold():
     assert ellipses.category(50, 70) == "normal"
     assert ellipses.category(30, 70) == "conservative"
     assert ellipses.category(15, 12) == "aggressive"
-    assert ellipses.category(8, 12) == "normal"
+    assert ellipses.category(9, 12) == "normal"           # conservative below 29/42 of the threshold (8.29 for 12)
     assert ellipses.category(5, 12) == "conservative"
     assert ellipses.color_for(80, 70, alpha=70) == ellipses.RED + (70,)
 

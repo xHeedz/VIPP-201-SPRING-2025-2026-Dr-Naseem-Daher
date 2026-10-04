@@ -18,7 +18,7 @@ context score 72 (percentile among 200 normal windows matched on road_type + tra
 
 ## SUMO jam, normal driver, 90th percentile of raw scores
 
-vehicle `normal_r0.472` (seed 9), reference: normal windows of seeds 0 to 4. 
-raw index 68.8
+vehicle `normal_r0.288` (seed 6), reference: normal windows of seeds 0 to 4. 
+raw index 72.0
 
-context score 80 (percentile among 200 normal windows matched on road_type + traffic_state + manoeuvre + weather; motorway, limit 120 km/h, traffic jam, cruise). largest term: proximity (66.1 of 68.8 points). gap 4.5 m at 6 km/h = 2.5 s time headway; local guidance 2 s (knowledge/simulation.md: SUMO planted drivers: desired time headway (IDM tau) 1.8 s conservative, 1.2 s normal, 0.6 s aggressive).
+context score 92 (percentile among 200 normal windows matched on road_type + traffic_state + manoeuvre + weather; motorway, limit 120 km/h, traffic jam, cruise). largest term: proximity (67.0 of 72.0 points). gap 4.3 m at 7 km/h = 2.3 s time headway; local guidance 2 s (knowledge/simulation.md: SUMO planted drivers: desired time headway (IDM tau) 1.8 s conservative, 1.2 s normal, 0.6 s aggressive).

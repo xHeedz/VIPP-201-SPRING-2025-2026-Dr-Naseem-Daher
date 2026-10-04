@@ -25,7 +25,7 @@ from pptx.util import Inches, Pt
 BASE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, BASE)
 from model import AggressivenessModel
-from model.aggressiveness_model import breakdown
+from model.aggressiveness_model import THRESHOLDS, breakdown
 
 # ----------------------------------------------------------------
 # Colour palette
@@ -177,8 +177,8 @@ def make_dist_chart(df, title, out_path, subtitle=""):
     ax = axes[0]
     ax.set_facecolor("#162A3E")
     ax.hist(df["ai_score"], bins=30, color="#2E86AB", edgecolor="white", alpha=0.9)
-    ax.axvline(35, color="#F39C12", linestyle="--", linewidth=1.5, label="35 (C/N)")
-    ax.axvline(70, color="#E74C3C", linestyle="--", linewidth=1.5, label="70 (N/A)")
+    ax.axvline(THRESHOLDS[0], color="#F39C12", linestyle="--", linewidth=1.5, label=f"{THRESHOLDS[0]:g} (C/N)")
+    ax.axvline(THRESHOLDS[1], color="#E74C3C", linestyle="--", linewidth=1.5, label=f"{THRESHOLDS[1]:g} (N/A)")
     ax.set_title("AI Score Distribution", color="white", fontsize=11)
     ax.set_xlabel("AI Score", color="#C0C8D0", fontsize=9)
     ax.set_ylabel("Count",    color="#C0C8D0", fontsize=9)
@@ -223,8 +223,8 @@ def make_comparison_chart(out_path):
             sub = data[data["category"] == cat]
             ax.scatter(sub["prox_m"].clip(0, 100), sub["ai_score"],
                        c=palette[cat], alpha=0.25, s=8, label=cat)
-        ax.axhline(35, color="#F39C12", linestyle="--", linewidth=1, alpha=0.7)
-        ax.axhline(70, color="#E74C3C", linestyle="--", linewidth=1, alpha=0.7)
+        ax.axhline(THRESHOLDS[0], color="#F39C12", linestyle="--", linewidth=1, alpha=0.7)
+        ax.axhline(THRESHOLDS[1], color="#E74C3C", linestyle="--", linewidth=1, alpha=0.7)
         ax.set_title(f"{ttl}: Proximity vs AI Score", color="white", fontsize=10)
         ax.set_xlabel("Proximity to Ego (m, clipped at 100)", color="#C0C8D0", fontsize=8)
         ax.set_ylabel("AI Score",                             color="#C0C8D0", fontsize=8)

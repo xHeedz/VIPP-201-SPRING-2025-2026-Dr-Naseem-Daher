@@ -26,7 +26,7 @@ import pandas as pd
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from paths import DATA_DIR, FIG_DIR  # noqa: E402
 from datasets.sumo_log import windows_from_per_second  # noqa: E402
-from model.aggressiveness_model import WEIGHTS, headway_features, original_score  # noqa: E402
+from model.aggressiveness_model import THRESHOLDS, WEIGHTS, headway_features, original_score  # noqa: E402
 
 EXT = os.path.abspath(os.path.join(DATA_DIR, "..", "..", "28:9:2026"))
 FEATS = ["phi_speed", "phi_accel", "phi_prox", "phi_wave"]
@@ -105,8 +105,8 @@ def summary(all_w):
         rows.append({"site": site, "road_type": g["road_type"].iloc[0], "windows": len(g),
                      "vehicles": g["trip"].nunique(), "speed_kmh_median": g["speed_kmh"].median(),
                      "score_median": g["score"].median(), "score_p95": g["score"].quantile(0.95),
-                     "share_ge_70": (g["score"] >= 70).mean(),
-                     "headway_score_median": g["score_headway"].median(), "headway_share_ge_70": (g["score_headway"] >= 70).mean(),
+                     "share_aggressive": (g["score"] >= THRESHOLDS[1]).mean(),
+                     "headway_score_median": g["score_headway"].median(), "headway_share_aggressive": (g["score_headway"] >= THRESHOLDS[1]).mean(),
                      **{f"pts_{t}_mean": g[f"pts_{t}"].mean() for t in ["speed", "accel", "prox", "wave"] if f"pts_{t}" in g}})
     return pd.DataFrame(rows)
 
@@ -117,13 +117,13 @@ def density_table(all_w):
     t = ng.groupby(["road_type", "density_bin"], observed=True).agg(
         windows=("score", "size"), speed_kmh=("speed_kmh", "median"), score=("score", "median"),
         score_headway=("score_headway", "median"), prox_pts=("pts_prox", "mean"),
-        share_ge_70=("score", lambda s: (s >= 70).mean()))
+        share_aggressive=("score", lambda s: (s >= THRESHOLDS[1]).mean()))
     pn = all_w[all_w["site"] == "pneuma athens"].copy()
     if len(pn):
         pn["density_bin"] = pd.qcut(pn["density"], 4, duplicates="drop").astype(str)
         tp = pn.groupby("density_bin").agg(windows=("score", "size"), speed_kmh=("speed_kmh", "median"),
                                            score=("score", "median"), score_headway=("score_headway", "median"),
-                                           prox_pts=("pts_prox", "mean"), share_ge_70=("score", lambda s: (s >= 70).mean()))
+                                           prox_pts=("pts_prox", "mean"), share_aggressive=("score", lambda s: (s >= THRESHOLDS[1]).mean()))
         tp.index = pd.MultiIndex.from_product([["pneuma (vehicles within 50 m)"], tp.index])
         t = pd.concat([t, tp])
     t.index.names = ["road_type", "density_bin"]
@@ -140,7 +140,7 @@ def plots(all_w, dens):
         data = [all_w.loc[all_w["site"] == s, col].to_numpy() for s in sites]
         ax.boxplot(data, vert=False, showfliers=False, whis=(5, 95))
         ax.set_yticks(range(1, len(sites) + 1), sites, fontsize=8)
-        ax.axvline(70, color="#9e2a2b", lw=0.8, ls="--")
+        ax.axvline(THRESHOLDS[1], color="#9e2a2b", lw=0.8, ls="--")
         ax.set_title(title, fontsize=9)
     axs[1].set_xlabel("window score (box 25 to 75%, whiskers 5 to 95%)")
     fig.tight_layout()

@@ -27,7 +27,7 @@ import numpy as np
 import pandas as pd
 
 RADIUS_M = 100.0
-ORIGINAL_NORMAL_MEAN = 52.5      # middle of the original normal band (35 to 70), if no UAH summary exists
+ORIGINAL_NORMAL_MEAN = 35.5      # middle of the normal band (29 to 42), if no UAH summary exists
 
 
 def context_adjusted(df, score, normal_mean, radius_m=RADIUS_M):
@@ -74,7 +74,8 @@ def scorer_for(environment, data_dir):
     if os.path.exists(summary):
         with open(summary) as f:
             normal_mean = json.load(f)["mean_score_by_behavior"]["score_original"].get("normal", normal_mean)
-    return original_score, 70.0, float(normal_mean), "original hand-set index"
+    from model.aggressiveness_model import THRESHOLDS
+    return original_score, THRESHOLDS[1], float(normal_mean), "original hand-set index"
 
 
 def rank_categories(df, col, top=0.1):

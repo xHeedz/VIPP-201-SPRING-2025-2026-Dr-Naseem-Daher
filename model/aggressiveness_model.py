@@ -8,7 +8,7 @@ The one reference definition of the Aggressiveness Index.
     n_p = 1 - gap / 50 if 0 < gap <= 50 else 0      (gap to the car ahead, 0 = no car ahead)
     n_w = min(|wave| / 1.5, 1)                       (offset from the lane centre)
 
-    weights (0.5, 0.2, 0.8, 0.4), labels: < 35 Conservative, < 70 Normal, else Aggressive.
+    weights (0.5, 0.2, 0.8, 0.4), labels: < 29 Conservative, < 42 Normal, else Aggressive.
 
 Every script imports the constants and functions below; nothing else re-implements them.
 """
@@ -19,7 +19,9 @@ ACCEL_MAX_MS2 = 5.0
 PROX_MAX_M = 50.0
 WAVE_MAX_M = 1.5
 WEIGHTS = (0.5, 0.2, 0.8, 0.4)          # speed, accel, prox, wave
-THRESHOLDS = (35.0, 70.0)               # Conservative | Normal | Aggressive
+# cut offs fitted on labelled data (scripts/fit_cutoffs.py, data/cutoffs_fitted.json): Youden J on UAH (aggressive
+# vs normal, 41.2) and on the calibrated planted SUMO drivers (conservative 29.9, aggressive 42.9); were 35 / 70
+THRESHOLDS = (29.0, 42.0)               # Conservative | Normal | Aggressive
 
 
 def label(score):

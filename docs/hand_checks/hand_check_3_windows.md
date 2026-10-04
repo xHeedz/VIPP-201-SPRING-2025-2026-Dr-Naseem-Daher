@@ -5,7 +5,7 @@ files, no pipeline code). pipeline numbers: `datasets/uah.py` `windows` and `dat
 
 formula: AI = min(100 (0.5 n_s^2 + 0.2 n_a + 0.8 n_p^2 + 0.4 n_w), 100); n_s = min(v_kmh/150, 1),
 n_a = min(|a|/5, 1), n_p = 1 - gap/50 if 0 < gap <= 50 else 0, n_w = min(|wave|/1.5, 1);
-labels: < 35 conservative, < 70 normal, else aggressive.
+labels: < 29 conservative, < 42 normal, else aggressive (fitted, scripts/fit_cutoffs.py).
 
 ## uah d1 normal motorway, window t0 = 306.88 s, 10 s
 
@@ -35,9 +35,9 @@ trip `20151111123124-25km-D1-NORMAL-MOTORWAY`. one row per GPS second; the windo
 
 mean features: n_s^2 0.5065, n_a 0.0182, n_p^2 0.1798, n_w 0.0562
 weighted: 0.5 x 0.5065 = 0.2532; 0.2 x 0.0182 = 0.0036; 0.8 x 0.1798 = 0.1439; 0.4 x 0.0562 = 0.0225
-sum 0.4232, x 100 = **42.32**, label **normal**
+sum 0.4232, x 100 = **42.32**, label **aggressive**
 
-pipeline: features 0.5065, 0.0182, 0.1798, 0.0562, score **42.32**, label normal. difference 7.11e-15.
+pipeline: features 0.5065, 0.0182, 0.1798, 0.0562, score **42.32**, label aggressive. difference 7.11e-15.
 
 ## uah d1 aggressive motorway, window t0 = 688.94 s, 10 s
 
@@ -70,7 +70,7 @@ mean features: n_s^2 0.6964, n_a 0.0340, n_p^2 0.5744, n_w 0.1358
 weighted: 0.5 x 0.6964 = 0.3482; 0.2 x 0.0340 = 0.0068; 0.8 x 0.5744 = 0.4595; 0.4 x 0.1358 = 0.0543
 sum 0.8689, x 100 = **86.89**, label **aggressive**
 
-pipeline: features 0.6964, 0.0340, 0.5744, 0.1358, score **86.89**, label aggressive. difference 1.42e-14.
+pipeline: features 0.6964, 0.0340, 0.5744, 0.1358, score **86.89**, label aggressive. difference 0.00e+00.
 
 ## ngsim us-101, car 983 at t = 259.0 s (frame 2598, lane 2)
 
@@ -82,8 +82,8 @@ one 10 Hz row; the vehicle score in `score_ngsim.py` is the mean of these row sc
 - wave: smoothed Local_X 5.353 m, lane centre (median of 69379 smoothed rows in the lane) 5.708 m, |difference| = **0.355 m**
 
 n_s = 33.88/150 = 0.2259, squared 0.0510; n_a = 0.761/5 = 0.1523; n_p = 1 - 15.80/50 = 0.6840, squared 0.4679; n_w = 0.355/1.5 = 0.2368
-weighted: 0.0255 + 0.0305 + 0.3743 + 0.0947 = 0.5250, x 100 = **52.50**, label **normal**
+weighted: 0.0255 + 0.0305 + 0.3743 + 0.0947 = 0.5250, x 100 = **52.50**, label **aggressive**
 
-pipeline: speed 33.88 km/h, accel 0.761, gap 15.80 m, wave 0.355 m, score **52.50**, label normal. difference 8.53e-14.
+pipeline: speed 33.88 km/h, accel 0.761, gap 15.80 m, wave 0.355 m, score **52.50**, label aggressive. difference 7.11e-14.
 
 what drives this score: proximity 37.4 of 52.5 points, from a 15.8 m gap at 34 km/h (time headway 1.7 s, ordinary for dense traffic).
