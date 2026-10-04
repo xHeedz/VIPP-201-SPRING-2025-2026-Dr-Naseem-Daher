@@ -294,9 +294,9 @@ def get_state_and_obs(tracker):
         if dist < 50.0:
             if abs(rel_lateral) < 2.0 and rel_forward > 0:
                 front_dist  = min(front_dist, rel_forward)
-            elif rel_lateral < -2.0 and abs(rel_forward) < 10.0 and is_approaching:
+            elif rel_lateral < -2.0 and abs(rel_forward) < 25.0 and is_approaching:
                 cross_left  = min(cross_left, dist)
-            elif rel_lateral > 2.0 and abs(rel_forward) < 10.0 and is_approaching:
+            elif rel_lateral > 2.0 and abs(rel_forward) < 25.0 and is_approaching:
                 cross_right = min(cross_right, dist)
 
     tracker.update(vehicle_obs)
@@ -342,8 +342,11 @@ def compute_reward(action, ego_vx, front_dist, cross_left, cross_right,
     if ego_vx < 3.0 and cross_left > 20.0 and cross_right > 20.0 and front_dist > 15.0:
         reward -= 3.0   # loitering tax
 
-    left_threshold  = 8.0 + 7.0 * left_aggr
-    right_threshold = 8.0 + 7.0 * right_aggr
+    # a crossing car is a threat from at least the ego's own stopping distance (decel 5 m/s2) plus 5 m:
+    # at 14 m/s that is 24.6 m, where the old 8 to 15 m left no room to stop
+    stop_dist       = ego_vx ** 2 / (2 * 5.0) + 5.0
+    left_threshold  = max(8.0 + 7.0 * left_aggr, stop_dist)
+    right_threshold = max(8.0 + 7.0 * right_aggr, stop_dist)
     cross_threat    = cross_left < left_threshold or cross_right < right_threshold
 
     if cross_threat:
@@ -397,12 +400,15 @@ def run_episode(agent, exploration_noise, epoch, npc_collector, verbose_epoch):
 
     log_probs, rewards = [], []
     step = 0
+    crashed = False
 
     while True:
         traci.simulationStep()
         step += 1
 
-        crashed = EGO_ID in traci.simulation.getCollidingVehiclesIDList()
+        # collisions only warn (the ego keeps driving), so remember one on any step until the next
+        # policy step; checking only on policy steps missed two of every three
+        crashed = crashed or EGO_ID in traci.simulation.getCollidingVehiclesIDList()
         alive   = EGO_ID in traci.vehicle.getIDList()
 
         if not alive or step > 1200:
@@ -437,6 +443,7 @@ def run_episode(agent, exploration_noise, epoch, npc_collector, verbose_epoch):
 
             log_probs.append(log_prob)
             rewards.append(reward)
+            crashed = False
 
     return log_probs, rewards
 

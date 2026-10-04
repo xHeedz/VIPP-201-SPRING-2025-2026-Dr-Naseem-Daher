@@ -46,7 +46,7 @@ Context file for Claude Code. Read fully before doing anything in this repo.
 ## repo state
 
 - `main` at `9ac0465` "Add sensor noise on real drivers, context score, NGSIM ellipse replay and main.py" (committed and pushed 3 Oct 2026). Before it: `9ad8b3c`, `6ff1d4a`, `ca0a88c`.
-- 65 tests pass (`python -m pytest -q`).
+- 66 tests pass (`python -m pytest -q`).
 - Gotcha: never leave `.git/index.lock` behind. If git says another process is running, check for a stale `.git/index.lock` and remove it.
 
 ## repo map (what matters for today)
@@ -209,4 +209,10 @@ Diagram: window + context -> retriever -> similar labelled windows -> scorer (pe
 - Arterial lane centre per 10 m (curvature was read as wave). Hand checks for Lankershim and pNEUMA pass.
 - Ego: highway lane change mode 512 (collisions 176 -> 1); urban speed mode 30 (13 collisions / 200 episodes; 31 stalls).
 - Labelled dense data: route = 100-DrivingStyle (email drafted in `../drafts/email_100_drivingstyle.md`) + DriveDNA (needs Hadi's HF licence + `huggingface-cli login`). highD/exiD skipped (Hadi).
-- Everything is merged into `main` and pushed.
+
+## where things stood (4 Oct 2026, remaining items and deck)
+- write-up: `docs/research_notebook/fall_2026_10_04_remaining_items.md`.
+- UAH uses detected lane rows only (state 2). pNEUMA: all 10 drones of 24 Oct 08:30 slot scored. DriveDNA-Sample scored (`datasets/drivedna.py`, `scripts/score_drivedna.py`): radar car following, metres labels 77% aggressive vs headway 0.3%.
+- Full DriveDNA: access requested (Hadi's HF account xHeedz, logged in via `hf auth login`), waiting for approval. 100-DrivingStyle: email draft in `../drafts/`, not yet sent.
+- US-101 synchronized flow not reproduced (IDM breaks down); urban ego: crash-flag bug fixed, collisions in 4 of 200 episodes remain.
+- October deck: `scripts/build_october_deck.py` -> `../28:9:2026/Presentation/VIPP 301A Session Results October 2026.pptx` (18 slides). Render check via Keynote (osascript export). python-pptx installed in .venv.

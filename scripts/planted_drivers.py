@@ -14,6 +14,8 @@ Scenarios (networks generated under env/sumo_scenarios/planted/):
     merge       2 lane urban motorway (100 km/h) with an on ramp and a 300 m acceleration lane
     roundabout  single lane roundabout, 4 arms, 50 km/h
     weather     highway at medium density, every type with speedFactor x 0.8 and decel x 0.7
+    us101       US-101 like weaving section: 5 lanes at 65 mph, on ramp onto an auxiliary lane, off ramp
+                400 m later (US101_DEMAND veh/h on the main road and the ramp)
 
 Driver types: IDM car following, SL2015 sublane lane changing (--lateral-resolution 0.8);
 tau / accel / decel / speedFactor / lcAssertive / sigma from the plan table. Lateral
@@ -63,10 +65,11 @@ MIN_GAP = 2.5
 SIM_END, WARMUP, STEP = 900.0, 120.0, 0.1
 
 # scenario -> (network, demand level -> veh/h per route group, environment of the UAH agent)
-DENSITY = {"low": 1200, "medium": 2400, "jam": 4500}       # highway, veh/h entering
+DENSITY = {"low": 1200, "medium": 2400, "jam": 4500}
+US101_DEMAND = (7000, 1200)      # veh/h on the main road and the on ramp (us101 scenario)       # highway, veh/h entering
 RUNS = ([("highway", d) for d in DENSITY] +
         [("urban", "medium"), ("merge", "medium"), ("roundabout", "medium"), ("weather", "medium")])
-ENVIRONMENT = {"highway": "highway", "jam": "highway", "merge": "highway", "weather": "weather",
+ENVIRONMENT = {"highway": "highway", "jam": "highway", "merge": "highway", "weather": "weather", "us101": "highway",
                "urban": "urban", "roundabout": "urban"}
 
 
@@ -124,6 +127,19 @@ def networks():
         edges.append(f'  <edge id="{k}_out" from="r{k}" to="o{k}" numLanes="1" speed="13.89"/>')
     edges.append('  <roundabout nodes="re rn rw rs" edges="r_en r_nw r_ws r_se"/>')
     nets["roundabout"] = _netconvert("roundabout", nodes, "\n".join(edges))
+    # US-101 like weaving section: 5 lanes at 65 mph, on ramp joining an auxiliary lane, off ramp 400 m later
+    nets["us101"] = _netconvert("us101", """
+  <node id="a" x="0" y="0" type="priority"/>
+  <node id="r" x="800" y="-150" type="priority"/>
+  <node id="m" x="1000" y="0" type="priority"/>
+  <node id="m2" x="1400" y="0" type="priority"/>
+  <node id="x" x="1600" y="-150" type="priority"/>
+  <node id="b" x="2600" y="0" type="priority"/>""", """
+  <edge id="main1" from="a" to="m" numLanes="5" speed="29.06"/>
+  <edge id="ramp" from="r" to="m" numLanes="1" speed="22.22"/>
+  <edge id="aux" from="m" to="m2" numLanes="6" speed="29.06"/>
+  <edge id="main2" from="m2" to="b" numLanes="5" speed="29.06"/>
+  <edge id="off" from="m2" to="x" numLanes="1" speed="22.22"/>""")
     return nets
 
 
@@ -133,6 +149,11 @@ def routes(scenario):
         return [("r0", "hw1 hw2", 1.0)]
     if scenario == "merge":
         return [("main", "main1 acc main2", 0.8), ("onramp", "ramp acc main2", 0.2)]
+    if scenario == "us101":      # shares of US101_DEMAND (main, ramp); 10% of each leaves at the off ramp
+        m, r = US101_DEMAND
+        tot = m + r
+        return [("thru", "main1 aux main2", 0.9 * m / tot), ("exit", "main1 aux off", 0.1 * m / tot),
+                ("rthru", "ramp aux main2", 0.9 * r / tot), ("rexit", "ramp aux off", 0.1 * r / tot)]
     arms = ["n", "e", "s", "w"]
     out = []
     if scenario == "urban":
@@ -157,6 +178,8 @@ def routes(scenario):
 def demand(scenario, density):
     if scenario in ("highway", "weather"):
         return DENSITY[density]
+    if scenario == "us101":
+        return sum(US101_DEMAND)
     return {"jam": DENSITY["jam"], "urban": 1200, "merge": 3000, "roundabout": 1000}[scenario]
 
 
@@ -177,7 +200,9 @@ def write_routes(path, scenario, density):
             vph = total * share * mix
             # highway family: random start lane, so traffic has to merge at the lane drop ("best" would put
             # every car in the lanes that continue and cap insertion at their capacity)
-            lane = "random" if scenario in ("highway", "jam", "weather") else "best"
+            lane = "random" if scenario in ("highway", "jam", "weather") or rid == "thru" else "best"
+            if rid == "exit":       # cars bound for the off ramp start on the right, as drivers who plan ahead:
+                lane = "0"          # starting anywhere made them stop at the end of the auxiliary lane and deadlock it
             lines.append(f'  <flow id="{name}_{rid}" type="{name}" route="{rid}" begin="0" end="{SIM_END - 120}" '
                          f'vehsPerHour="{vph:.1f}" departLane="{lane}" departSpeed="desired"/>')
     lines.append("</routes>")

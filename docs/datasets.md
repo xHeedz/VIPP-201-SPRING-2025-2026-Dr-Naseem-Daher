@@ -10,6 +10,7 @@ every source goes through the same table before scoring: one row per second with
 | NGSIM US-101, I-80 | `datasets/ngsim.py` | none | | Local_Y derivative | accel_1hz (UAH way) | Space_Headway minus leader length | Local_X minus lane median |
 | NGSIM Lankershim, Peachtree | `datasets/ngsim.py` (planar) | none | | 2-D path derivative | accel_1hz | as above | Local_X minus median per (direction, section, lane, 10 m of road: the arterials curve in the Local_X frame); through traffic on sections only |
 | pNEUMA (Athens) | `datasets/pneuma.py` | none | | pNEUMA speed, 1 Hz | derivative of 3 s smoothed speed | nearest vehicle ahead in a +-1.6 m, 30 deg cone, minus half lengths | not measurable without a lane map: 0 (three term score) |
+| DriveDNA-Sample | `datasets/drivedna.py` | none (driver ids only) | | vEgo, 1 Hz | derivative of 3 s smoothed speed | radar `leadOne_dRel` when `leadOne_status` = 1 | |(laneLeft_y + laneRight_y)| / 2; missing for 8 of 14 car models (three term score) |
 
 ## label definitions
 
@@ -34,4 +35,7 @@ I-80 (3 periods), Lankershim (2) and Peachtree (2) restart Frame_ID and reuse Ve
 
 ## attribution
 
-pNEUMA: data source pNEUMA, open-traffic.epfl.ch (Barmpounakis and Geroliminis, "On the new era of urban traffic monitoring with massive drone data: The pNEUMA large-scale field experiment", Transportation Research Part C, 2020; DOI 10.5281/zenodo.10491409), CC BY-NC 4.0, non commercial use. slice used: drone 1, 24 Oct 2018, 08:30 to 09:00.
+DriveDNA: Wang et al., "DriveDNA: A Large-Scale Multimodal Naturalistic Driving Dataset and Benchmark for Driving Style Identification", arXiv 2607.23822; DriveDNA-Sample (huggingface.co/datasets/HenryYHW/DriveDNA-Sample), research-only licence. only the signal CSVs are used.
+
+
+pNEUMA: data source pNEUMA, open-traffic.epfl.ch (Barmpounakis and Geroliminis, "On the new era of urban traffic monitoring with massive drone data: The pNEUMA large-scale field experiment", Transportation Research Part C, 2020; DOI 10.5281/zenodo.10491409), CC BY-NC 4.0, non commercial use. slot used: drones 1 to 10, 24 Oct 2018, 08:30 to 09:00.

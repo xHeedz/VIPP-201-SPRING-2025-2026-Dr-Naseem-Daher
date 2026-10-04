@@ -17,8 +17,8 @@ trip `20151111123124-25km-D1-NORMAL-MOTORWAY`. one row per GPS second; the windo
   for equal dt it is (v_next - v_prev) / 2 dt), clip to +-9, |a| / 5
 - gap: PROC_VEHICLE_DETECTION col 1 (m, to the vehicle ahead seen by the phone camera), first row at or
   after the GPS time and within 1.5 s; <= 0 means no vehicle; 1 - gap/50, squared
-- wave: PROC_LANE_DETECTION col 1 (m, car position from the lane centre), rows with road width > 0 and
-  |offset| <= 2 m, first row at or after the GPS time and within 1 s; |x| / 1.5
+- wave: PROC_LANE_DETECTION col 1 (m, car position from the lane centre), rows with road width > 0,
+  |offset| <= 2 m and estimator state 2 (detected), first row at or after the GPS time and within 1 s; |x| / 1.5
 
 | t (s) | gps prev / now / next (km/h) | dt l / r (s) | speed (km/h) | accel (m/s2) | gap (m) | wave (m) | n_s^2 | n_a | n_p^2 | n_w | score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -49,8 +49,8 @@ trip `20151111125233-24km-D1-AGGRESSIVE-MOTORWAY`. one row per GPS second; the w
   for equal dt it is (v_next - v_prev) / 2 dt), clip to +-9, |a| / 5
 - gap: PROC_VEHICLE_DETECTION col 1 (m, to the vehicle ahead seen by the phone camera), first row at or
   after the GPS time and within 1.5 s; <= 0 means no vehicle; 1 - gap/50, squared
-- wave: PROC_LANE_DETECTION col 1 (m, car position from the lane centre), rows with road width > 0 and
-  |offset| <= 2 m, first row at or after the GPS time and within 1 s; |x| / 1.5
+- wave: PROC_LANE_DETECTION col 1 (m, car position from the lane centre), rows with road width > 0,
+  |offset| <= 2 m and estimator state 2 (detected), first row at or after the GPS time and within 1 s; |x| / 1.5
 
 | t (s) | gps prev / now / next (km/h) | dt l / r (s) | speed (km/h) | accel (m/s2) | gap (m) | wave (m) | n_s^2 | n_a | n_p^2 | n_w | score |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -63,14 +63,14 @@ trip `20151111125233-24km-D1-AGGRESSIVE-MOTORWAY`. one row per GPS second; the w
 | 694.91 | 124.7 / 124.7 / 126.4 | 0.90 / 1.07 | 125.27 | 0.157 | 11.71 | 0.535 | 0.6974 | 0.0313 | 0.5864 | 0.3567 | 96.68 |
 | 695.98 | 124.7 / 126.4 / 126.4 | 1.07 / 0.94 | 125.83 | -0.036 | 11.58 | 0.679 | 0.7037 | 0.0072 | 0.5904 | 0.4527 | 100.00 |
 | 696.92 | 126.4 / 126.4 / 122.7 | 0.94 / 1.05 | 125.17 | -0.225 | 11.43 | 0.181 | 0.6963 | 0.0449 | 0.5951 | 0.1207 | 88.15 |
-| 697.97 | 126.4 / 122.7 / 123.5 | 1.05 / 0.92 | 124.20 | -0.302 | 11.49 | 0.134 | 0.6856 | 0.0604 | 0.5932 | 0.0893 | 86.52 |
+| 697.97 | 126.4 / 122.7 / 123.5 | 1.05 / 0.92 | 124.20 | -0.302 | 11.49 | 0.127 | 0.6856 | 0.0604 | 0.5932 | 0.0847 | 86.33 |
 | 698.89 | 122.7 / 123.5 / 123.0 | 0.92 / 1.04 | 123.07 | -0.190 | 11.69 | 0.270 | 0.6731 | 0.0380 | 0.5871 | 0.1800 | 88.58 |
 
-mean features: n_s^2 0.6964, n_a 0.0340, n_p^2 0.5744, n_w 0.1358
-weighted: 0.5 x 0.6964 = 0.3482; 0.2 x 0.0340 = 0.0068; 0.8 x 0.5744 = 0.4595; 0.4 x 0.1358 = 0.0543
-sum 0.8689, x 100 = **86.89**, label **aggressive**
+mean features: n_s^2 0.6964, n_a 0.0340, n_p^2 0.5744, n_w 0.1353
+weighted: 0.5 x 0.6964 = 0.3482; 0.2 x 0.0340 = 0.0068; 0.8 x 0.5744 = 0.4595; 0.4 x 0.1353 = 0.0541
+sum 0.8687, x 100 = **86.87**, label **aggressive**
 
-pipeline: features 0.6964, 0.0340, 0.5744, 0.1358, score **86.89**, label aggressive. difference 0.00e+00.
+pipeline: features 0.6964, 0.0340, 0.5744, 0.1353, score **86.87**, label aggressive. difference 0.00e+00.
 
 ## ngsim us-101, car 983 at t = 259.0 s (frame 2598, lane 2)
 

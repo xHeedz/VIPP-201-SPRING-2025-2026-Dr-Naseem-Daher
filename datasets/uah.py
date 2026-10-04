@@ -54,8 +54,12 @@ def _read(path):
     return df if len(df) else None
 
 
-def load_trip(trip):
-    """Per-second table: t, speed_kmh, accel, gap_m, wave_m, lane_valid."""
+LANE_DETECTED = 2      # PROC_LANE_DETECTION column 4, "state of lane estimator" (-1, 0, 1, 2; 2 = lanes detected)
+
+
+def load_trip(trip, lane_state=LANE_DETECTED):
+    """Per-second table: t, speed_kmh, accel, gap_m, wave_m, lane_valid.
+    lane_state: keep only lane rows whose estimator state equals it (None keeps every state)."""
     gps = _read(os.path.join(trip["path"], "RAW_GPS.txt"))
     if gps is None or gps.shape[1] < 2:
         raise ValueError(f"RAW_GPS.txt missing or malformed in {trip['path']}")
@@ -72,6 +76,8 @@ def load_trip(trip):
     lane = _read(os.path.join(trip["path"], "PROC_LANE_DETECTION.txt"))
     if lane is not None and lane.shape[1] >= 4:
         ok = lane[(lane[3] > 0) & (lane[1].abs() <= 2.0)]
+        if lane_state is not None and lane.shape[1] >= 5:
+            ok = ok[ok[4] == lane_state]
         if len(ok):
             idx = np.searchsorted(ok[0].to_numpy(), t).clip(0, len(ok) - 1)
             near = np.abs(ok[0].to_numpy()[idx] - t) <= 1.0
@@ -121,11 +127,11 @@ def windows(per_second, trip, length_s=10.0, step_s=5.0, features=None):
     return pd.DataFrame(rows)
 
 
-def load_windows(root, length_s=10.0, step_s=5.0, min_speed_kmh=5.0, features=None):
+def load_windows(root, length_s=10.0, step_s=5.0, min_speed_kmh=5.0, features=None, lane_state=LANE_DETECTED):
     """All trips -> window table, dropping windows where the car is essentially stopped."""
     frames, report = [], []
     for trip in find_trips(root):
-        ps = load_trip(trip)
+        ps = load_trip(trip, lane_state)
         w = windows(ps, trip, length_s, step_s, features)
         if len(w):
             w = w[w["speed_kmh"] >= min_speed_kmh]

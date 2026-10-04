@@ -1,0 +1,12 @@
+question,metres,headway
+"driver_078, spread of the per-car median across 14 cars (sd)",7.197621035355004,7.09088767618888
+"driver_078, range of the per-car median (max - min)",22.125608544971115,23.185048216400492
+"HONDA_CIVIC, median score of driver_078",21.1545456606126,19.528065046293502
+"HONDA_CIVIC, median score of driver_174",20.127588268044406,18.294681377249084
+"HONDA_CIVIC, median score of driver_369",7.87074506699744,4.955287069700935
+"HONDA_CIVIC, median score of driver_372",11.529228016767401,9.12240572286959
+"HONDA_CIVIC, range across drivers",13.283800593615162,14.572777976592567
+"median score, slow car following (< 30 km/h, leader), 2163 windows",51.26098639289693,7.15301225630555
+"share labelled aggressive (>= 42), slow car following (< 30 km/h, leader)",0.7730004623208506,0.0027739251040221915
+"median score, free driving (>= 60 km/h, no leader), 3106 windows",18.286051365705493,18.29684901877701
+"share labelled aggressive (>= 42), free driving (>= 60 km/h, no leader)",0.012234385061171926,0.0128783000643915

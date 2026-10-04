@@ -63,9 +63,22 @@ def ngsim_per_second(file, location, minutes, planar):
 
 
 def pneuma_per_second():
+    """every downloaded drone file of pNEUMA (one slot); each processed on its own (own local frame and
+    leader search), cached next to the CSV; vehicle ids become drone x 100000 + track id"""
+    import glob
+    import re
     from datasets.pneuma import SCORED, per_second, read_raw
-    cache = os.path.join(EXT, "pneuma", "20181024_d1_0830_0900.per_second.csv.gz")
-    ps = pd.read_csv(cache) if os.path.exists(cache) else per_second(read_raw(cache.replace(".per_second.csv.gz", ".csv")))
+    parts = []
+    for f in sorted(glob.glob(os.path.join(EXT, "pneuma", "2018*_d*_*.csv"))):
+        if f.endswith(".per_second.csv.gz"):
+            continue
+        cache = f.replace(".csv", ".per_second.csv.gz")
+        ps = pd.read_csv(cache) if os.path.exists(cache) else per_second(read_raw(f))
+        if not os.path.exists(cache):
+            ps.to_csv(cache, index=False)
+        drone = int(re.search(r"_d(\d+)_", os.path.basename(f)).group(1))
+        parts.append(ps.assign(vehicle_id=drone * 100000 + ps["vehicle_id"], drone=drone))
+    ps = pd.concat(parts, ignore_index=True)
     return ps[ps["type"].isin(SCORED)].rename(columns={"density_50m": "density"})
 
 

@@ -2,45 +2,45 @@
   "trips": 40,
   "windows": 6123,
   "lodo_mean": {
-    "agent_auc": 0.761,
-    "agent_window_acc": 0.813,
+    "agent_auc": 0.762,
+    "agent_window_acc": 0.814,
     "agent_trip_acc": 0.9,
     "agent_n_windows": 692.167,
-    "original_auc": 0.829,
-    "original_window_acc": 0.768,
-    "original_trip_acc": 0.967
+    "original_auc": 0.831,
+    "original_window_acc": 0.769,
+    "original_trip_acc": 0.933
   },
   "single_feature_auc": {
     "phi_speed": 0.691,
     "phi_accel": 0.729,
     "phi_prox": 0.724,
-    "phi_wave": 0.535
+    "phi_wave": 0.539
   },
   "mean_score_by_behavior": {
     "score_agent": {
-      "aggressive": 19.4,
+      "aggressive": 19.5,
       "drowsy": 12.7,
       "normal": 14.3
     },
     "score_original": {
-      "aggressive": 54.5,
-      "drowsy": 34.4,
-      "normal": 33.0
+      "aggressive": 54.7,
+      "drowsy": 34.5,
+      "normal": 33.1
     }
   },
   "final_agent": {
     "weights": {
       "highway": [
         0.1525,
-        0.6916,
-        0.1184,
-        0.0375
+        0.6888,
+        0.1188,
+        0.04
       ],
       "urban": [
-        0.3805,
-        0.3659,
-        0.1902,
-        0.0634
+        0.3814,
+        0.3663,
+        0.1907,
+        0.0617
       ],
       "weather": [
         0.25,
@@ -50,11 +50,11 @@
       ]
     },
     "thresholds": {
-      "highway": 12.46,
-      "urban": 22.15,
+      "highway": 12.52,
+      "urban": 22.17,
       "weather": 70.0
     },
-    "tau": 2.215,
+    "tau": 2.218,
     "feature_order": [
       "speed^2",
       "accel",

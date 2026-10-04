@@ -55,7 +55,7 @@ page: `docs/hand_checks/hand_check_3_windows.md`, script `scripts/hand_check.py`
 | window | hand | pipeline | label | main term |
 |---|---|---|---|---|
 | UAH D1 normal motorway, t0 306.88 s | 42.32 | 42.32 | normal | speed 25.3 (107 km/h) |
-| UAH D1 aggressive motorway, t0 688.94 s | 86.89 | 86.89 | aggressive | prox 45.9 (12 m at 125 km/h) |
+| UAH D1 aggressive motorway, t0 688.94 s | 86.87 | 86.87 | aggressive | prox 45.9 (12 m at 125 km/h) |
 | NGSIM US-101 car 983, t 259 s | 52.50 | 52.50 | normal | prox 37.4 (15.8 m at 34 km/h) |
 
 all three agree to about 1e-14. the code computes what the formula says; what remains is whether the formula measures the right thing:

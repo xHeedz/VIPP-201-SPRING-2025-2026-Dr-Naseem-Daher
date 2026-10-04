@@ -1,13 +1,13 @@
 {
   "uah_metres": {
-    "aggressive": 41.20743101862009
+    "aggressive": 41.13186817420996
   },
   "sumo_metres": {
     "conservative": 29.90131694323553,
     "aggressive": 42.92819970136833
   },
   "uah_headway": {
-    "aggressive": 40.266087769334405
+    "aggressive": 42.15794956263596
   },
   "sumo_headway": {
     "conservative": 28.039492751205188,

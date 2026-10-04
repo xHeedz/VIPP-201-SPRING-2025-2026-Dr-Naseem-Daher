@@ -39,3 +39,18 @@ def test_pneuma_gap_to_car_ahead_in_cone():
     assert np.isclose(g, 20.0 - 4.5)                     # centre distance minus half of two 4.5 m cars
     assert (ps.loc[ps["vehicle_id"] == 2, "gap_m"] == 0).all()   # nobody ahead of car 2
     assert (ps["wave_m"] == 0).all()
+
+
+def test_drivedna_per_second(tmp_path):
+    from datasets.drivedna import per_second as dd_per_second
+    t = np.round(np.arange(0, 30, 0.1), 1)
+    df = pd.DataFrame({"time_s": t, "vEgo": 10.0 + 0.5 * t, "leadOne_status": (t >= 10).astype(float),
+                       "leadOne_dRel": np.where(t >= 10, 20.0, 0.0), "laneLeft_y": np.nan, "laneRight_y": np.nan,
+                       "is_human": 1, "cs_enabled": 0})
+    p = tmp_path / "drive.csv"
+    df.to_csv(p, index=False)
+    ps = dd_per_second(str(p))
+    assert len(ps) == 30
+    assert np.allclose(ps["accel"].iloc[2:-2], 0.5)                     # 0.5 m/s2 ramp, measured the UAH way
+    assert (ps.loc[ps["t"] < 10, "gap_m"] == 0).all() and (ps.loc[ps["t"] >= 10, "gap_m"] == 20).all()
+    assert (ps["wave_m"] == 0).all() and not ps["lane_valid"].any()     # car model without lane positions

@@ -71,7 +71,8 @@ def uah_window(folder, t0, length=10.0):
     v = [x / 3.6 for x in raw_kmh]
     vs = [sum(v[max(0, i - 1):i + 2]) / len(v[max(0, i - 1):i + 2]) for i in range(len(v))]   # 3 s centred mean
 
-    lane = [r for r in read_rows(os.path.join(p, "PROC_LANE_DETECTION.txt")) if r[3] > 0 and abs(r[1]) <= 2.0]
+    lane = [r for r in read_rows(os.path.join(p, "PROC_LANE_DETECTION.txt"))
+            if r[3] > 0 and abs(r[1]) <= 2.0 and (len(r) < 5 or r[4] == 2)]     # estimator state 2 = detected
     lt = [r[0] for r in lane]
     veh = read_rows(os.path.join(p, "PROC_VEHICLE_DETECTION.txt"))
     vt = [r[0] for r in veh]
@@ -217,8 +218,8 @@ def write_page(path):
               "  for equal dt it is (v_next - v_prev) / 2 dt), clip to +-9, |a| / 5",
               "- gap: PROC_VEHICLE_DETECTION col 1 (m, to the vehicle ahead seen by the phone camera), first row at or",
               "  after the GPS time and within 1.5 s; <= 0 means no vehicle; 1 - gap/50, squared",
-              "- wave: PROC_LANE_DETECTION col 1 (m, car position from the lane centre), rows with road width > 0 and",
-              "  |offset| <= 2 m, first row at or after the GPS time and within 1 s; |x| / 1.5", "",
+              "- wave: PROC_LANE_DETECTION col 1 (m, car position from the lane centre), rows with road width > 0,",
+              "  |offset| <= 2 m and estimator state 2 (detected), first row at or after the GPS time and within 1 s; |x| / 1.5", "",
               "| t (s) | gps prev / now / next (km/h) | dt l / r (s) | speed (km/h) | accel (m/s2) | gap (m) | wave (m) | n_s^2 | n_a | n_p^2 | n_w | score |",
               "|---|---|---|---|---|---|---|---|---|---|---|---|"]
         for q in h["seconds"]:
