@@ -28,7 +28,7 @@ Accuracy is measured by scoring every vehicle twice. `GroundTruthAssessor` reads
 
 ```
 model/                  closed-form AI, dynamic weight agent, two-track assessors, noise models, shockwave factor
-agent/                  tabular Q-learner (DriverQLearner) and the shared reward function
+agent/                  score bucket labeler (spring "Q-learner", label counting, not RL) and the shared reward function
 env/scenarios/          highway, urban and weather RL scenarios in highway-env
 env/sumo_scenarios/     SUMO networks and routes for the highway and intersection scenarios
 datasets/               loaders for UAH-DriveSet and NGSIM
@@ -120,7 +120,7 @@ highway-env
 
 ```
 python scripts/simulator.py                      # demo run, writes data/demo_data.csv
-python agent/driver_q_learner.py                 # Q-learner on data/demo_data.csv
+python agent/score_bucket_labeler.py             # label counts per score bucket on data/demo_data.csv
 python env/scenarios/highway_scenario.py         # policy training with noisy assessment and accuracy report
 python env/scenarios/urban_scenario.py
 python env/scenarios/weather_scenario.py         # wet or icy roads, elevated sensor noise

@@ -1,6 +1,6 @@
 # claude.md: vipp 301a, driver aggressiveness index
 
-Context file for Claude Code. Read fully before doing anything in this repo. The resume list for the next session is `docs/next_session.md`.
+Context file for Claude Code. Read fully before doing anything in this repo. The resume list for the next session is `docs/next_session.md`; the RL plan for the index side is `docs/rl_pivot.md`.
 
 ## who and what
 
