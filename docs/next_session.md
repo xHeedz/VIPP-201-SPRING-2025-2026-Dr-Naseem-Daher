@@ -16,7 +16,10 @@ read `CLAUDE.md` first (working style, writing style, repo map, history), then t
 - decision: option a, sequential labeling (Hadi). `agent/driver_q_learner.py` renamed to `agent/score_bucket_labeler.py` (label counting, not RL).
 - built: `env/labeling_env.py` (gymnasium), `tests/test_labeling_env.py`, `scripts/train_labeling_rl.py` (PPO, UAH leave one driver out). write-up: `docs/research_notebook/fall_2026_10_05_rl_labeling.md`.
 - result: PPO 0.78 balanced acc in 5 to 9 s, top reward at wait cost 0.002 and 0.005 by a margin inside the spread across drivers; less accurate than the DynamicWeightAgent at 10 s (0.80) and 30 s (0.83); misses about a third of aggressive episodes. not a win yet.
-- next: missed aggressive cost 2, weight agent score in the observation, planted SUMO drivers as episodes (three classes); confirm the direction with Dr. Daher before option b (inverse RL on NGSIM).
+- 5 oct follow up: missed aggressive cost 2 + weight agent score in the observation: 0.792, 75% of aggressive caught, 12 s (still below the weight agent).
+- 7 oct, planted SUMO drivers (three classes, split by seed, `scripts/train_labeling_rl_planted.py`): PPO 0.666 to 0.676 balanced acc in 7 to 12 s, equal to the per environment index at 30 s (0.667), 0.015 below it at 60 s; catches 86 to 90% of aggressive drivers. gain is speed. write-up `docs/research_notebook/fall_2026_10_07_rl_planted_highd.md`.
+- next: headway features in the labeling env, confirm the direction with Dr. Daher before option b (inverse RL on NGSIM / highD).
+- highD: loader `datasets/highd.py` ready and tested on a fixture; download in progress (Hadi). put the files in `../28:9:2026/highD/` (`XX_tracks.csv`, `XX_tracksMeta.csv`, `XX_recordingMeta.csv`), then run it, check gap against dhw, hand check one window, score in metres and headway.
 
 ## 1. waiting on Hadi (check these first)
 

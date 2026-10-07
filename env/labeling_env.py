@@ -24,7 +24,7 @@ from gymnasium import spaces
 
 from model.aggressiveness_model import WEIGHTS, index_features
 
-ENVIRONMENTS = ("highway", "urban")
+ENVIRONMENTS = ("highway", "urban", "weather")
 RECENT_S = 10
 
 
@@ -116,4 +116,28 @@ def uah_sequences(root, min_speed_kmh=5.0, behaviors=("normal", "aggressive"), f
         f = features(ps["speed_kmh"], ps["accel"], ps["gap_m"], ps["wave_m"])
         out.append({"features": np.asarray(f, float), "label": trip["behavior"], "environment": trip["environment"],
                     "driver": trip["driver"], "trip": trip["trip"]})
+    return out
+
+
+def planted_sequences(paths, min_speed_kmh=5.0, min_seconds=10, features=index_features):
+    """One sequence per planted SUMO vehicle (data/sumo_planted/<scenario>_s<seed>.per_second.csv.gz):
+    true type as label, environment from scripts/planted_drivers.py ENVIRONMENT, seed and scenario kept."""
+    import os
+    import re
+    import pandas as pd
+    env_of = {"highway": "highway", "jam": "highway", "merge": "highway", "weather": "weather", "us101": "highway",
+              "urban": "urban", "roundabout": "urban"}      # same mapping as scripts/planted_drivers.py
+    out = []
+    for path in paths:
+        m = re.match(r"(?P<scenario>[a-z0-9]+)_(?P<density>[a-z]+)_s(?P<seed>\d+)\.per_second", os.path.basename(path))
+        ps = pd.read_csv(path)
+        ps = ps[ps["speed_kmh"] >= min_speed_kmh]
+        for vid, g in ps.groupby("vehicle_id", sort=False):
+            if len(g) < min_seconds:
+                continue
+            f = features(g["speed_kmh"], g["accel"], g["gap_m"], g["wave_m"])
+            out.append({"features": np.asarray(f, float), "label": g["label"].iloc[0],
+                        "environment": env_of[m.group("scenario")], "driver": vid,
+                        "trip": f"{m.group('scenario')}_{m.group('density')}_s{m.group('seed')}/{vid}",
+                        "scenario": f"{m.group('scenario')}_{m.group('density')}", "seed": int(m.group("seed"))})
     return out

@@ -54,3 +54,35 @@ def test_drivedna_per_second(tmp_path):
     assert np.allclose(ps["accel"].iloc[2:-2], 0.5)                     # 0.5 m/s2 ramp, measured the UAH way
     assert (ps.loc[ps["t"] < 10, "gap_m"] == 0).all() and (ps.loc[ps["t"] >= 10, "gap_m"] == 20).all()
     assert (ps["wave_m"] == 0).all() and not ps["lane_valid"].any()     # car model without lane positions
+
+
+def make_highd(root):
+    """one recording, 10 s at 25 Hz: a pair on each carriageway, leader 25.5 m (right) and 26 m (left) ahead"""
+    import pandas as pd
+    pd.DataFrame([{"id": 1, "frameRate": 25, "speedLimit": -1, "upperLaneMarkings": "5;8.5;12",
+                   "lowerLaneMarkings": "20;23.5;27"}]).to_csv(os.path.join(root, "01_recordingMeta.csv"), index=False)
+    pd.DataFrame({"id": [1, 2, 3, 4], "class": ["Car"] * 4, "drivingDirection": [2, 2, 1, 1]}).to_csv(
+        os.path.join(root, "01_tracksMeta.csv"), index=False)
+    rows = []
+    for f in range(251):
+        t = f / 25
+        # id, x, y, width (length), height (width), xVelocity, precedingId
+        for vid, x, y, L, W, vx, pre in [(1, 100 + 30 * t, 21.0, 4.5, 2.0, 30.0, 2), (2, 130 + 30 * t, 20.5, 5.0, 2.0, 30.0, 0),
+                                          (3, 500 - 25 * t, 9.0, 4.0, 2.0, -25.0, 4), (4, 470 - 25 * t, 5.5, 4.0, 2.0, -25.0, 0)]:
+            rows.append({"frame": f, "id": vid, "x": x, "y": y, "width": L, "height": W, "xVelocity": vx, "yVelocity": 0.0,
+                         "xAcceleration": 0.0, "precedingId": pre, "dhw": 0.0, "laneId": 0})
+    pd.DataFrame(rows).to_csv(os.path.join(root, "01_tracks.csv"), index=False)
+
+
+def test_highd_gap_wave_speed(tmp_path):
+    from datasets.highd import per_second, recordings
+    make_highd(str(tmp_path))
+    assert recordings(str(tmp_path)) == ["01"]
+    ps = per_second(str(tmp_path), "01")
+    assert len(ps) == 4 * 11                                    # whole seconds 0..10
+    v1, v3 = ps[ps["vehicle_id"] == "01_1"], ps[ps["vehicle_id"] == "01_3"]
+    # right: leader rear 130 + 30t, own front 100 + 30t + 4.5 -> 25.5 m; centre y 22.0 in lane 20..23.5 (21.75) -> 0.25
+    assert np.allclose(v1["gap_m"], 25.5) and np.allclose(v1["wave_m"], 0.25) and np.allclose(v1["speed_kmh"], 108.0)
+    # left: own front 500 - 25t, leader rear 470 - 25t + 4 -> 26 m; centre y 10.0 in lane 8.5..12 (10.25) -> 0.25
+    assert np.allclose(v3["gap_m"], 26.0) and np.allclose(v3["wave_m"], 0.25) and np.allclose(v3["accel"], 0.0)
+    assert (ps.loc[ps["vehicle_id"].isin(["01_2", "01_4"]), "gap_m"] == 0).all()   # leaders: no car ahead

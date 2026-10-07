@@ -8,7 +8,7 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(__file__))
 from fixtures import make_uah  # noqa: E402
 
-from env.labeling_env import LabelingEnv, observation, reference_ai, uah_sequences  # noqa: E402
+from env.labeling_env import LabelingEnv, observation, planted_sequences, reference_ai, uah_sequences  # noqa: E402
 
 
 def seq(value, label, T=30, environment="highway"):
@@ -31,7 +31,7 @@ def test_observation_running_and_recent_means():
     assert abs(o[4] - 0.5) < 1e-6                               # last 10 s: seconds 20..29
     assert abs(o[8] - 0.5 * o[0]) < 1e-6 and abs(o[9] - 0.25) < 1e-6
     assert abs(o[10] - 30 / 120) < 1e-6
-    assert list(o[11:]) == [0.0, 1.0]
+    assert list(o[11:]) == [0.0, 1.0, 0.0]
 
 
 def test_rewards_wait_correct_wrong_and_timeout():
@@ -85,8 +85,25 @@ def test_agent_margin_in_observation():
     # weights 0.25 each, features (0.2, 0.4, 0.3, 0.1): score 100 * 0.25 * 1.0 = 25; threshold 20 -> (25 - 20) / 100
     f = np.tile([0.2, 0.4, 0.3, 0.1], (15, 1))
     o = observation(f, 0, 15, 120, "highway", {"weights": [0.25] * 4, "threshold": 20.0})
-    assert len(o) == 15 and abs(o[13] - 0.05) < 1e-6 and abs(o[14] - 0.05) < 1e-6
+    assert len(o) == 16 and abs(o[14] - 0.05) < 1e-6 and abs(o[15] - 0.05) < 1e-6
     s = {**seq(0.1, "normal"), "agent": {"weights": [0.25] * 4, "threshold": 50.0}}
     env = LabelingEnv([s], agent_obs=True)
     o, _ = env.reset(options={"seq": 0, "t0": 0})
-    assert env.observation_space.contains(o) and abs(o[13] - (10 - 50) / 100) < 1e-6
+    assert env.observation_space.contains(o) and abs(o[14] - (10 - 50) / 100) < 1e-6
+
+
+def test_planted_sequences(tmp_path):
+    import pandas as pd
+    rows = []
+    for vid, lab, n in [("aggressive_r0.1", "aggressive", 20), ("normal_r0.2", "normal", 5)]:
+        for t in range(n):
+            rows.append({"t": t, "speed_kmh": 60.0, "accel": 0.5, "gap_m": 25.0, "wave_m": 0.15, "lane": 0,
+                         "edge": "e", "vehicle_id": vid, "label": lab})
+    p = tmp_path / "roundabout_medium_s3.per_second.csv.gz"
+    pd.DataFrame(rows).to_csv(p, index=False)
+    seqs = planted_sequences([str(p)])
+    assert len(seqs) == 1                                       # the 5 s vehicle is too short
+    s = seqs[0]
+    assert (s["label"], s["environment"], s["seed"], s["scenario"]) == ("aggressive", "urban", 3, "roundabout_medium")
+    # 60 km/h: (60/150)^2 = 0.16; 0.5/5 = 0.1; 25 m: (1 - 25/50)^2 = 0.25; 0.15/1.5 = 0.1
+    assert np.allclose(s["features"][0], [0.16, 0.1, 0.25, 0.1])
