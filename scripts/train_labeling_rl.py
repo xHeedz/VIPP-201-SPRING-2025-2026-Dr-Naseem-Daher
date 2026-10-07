@@ -2,6 +2,7 @@
 Sequential labeling with RL on UAH-DriveSet (option a of docs/rl_pivot.md), leave one driver out.
 
     python scripts/train_labeling_rl.py [--steps 300000] [--wait-cost 0.01] [--horizon 120]
+                                        [--miss-aggressive-cost 2] [--agent-obs]
 
 Per held-out driver (same 6 folds as scripts/train_uah.py):
   - PPO (stable-baselines3) on env/labeling_env.py with the other 5 drivers' normal and aggressive trips
@@ -43,12 +44,16 @@ def start_points(seqs, horizon):
     return [(i, t0) for i, s in enumerate(seqs) for t0 in range(0, len(s["features"]) - horizon + 1, START_EVERY_S)]
 
 
-def score(rows, wait_cost):
-    """rows: list of (true, predicted or None, seconds) -> balanced accuracy, seconds, reward."""
+def score(rows, wait_cost, miss_cost=1.0):
+    """rows: list of (true, predicted or None, seconds) -> balanced accuracy, seconds, reward; a wrong label
+    on an aggressive driver costs miss_cost, on a normal one 1 (same as the env). balanced_reward: mean of
+    the per class mean reward."""
     d = pd.DataFrame(rows, columns=["true", "pred", "seconds"])
     d["correct"] = d["true"] == d["pred"]
-    d["reward"] = np.where(d["correct"], 1.0, -1.0) - wait_cost * (d["seconds"] - 1)
+    wrong = np.where(d["true"] == "aggressive", -miss_cost, -1.0)
+    d["reward"] = np.where(d["correct"], 1.0, wrong) - wait_cost * (d["seconds"] - 1)
     return {"balanced_acc": float(d.groupby("true")["correct"].mean().mean()),
+            "balanced_reward": float(d.groupby("true")["reward"].mean().mean()),
             "acc_normal": float(d.loc[d["true"] == "normal", "correct"].mean()),
             "acc_aggressive": float(d.loc[d["true"] == "aggressive", "correct"].mean()),
             "seconds": float(d["seconds"].mean()), "reward": float(d["reward"].mean()), "episodes": len(d)}
@@ -81,14 +86,13 @@ def run_rule(curves, labels, lo, hi):
     return [(y, CLASSES[int(g)], int(k)) for y, g, k in zip(labels, aggr, n)]
 
 
-def fit_rule(curves, labels, wait_cost):
-    """lo, hi maximising balanced accuracy * 2 - 1 - wait_cost * (mean seconds - 1) on the training drivers"""
+def fit_rule(curves, labels, wait_cost, miss_cost):
+    """lo, hi maximising the balanced reward on the training drivers"""
     best = None
     grid = np.arange(0.10, 0.80, 0.02)
     for lo in grid:
         for hi in grid[grid > lo]:
-            r = score(run_rule(curves, labels, lo, hi), wait_cost)
-            key = r["balanced_acc"] * 2 - 1 - wait_cost * (r["seconds"] - 1)
+            key = score(run_rule(curves, labels, lo, hi), wait_cost, miss_cost)["balanced_reward"]
             if best is None or key > best[0]:
                 best = (key, lo, hi)
     return best[1], best[2]
@@ -106,8 +110,14 @@ def run_policy(model, env, starts):
     return rows
 
 
-def main(steps, wait_cost, horizon, seed):
-    tag = f"_wait{wait_cost:g}"
+def attach_agent(seqs, agent):
+    """copy of the sequences carrying the fold's DynamicWeightAgent weights and threshold per environment"""
+    return [{**s, "agent": {"weights": agent.weights_np(s["environment"]), "threshold": agent.threshold(s["environment"])}}
+            for s in seqs]
+
+
+def main(steps, wait_cost, horizon, seed, miss_cost, agent_obs):
+    tag = f"_wait{wait_cost:g}" + (f"_miss{miss_cost:g}" if miss_cost != 1 else "") + ("_agentobs" if agent_obs else "")
     from stable_baselines3 import PPO
     seqs = uah_sequences(UAH_ROOT)
     drivers = sorted({s["driver"] for s in seqs})
@@ -115,23 +125,24 @@ def main(steps, wait_cost, horizon, seed):
           f"{sum(len(s['features']) for s in seqs)} seconds, drivers {drivers}")
     results, episodes = [], []
     for d in drivers:
-        train = [s for s in seqs if s["driver"] != d]
-        test = [s for s in seqs if s["driver"] == d]
+        agent = DynamicWeightAgent.load(os.path.join(DATA_DIR, "uah_lodo_agents", f"agent_without_{d}.json"))
+        train = attach_agent([s for s in seqs if s["driver"] != d], agent)
+        test = attach_agent([s for s in seqs if s["driver"] == d], agent)
         test_starts, train_starts = start_points(test, horizon), start_points(train, horizon)
         t = time.time()
-        env = LabelingEnv(train, CLASSES, horizon=horizon, wait_cost=wait_cost)
+        costs = {"aggressive": miss_cost}
+        env = LabelingEnv(train, CLASSES, horizon=horizon, wait_cost=wait_cost, wrong_cost=costs, agent_obs=agent_obs)
         model = PPO("MlpPolicy", env, seed=seed, verbose=0, ent_coef=0.01, n_steps=2048, batch_size=256)
         model.learn(total_timesteps=steps)
-        test_env = LabelingEnv(test, CLASSES, horizon=horizon, wait_cost=wait_cost)
+        test_env = LabelingEnv(test, CLASSES, horizon=horizon, wait_cost=wait_cost, wrong_cost=costs, agent_obs=agent_obs)
         methods = {"rl_ppo": run_policy(model, test_env, test_starts)}
-        lo, hi = fit_rule(*ai_curves(train, train_starts, horizon), wait_cost)
+        lo, hi = fit_rule(*ai_curves(train, train_starts, horizon), wait_cost, miss_cost)
         methods["stopping_rule"] = run_rule(*ai_curves(test, test_starts, horizon), lo, hi)
-        agent = DynamicWeightAgent.load(os.path.join(DATA_DIR, "uah_lodo_agents", f"agent_without_{d}.json"))
         for T in FIXED_T:
             methods[f"reference_T{T}"] = run_fixed(test, test_starts, T, lambda m, e: CLASSES[int(100 * reference_ai(m) >= THRESHOLDS[1])])
             methods[f"weight_agent_T{T}"] = run_fixed(test, test_starts, T, lambda m, e, a=agent: CLASSES[int(a.ai(m, e) >= a.threshold(e))])
         for name, rows in methods.items():
-            results.append({"held_out_driver": d, "method": name, **score(rows, wait_cost)})
+            results.append({"held_out_driver": d, "method": name, **score(rows, wait_cost, miss_cost)})
             episodes += [{"held_out_driver": d, "method": name, "true": a, "pred": b, "seconds": c} for a, b, c in rows]
         r = {m["method"]: m for m in results if m["held_out_driver"] == d}
         print(f"  {d}: {len(test_starts)} test episodes, {time.time() - t:.0f} s | "
@@ -141,9 +152,9 @@ def main(steps, wait_cost, horizon, seed):
     lodo = pd.DataFrame(results)
     lodo.to_csv(os.path.join(DATA_DIR, f"labeling_rl_lodo{tag}.csv"), index=False)
     pd.DataFrame(episodes).to_csv(os.path.join(DATA_DIR, f"labeling_rl_episodes{tag}.csv.gz"), index=False)
-    summary = lodo.groupby("method")[["balanced_acc", "acc_normal", "acc_aggressive", "seconds", "reward"]].agg(["mean", "std"])
+    summary = lodo.groupby("method")[["balanced_acc", "acc_normal", "acc_aggressive", "seconds", "reward", "balanced_reward"]].agg(["mean", "std"])
     summary.columns = [f"{a}_{b}" for a, b in summary.columns]
-    summary = summary.sort_values("reward_mean", ascending=False)
+    summary = summary.sort_values("balanced_reward_mean", ascending=False)
     summary.to_csv(os.path.join(DATA_DIR, f"labeling_rl_summary{tag}.csv"))
     print(summary.round(3).to_string())
 
@@ -155,5 +166,7 @@ if __name__ == "__main__":
     p.add_argument("--wait-cost", type=float, default=0.01)
     p.add_argument("--horizon", type=int, default=120)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--miss-aggressive-cost", type=float, default=1.0, help="cost of a wrong label on an aggressive driver")
+    p.add_argument("--agent-obs", action="store_true", help="add the DynamicWeightAgent margin to the observation")
     a = p.parse_args()
-    main(a.steps, a.wait_cost, a.horizon, a.seed)
+    main(a.steps, a.wait_cost, a.horizon, a.seed, a.miss_aggressive_cost, a.agent_obs)

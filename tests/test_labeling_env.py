@@ -79,3 +79,14 @@ def test_uah_sequences_from_fixture(tmp_path):
     assert {s["label"] for s in seqs} == {"normal", "aggressive"}
     assert len(seqs) == 6 * 5                                   # per driver: motorway 2 + secondary 3, drowsy left out
     assert all(s["features"].shape[1] == 4 for s in seqs)
+
+
+def test_agent_margin_in_observation():
+    # weights 0.25 each, features (0.2, 0.4, 0.3, 0.1): score 100 * 0.25 * 1.0 = 25; threshold 20 -> (25 - 20) / 100
+    f = np.tile([0.2, 0.4, 0.3, 0.1], (15, 1))
+    o = observation(f, 0, 15, 120, "highway", {"weights": [0.25] * 4, "threshold": 20.0})
+    assert len(o) == 15 and abs(o[13] - 0.05) < 1e-6 and abs(o[14] - 0.05) < 1e-6
+    s = {**seq(0.1, "normal"), "agent": {"weights": [0.25] * 4, "threshold": 50.0}}
+    env = LabelingEnv([s], agent_obs=True)
+    o, _ = env.reset(options={"seq": 0, "t0": 0})
+    assert env.observation_space.contains(o) and abs(o[13] - (10 - 50) / 100) < 1e-6

@@ -8,7 +8,9 @@ either waits (sees one more second, small cost) or commits to a label, which end
     reward    +1 correct label, -cost[true class] wrong label (default 1), -wait_cost per wait;
               waiting at the horizon ends the episode as a wrong label
     obs       running mean of the 4 index features since the start (n_s^2, n_a, n_p^2, n_w),
-              mean of the last 10 s, reference AI of both / 100, elapsed / horizon, environment one hot
+              mean of the last 10 s, reference AI of both / 100, elapsed / horizon, environment one hot;
+              with agent_obs: also (learned score - learned threshold) / 100 of both means, from the
+              DynamicWeightAgent weights and threshold the sequence carries (seq["agent"])
 
 The agent does not drive and does not change the driver: waiting only reveals more of the recorded drive.
 Real RL because the action decides what is observed next and the reward for waiting is delayed.
@@ -31,20 +33,25 @@ def reference_ai(features):
     return np.minimum((np.asarray(features, float) * np.array(WEIGHTS)).sum(axis=-1), 1.0)
 
 
-def observation(features, t0, n, horizon, environment):
-    """Observation after n seconds seen from second t0 of a (T, 4) feature array."""
+def observation(features, t0, n, horizon, environment, agent=None):
+    """Observation after n seconds seen from second t0 of a (T, 4) feature array. agent: {"weights": (4,),
+    "threshold": score} of a DynamicWeightAgent for this environment; adds its margin for both means."""
     seen = features[t0:t0 + n]
     run, rec = seen.mean(axis=0), seen[-RECENT_S:].mean(axis=0)
     env = np.zeros(len(ENVIRONMENTS))
     env[ENVIRONMENTS.index(environment)] = 1.0
-    return np.concatenate([run, rec, [reference_ai(run), reference_ai(rec), n / horizon], env]).astype(np.float32)
+    parts = [run, rec, [reference_ai(run), reference_ai(rec), n / horizon], env]
+    if agent is not None:
+        w, thr = np.asarray(agent["weights"], float), float(agent["threshold"])
+        parts.append(np.clip([(100 * (run * w).sum() - thr) / 100, (100 * (rec * w).sum() - thr) / 100], -1, 1))
+    return np.concatenate(parts).astype(np.float32)
 
 
 class LabelingEnv(gym.Env):
     metadata = {"render_modes": []}
 
     def __init__(self, sequences, classes=("normal", "aggressive"), horizon=120, wait_cost=0.01,
-                 wrong_cost=None, balance=True):
+                 wrong_cost=None, balance=True, agent_obs=False):
         self.sequences = [s for s in sequences if len(s["features"]) >= 1]
         self.classes = tuple(classes)
         self.horizon = int(horizon)
@@ -54,8 +61,9 @@ class LabelingEnv(gym.Env):
         self.balance = balance
         self.by_class = {c: [i for i, s in enumerate(self.sequences) if s["label"] == c] for c in self.classes}
         self.action_space = spaces.Discrete(1 + len(self.classes))
-        n_obs = 4 + 4 + 3 + len(ENVIRONMENTS)
-        self.observation_space = spaces.Box(0.0, 1.0, shape=(n_obs,), dtype=np.float32)
+        self.agent_obs = agent_obs
+        n_obs = 4 + 4 + 3 + len(ENVIRONMENTS) + (2 if agent_obs else 0)
+        self.observation_space = spaces.Box(-1.0, 1.0, shape=(n_obs,), dtype=np.float32)
 
     def reset(self, seed=None, options=None):
         """Random sequence (class first when balance) and random start, or options={"seq": i, "t0": s}."""
@@ -78,7 +86,8 @@ class LabelingEnv(gym.Env):
 
     def _obs(self):
         s = self.sequences[self.i]
-        return observation(s["features"], self.t0, self.n, self.horizon, s["environment"])
+        return observation(s["features"], self.t0, self.n, self.horizon, s["environment"],
+                           s["agent"] if self.agent_obs else None)
 
     def step(self, action):
         s = self.sequences[self.i]

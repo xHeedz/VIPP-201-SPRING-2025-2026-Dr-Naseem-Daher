@@ -47,14 +47,27 @@ first run with wait cost 0.01: waiting 120 s costs 1.19 reward, more than the ac
 - PPO does not learn to wait long even when waiting is cheap (0.001: 9 s, while the stopping rule waits 100 s for 0.83).
 - likely causes: 22 training trips per fold (few independent drivers), trip level labels (finding 6: calm cruising inside an aggressive trip is labelled aggressive, so waiting adds little), observation built on the hand-set features while the weight agent uses learned weights.
 
+## follow up: missed aggressive cost and learned index in the observation
+
+`--miss-aggressive-cost 2` (wrong label on an aggressive driver costs 2, baselines scored with the same costs) and `--agent-obs` (observation adds (learned score - learned threshold) / 100 of the running and recent means, from the fold's DynamicWeightAgent, never the held-out driver). wait cost 0.002, PPO, mean over the 6 held-out drivers:
+
+| variant | balanced acc | acc normal | acc aggressive | seconds |
+|---|---|---|---|---|
+| as before | 0.776 | 0.899 | 0.654 | 9.1 |
+| learned index in obs | 0.780 | 0.867 | 0.694 | 8.9 |
+| missed aggressive costs 2 | 0.743 | 0.794 | 0.691 | 17.1 |
+| both | 0.792 | 0.836 | 0.747 | 12.4 |
+
+reference: DynamicWeightAgent after 10 s 0.804 (0.798 / 0.809), after 30 s 0.827 (0.816 / 0.837). with both changes PPO misses 25% of aggressive episodes instead of 35% and is the best RL variant, still 0.012 below the weight agent at 10 s and 0.035 below it at 30 s. balanced reward with miss cost 2: PPO 0.434, weight agent at 30 s 0.515. outputs `data/labeling_rl_*_wait0.002{,_miss2}{,_agentobs}.csv`.
+
 ## status
 
 - [x] audit confirmed in code
 - [x] option a chosen (Hadi)
 - [x] `env/labeling_env.py`, tests
 - [x] PPO with leave one driver out on UAH, compared with fixed T and stopping rule baselines
-- [ ] asymmetric cost (missed aggressive driver costs 2)
-- [ ] weight agent score in the observation
+- [x] asymmetric cost (missed aggressive driver costs 2)
+- [x] weight agent score in the observation (best together: 0.792, still below the weight agent)
 - [ ] planted SUMO drivers as episodes (per vehicle labels, three classes, many more episodes)
 - [x] `agent/driver_q_learner.py` renamed to `agent/score_bucket_labeler.py`, docstring says what it does
 - [ ] confirm the RL direction with Dr. Daher
