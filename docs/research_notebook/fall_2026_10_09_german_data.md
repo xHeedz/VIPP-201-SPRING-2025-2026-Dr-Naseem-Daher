@@ -34,11 +34,45 @@ mean points per term:
 - the density effect in metres is small here (+3 to +5 points light to dense) because German dense traffic still moves at 75 to 85 km/h; US-101 congestion is slower.
 - consequence: score relative to normal drivers in the same context (percentile among highD / exiD windows with the same speed band and density), or fit cut offs per context. highD and exiD are large enough to serve as the normal reference for motorways.
 
+## German motorway traffic as the normal reference
+
+`scripts/context_reference.py`, `data/context_reference.csv`. reference: 252,680 highD + exiD windows. context bin: own speed band (20 km/h) x car ahead within 50 m (13 bins with at least 500 windows, else speed band only). context score = percentile in the bin; rule: aggressive at >= 90.
+
+| set (proximity) | AUC fixed / context | aggressive caught: fixed 42 / context 90 | normal flagged: fixed 42 / context 90 |
+|---|---|---|---|
+| UAH motorway (metres) | 0.792 / 0.718 | 0.748 / 0.227 | 0.258 / 0.022 |
+| planted SUMO highway, test seeds (mix) | 0.866 / 0.779 | 0.867 / 0.232 | 0.442 / 0.009 |
+| planted jam (metres) | 0.735 / 0.827 | 0.900 / 0.355 | 0.590 / 0.031 |
+| planted highway low (metres) | 0.884 / 0.636 | 0.706 / 0.014 | 0.106 / 0.004 |
+
+share flagged on NGSIM US-101 (unlabelled): metres 61.8% with 42, 12.5% with context 90.
+
+reading: false alarms collapse (normal drivers flagged 26 to 59% to 1 to 3%) but most aggressive drivers are missed and the AUC drops, except in the jam where density is the confounder (0.735 to 0.827). cause: binning on the driver's own speed removes speed, which is behaviour, not context. the context must be the traffic state (speed and density of the surrounding traffic, speed limit), never the own speed. UAH has no traffic state; NGSIM, highD, exiD and SUMO do.
+
+## inverse RL (option b), validated on the planted drivers
+
+`model/irl.py`: maximum entropy IRL with a 2 s horizon as a conditional logit over 12 acceleration choices (-4 to +3 m/s2); leader at constant speed; leader speed from the gap change. features: progress (speed / 130 km/h), progress squared (so the reward peaks at a per driver desired speed v* = -theta1 / (2 theta2)), risk (1 - min headway / 3)^2, discomfort a^2 / 9. theta per driver by maximum likelihood with a pull lam |theta - theta0|^2 toward the population. tests `tests/test_irl.py` (hand feature values, recovery of known weights from 4,000 simulated choices).
+
+`scripts/irl_planted.py`: planted highway settings (highway low / medium, jam, merge), 22,843 vehicles with at least 20 decisions; theta0 from seeds 0 to 6 (1.78 M decisions); test seeds 7 to 9. logistic combination of desired speed, risk and discomfort weights fitted on seeds 0 to 6.
+
+| | aggressive vs normal AUC | conservative vs normal AUC |
+|---|---|---|
+| IRL, linear progress only (first version) | 0.643 | 0.693 |
+| IRL with desired speed, lam 0.01 | 0.707 | 0.816 |
+| IRL, lam 0.001 / 0.1 | 0.683 / 0.714 | 0.797 / 0.820 |
+| index per vehicle, metres / headway / mix | 0.879 / 0.942 / 0.948 | 0.769 / 0.896 / 0.878 (1 - AUC: lower score) |
+
+by setting (IRL with desired speed vs index mix, aggressive vs normal): highway low 0.881 / 0.934, medium 0.796 / 0.974, jam 0.777 / 0.966, merge 0.591 / 0.941.
+
+reading: the first version gave aggressive drivers a lower progress weight (AUC 0.41): with a linear progress reward every driver "wants to accelerate", but planted aggressive drivers cruise steadily at a higher desired speed (speedFactor 1.2). with the squared term the desired speeds still barely differ (median 104.7 aggressive vs 104.0 normal km/h): 2 s acceleration choices carry little information about the desired speed when traffic limits the speed. the types differ mainly in tau (0.42 / 0.84 / 1.26 s), which the index measures directly. IRL not run on highD: it does not beat the index on labelled data yet. ideas: longer horizon, a desired headway parameter (like the desired speed), choices over lane changes, more seconds per driver (highD cars are visible 10 to 20 s).
+
 ## status
 
 - [x] highD and exiD loaders checked on the real data, scored
 - [ ] DriveDNA full release (not downloaded; folder is the sample)
-- [ ] context reference: percentile score among highD / exiD windows in the same speed band and density
+- [x] context reference with own speed band: false alarms 1 to 3%, but misses most aggressive drivers
+- [ ] context reference with traffic state (surrounding speed, density, limit) instead of own speed
 - [ ] inD, rounD, uniD (urban, roundabout, campus): unzip and score
 - [ ] SUMO planted types calibrated against highD (speed and headway distributions)
-- [ ] option b: per driver reward weights from highD trajectories (inverse RL)
+- [x] option b validated on planted drivers: 0.707 AUC vs 0.948 for the index; not run on highD yet
+- [ ] IRL with desired headway, longer horizon

@@ -22,7 +22,9 @@ read `CLAUDE.md` first (working style, writing style, repo map, history), then t
 - proximity: Dr. Daher wants metres and headway mixed per environment. fitted shares of metres: highway 0.5, urban 0.5, weather 0.2 (`PROX_MIX`, proposal, reference still metres). decision to ask: adopt as reference (then refit cut offs and rerun everything, old 2.5 list).
 - US-101: EIDM with a lane drop to 3 lanes at 5,750 veh/h: median 42 km/h, speed KS 0.26, headway KS 0.063 (was 0.43 / 0.14). target 0.2.
 - deck for the meeting: `../28:9:2026/Presentation/VIPP 301A Update 7 October 2026.pptx` (`scripts/build_week_deck.py`). paper outline: `docs/paper_outline.md`.
-- skipped: 100-DrivingStyle (Hadi, 7 oct). waiting: highD / exiD and full DriveDNA downloads, then train and score on them.
+- skipped: 100-DrivingStyle (Hadi, 7 oct).
+- 9 oct: highD + exiD in `../12-10-2026/` (also inD, rounD, uniD zips, not unpacked). scored (`scripts/score_german.py`): about half of German motorway windows >= 42 in every proximity variant (speed + ordinary headway + lane offset add up). German reference percentile (`scripts/context_reference.py`): false alarms 1 to 3% but misses most aggressive drivers, because the bin used own speed; next: bin on traffic state. IRL (`model/irl.py`, `scripts/irl_planted.py`): 0.707 AUC on planted drivers vs 0.948 for the index; not run on highD. write-up `docs/research_notebook/fall_2026_10_09_german_data.md`.
+- the DriveDNA folder in `../12-10-2026/` is the sample again (plus videos); full release still to download.
 - highD: loader `datasets/highd.py` ready and tested on a fixture; download in progress (Hadi). put the files in `../28:9:2026/highD/` (`XX_tracks.csv`, `XX_tracksMeta.csv`, `XX_recordingMeta.csv`), then run it, check gap against dhw, hand check one window, score in metres and headway.
 
 ## 1. waiting on Hadi (check these first)

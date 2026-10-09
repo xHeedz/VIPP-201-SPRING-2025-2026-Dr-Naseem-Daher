@@ -30,13 +30,13 @@ Context file for Claude Code. Read fully before doing anything in this repo. The
 ## machine and environment
 
 - MacBook Air (Apple silicon). Repo path:
-  `~/Documents/E3/FALL 26-27/VIPP 301A/VIPP-201---SPRING-2025-2026---Dr-Naseem-Daher`
-  (the path has spaces: quote it, e.g. `cd ~/Documents/E3/"FALL 26-27"/"VIPP 301A"/VIPP-201---SPRING-2025-2026---Dr-Naseem-Daher`).
+  `~/Documents/VIPP 301A/VIPP-201---SPRING-2025-2026---Dr-Naseem-Daher` (moved from `~/Documents/E3/FALL 26-27/` in Oct 2026)
+  (the path has spaces: quote it, e.g. `cd ~/Documents/"VIPP 301A"/VIPP-201---SPRING-2025-2026---Dr-Naseem-Daher`).
 - `.venv` in the repo root uses Python 3.9.6 (the README says 3.11; the Mac runs 3.9.6, so avoid 3.10+ syntax such as `match` or `X | Y` type hints). Activate with `source .venv/bin/activate`.
 - SUMO installed via pip (`eclipse-sumo`); `main.py` sets `SUMO_HOME` itself in its check stage. When running a SUMO script directly, SUMO_HOME may need exporting, e.g. `export SUMO_HOME="$(python -c 'import sumo; print(sumo.SUMO_HOME)')"`. Note that `scripts/sumo_urban_agent.py` line 31 falls back to a Windows path.
 - XQuartz installed; `sumo-gui` and the ellipse replay run.
 - GitHub: https://github.com/xHeedz/VIPP-201-SPRING-2025-2026-Dr-Naseem-Daher, branch `main`.
-- Data lives next to the repo, not inside it, in `../28:9:2026/`:
+- Data lives next to the repo, not inside it, in `../28:9:2026/` and `../12-10-2026/` (highD, exiD, inD, rounD, uniD, DriveDNA sample with videos):
   - `UAH-DRIVESET-v1/` (labelled trips)
   - `Next_Generation_Simulation_(NGSIM)_Vehicle_Trajectories_and_Supporting_Data_20260921.csv` (about 2 GB, all locations)
   - `ngsim_us-101_5min.csv`, `ngsim_test_extract_2min.csv` (small samples)
