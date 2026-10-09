@@ -24,7 +24,10 @@ read `CLAUDE.md` first (working style, writing style, repo map, history), then t
 - deck for the meeting: `../28:9:2026/Presentation/VIPP 301A Update 7 October 2026.pptx` (`scripts/build_week_deck.py`). paper outline: `docs/paper_outline.md`.
 - skipped: 100-DrivingStyle (Hadi, 7 oct).
 - 9 oct: highD + exiD in `../12-10-2026/` (also inD, rounD, uniD zips, not unpacked). scored (`scripts/score_german.py`): about half of German motorway windows >= 42 in every proximity variant (speed + ordinary headway + lane offset add up). German reference percentile (`scripts/context_reference.py`): false alarms 1 to 3% but misses most aggressive drivers, because the bin used own speed; next: bin on traffic state. IRL (`model/irl.py`, `scripts/irl_planted.py`): 0.707 AUC on planted drivers vs 0.948 for the index; not run on highD. write-up `docs/research_notebook/fall_2026_10_09_german_data.md`.
-- the DriveDNA folder in `../12-10-2026/` is the sample again (plus videos); full release still to download.
+- the DriveDNA folder in `../12-10-2026/` is the sample again (plus videos); full release left until Dr. Daher gives access (Hadi, 9 oct).
+- 9 oct, later: inD, rounD, uniD unpacked and scored (`datasets/levelx_urban.py`); traffic state context (highway: AUC kept, false alarms about 1%; urban fails on SUMO realism); IRL with desired headway: population fits order the planted types (1.63 / 2.43 / 2.94 s), per vehicle AUC 0.728, German motorway fits not identified. write-up `docs/research_notebook/fall_2026_10_09b_all_german_data.md`.
+- disk: about 13 GB free (94%); the five levelX zips in `../12-10-2026/` (3.8 GB) can go once Hadi agrees.
+- deck rule (Hadi, 9 oct): never create a presentation without asking; add to the existing deck.
 - highD: loader `datasets/highd.py` ready and tested on a fixture; download in progress (Hadi). put the files in `../28:9:2026/highD/` (`XX_tracks.csv`, `XX_tracksMeta.csv`, `XX_recordingMeta.csv`), then run it, check gap against dhw, hand check one window, score in metres and headway.
 
 ## 1. waiting on Hadi (check these first)

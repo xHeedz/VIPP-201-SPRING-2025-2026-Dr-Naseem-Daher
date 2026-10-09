@@ -1,14 +1,17 @@
 """
-Score highD (German motorways) and exiD (German motorway entries and exits) with the index in metres, in time
-headway and with the highway proximity mix (model/aggressiveness_model.py PROX_MIX), per density bin.
+Score the German drone datasets with the index in metres, in time headway and with the proximity mix of their
+environment (model/aggressiveness_model.py PROX_MIX), per density bin:
+    highD (motorways), exiD (motorway entries and exits)            environment highway
+    inD (intersections), rounD (roundabouts), uniD (campus)          environment urban (no lanes: three terms)
 
-    python scripts/score_german.py [--datasets highD,exiD]
+    python scripts/score_german.py [--datasets highD,exiD,inD,rounD,uniD]
 
-Data in ../12-10-2026/{highD,exiD}/data (levelXdata, research-only licence, not redistributed). Per second tables
+Data in ../12-10-2026/<dataset>/data (levelXdata, research-only licence, not redistributed). Per second tables
 are cached there as per_second/<rec>.csv.gz. Same path as every other source: per second table -> 10 s windows
 (5 s step, windows below 5 km/h dropped) -> mean index features -> score.
-Density: number of scored vehicles in the same recording at the same second (same driving direction for highD),
-averaged over the window; bins by quartile within each dataset.
+Traffic speed: mean speed of the other vehicles at the same second (same direction for highD), window mean.
+Density: highD / exiD: scored vehicles in the same recording at the same second (same driving direction for
+highD); inD / rounD / uniD: vehicles within 50 m (as pNEUMA). Averaged over the window; quartile bins per dataset.
 Outputs data/german_windows.csv.gz and data/german_summary.csv.
 """
 import argparse
@@ -30,11 +33,16 @@ BASE = os.path.abspath(os.path.join(DATA_DIR, "..", "..", "12-10-2026"))
 FEATS = ["phi_speed", "phi_accel", "phi_prox", "phi_wave"]
 
 
+ENVIRONMENT = {"highD": "highway", "exiD": "highway", "inD": "urban", "rounD": "urban", "uniD": "urban"}
+
+
 def loader(name):
     if name == "highD":
         from datasets import highd as m
-    else:
+    elif name == "exiD":
         from datasets import exid as m
+    else:
+        from datasets import levelx_urban as m
     return m
 
 
@@ -49,7 +57,20 @@ def cached_per_second(name, rec):
     return ps
 
 
+def add_traffic_speed(ps):
+    """mean speed of the OTHER vehicles at the same second (same driving direction when known): traffic state,
+    comparable across sources (km/h), unlike vehicle counts that depend on the recorded area"""
+    key = ["t"] + (["direction"] if "direction" in ps.columns else [])
+    g = ps.groupby(key)["speed_kmh"]
+    n, tot = g.transform("size"), g.transform("sum")
+    ps["traffic_kmh"] = np.where(n > 1, (tot - ps["speed_kmh"]) / (n - 1).clip(lower=1), np.nan)
+    return ps
+
+
 def add_density(ps, name):
+    if "density_50m" in ps.columns:
+        ps["density"] = ps["density_50m"]
+        return ps
     key = ["t"] + (["direction"] if "direction" in ps.columns else [])
     ps["density"] = ps.groupby(key)["vehicle_id"].transform("size")
     return ps
@@ -59,14 +80,15 @@ def score_recording(name, rec):
     ps = cached_per_second(name, rec)
     if not len(ps):
         return pd.DataFrame()
-    ps = add_density(ps, name)
+    ps = add_traffic_speed(add_density(ps, name))
     frames = []
     for vid, g in ps.groupby("vehicle_id", sort=False):
         g = g.reset_index(drop=True)
-        trip = {"trip": vid, "driver": vid, "road": name, "environment": "highway", "behavior": "unlabelled"}
+        env = ENVIRONMENT[name]
+        trip = {"trip": vid, "driver": vid, "road": name, "environment": env, "behavior": "unlabelled"}
         w = {k: windows(g, trip, features=f) for k, f in
              [("m", index_features), ("h", headway_features),
-              ("x", lambda s, a, p, wv: mixed_features(s, a, p, wv, PROX_MIX["highway"]))]}
+              ("x", lambda s, a, p, wv: mixed_features(s, a, p, wv, PROX_MIX[env]))]}
         if not len(w["m"]):
             continue
         out = w["m"][["trip", "t0", "speed_kmh"] + FEATS].rename(columns={"trip": "vehicle_id"})
@@ -76,11 +98,12 @@ def score_recording(name, rec):
         out["phi_prox_headway"] = w["h"]["phi_prox"].to_numpy()
         t = g["t"].to_numpy()
         out["density"] = [g["density"].to_numpy()[(t >= a) & (t < a + 10)].mean() for a in out["t0"]]
+        out["traffic_kmh"] = [np.nanmean(g["traffic_kmh"].to_numpy()[(t >= a) & (t < a + 10)]) for a in out["t0"]]
         out["leader_share"] = [(g["gap_m"].to_numpy()[(t >= a) & (t < a + 10)] > 0).mean() for a in out["t0"]]
         out["class"] = g["class"].iloc[0]
         frames.append(out[out["speed_kmh"] >= 5.0])
     w = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
-    return w.assign(dataset=name, recording=rec)
+    return w.assign(dataset=name, recording=rec, environment=ENVIRONMENT[name])
 
 
 def main(names):
@@ -117,5 +140,5 @@ def main(names):
 if __name__ == "__main__":
     warnings.simplefilter("ignore")
     p = argparse.ArgumentParser()
-    p.add_argument("--datasets", default="highD,exiD")
+    p.add_argument("--datasets", default="highD,exiD,inD,rounD,uniD")
     main(p.parse_args().datasets.split(","))

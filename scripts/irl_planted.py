@@ -6,8 +6,8 @@ Does inverse RL recover the planted driver types? model/irl.py on the planted SU
 
 1. population theta0 from seeds 0 to 6 (all decisions pooled)
 2. theta per vehicle (at least MIN_DEC decisions), pulled toward theta0 with lam; desired speed from theta
-3. test seeds 7 to 9: AUC aggressive vs normal and conservative vs normal of desired speed, risk and discomfort
-   weights, and of a logistic combination of the three fitted on the per vehicle weights of seeds 0 to 6
+3. test seeds 7 to 9: AUC aggressive vs normal and conservative vs normal of desired speed, desired headway and
+   discomfort weight, and of a logistic combination of the three fitted on the per vehicle weights of seeds 0 to 6
 4. same test vehicles: AUC of the vehicle's mean index score (metres, headway, highway mix)
 Outputs data/irl_planted_vehicles.csv and data/irl_planted_summary.csv.
 """
@@ -26,7 +26,7 @@ import torch
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from paths import DATA_DIR  # noqa: E402
 from model.aggressiveness_model import PROX_MIX, headway_features, index_features, mixed_features, original_score  # noqa: E402
-from model.irl import NAMES, decisions, desired_speed_kmh, fit  # noqa: E402
+from model.irl import NAMES, decisions, desired_headway_s, desired_speed_kmh, fit  # noqa: E402
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from train_uah import auc  # noqa: E402
@@ -93,9 +93,11 @@ def main(lam):
     d = pd.DataFrame(rows)
     d["desired_speed_kmh"] = desired_speed_kmh(d[[f"theta_{n}" for n in NAMES]].to_numpy())
     d["desired_speed_kmh"] = d["desired_speed_kmh"].fillna(d["desired_speed_kmh"].median()).clip(0, 300)
+    d["desired_headway_s"] = desired_headway_s(d[[f"theta_{n}" for n in NAMES]].to_numpy())
+    d["desired_headway_s"] = d["desired_headway_s"].fillna(d["desired_headway_s"].median()).clip(0, 10)
     d.to_csv(os.path.join(DATA_DIR, "irl_planted_vehicles.csv"), index=False)
     tr, te = d[~d["seed"].isin(TEST_SEEDS)], d[d["seed"].isin(TEST_SEEDS)]
-    cols = ["desired_speed_kmh", "theta_risk", "theta_discomfort"]
+    cols = ["desired_speed_kmh", "desired_headway_s", "theta_discomfort"]
     out = []
     for pos, neg in [("aggressive", "normal"), ("conservative", "normal")]:
         a, b = tr[tr["label"].isin([pos, neg])], te[te["label"].isin([pos, neg])]

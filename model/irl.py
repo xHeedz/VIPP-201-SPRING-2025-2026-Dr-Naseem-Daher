@@ -7,12 +7,13 @@ keeps its speed. Every candidate gets four features of the predicted H seconds:
     progress    speed reached / V_REF
     progress_sq (speed reached / V_REF)^2: with it the reward peaks at a desired speed
                 v* = -theta_progress / (2 theta_progress_sq) x V_REF, learned per driver
-    risk        (1 - smallest time headway / THW_MAX)^2 when 0 < headway <= THW_MAX, else 0 (no leader: 0)
+    headway     smallest time headway over the H seconds / H_CAP (capped at H_CAP; no leader: H_CAP)
+    headway_sq  its square: the reward peaks at a desired headway h* = -theta_headway / (2 theta_headway_sq) x H_CAP
     discomfort  a^2 / 9
 P(a | state) = exp(theta . features(a)) / sum over the grid. theta = the driver's reward weights, fitted by
 maximum likelihood on the observed choices (the mean acceleration over the next H seconds, nearest grid value),
 with a pull toward a population theta0: loss = NLL / n + lam * |theta - theta0|^2.
-An aggressive driver should have a higher desired speed and weigh risk and discomfort less.
+An aggressive driver should have a higher desired speed, a shorter desired headway and weigh discomfort less.
 
 Input: per second table of one vehicle (datasets/uah.py layout: t, speed_kmh, gap_m). Leader speed from the gap
 change, v + dgap/dt, the same way for every source; seconds where it jumps (leader change) are dropped.
@@ -23,12 +24,12 @@ import torch
 A_GRID = np.array([-4.0, -3.0, -2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 3.0])
 H_S = 2.0
 V_REF_MS = 130 / 3.6
-THW_MAX = 3.0
-NAMES = ("progress", "progress_sq", "risk", "discomfort")
+H_CAP = 4.0
+NAMES = ("progress", "progress_sq", "headway", "headway_sq", "discomfort")
 
 
 def candidate_features(v, gap, v_lead, has_lead, a_grid=A_GRID, h=H_S, steps=4):
-    """(n,) states -> (n, K, 4) features of every acceleration candidate."""
+    """(n,) states -> (n, K, 5) features of every acceleration candidate."""
     v, gap, v_lead = (np.asarray(x, float)[:, None] for x in (v, gap, v_lead))
     has_lead = np.asarray(has_lead, bool)[:, None]
     a = a_grid[None, :]
@@ -43,10 +44,9 @@ def candidate_features(v, gap, v_lead, has_lead, a_grid=A_GRID, h=H_S, steps=4):
         thw = np.where(vt > 0.5, np.maximum(g, 0.0) / np.maximum(vt, 0.5), np.inf)
         min_thw = np.minimum(min_thw, thw)
     v_end = np.maximum(v + a * h, 0.0)
-    risk = np.where(has_lead & (min_thw <= THW_MAX), (1 - np.minimum(min_thw, THW_MAX) / THW_MAX) ** 2, 0.0)
-    risk = np.where(has_lead & (min_thw <= 0), 1.0, risk)
+    hw = np.where(has_lead, np.clip(min_thw, 0.0, H_CAP), H_CAP) / H_CAP
     p = v_end / V_REF_MS
-    return np.stack([p, p ** 2, risk, np.broadcast_to(a ** 2 / 9.0, v_end.shape)], axis=-1)
+    return np.stack([p, p ** 2, hw, hw ** 2, np.broadcast_to(a ** 2 / 9.0, v_end.shape)], axis=-1)
 
 
 def desired_speed_kmh(theta):
@@ -56,6 +56,13 @@ def desired_speed_kmh(theta):
         return np.where(t2 < 0, -t1 / (2 * t2) * V_REF_MS * 3.6, np.nan)
 
 
+def desired_headway_s(theta):
+    """headway where theta_headway * h + theta_headway_sq * h^2 peaks (nan when it has no maximum)"""
+    t1, t2 = theta[..., 2], theta[..., 3]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return np.where(t2 < 0, -t1 / (2 * t2) * H_CAP, np.nan)
+
+
 def decisions(ps, h=H_S, min_speed_kmh=5.0):
     """per second table of one vehicle -> (features (n, K, 3), chosen index (n,)). Uses seconds t with t + h seen."""
     t = ps["t"].to_numpy(float)
@@ -63,7 +70,7 @@ def decisions(ps, h=H_S, min_speed_kmh=5.0):
     gap = ps["gap_m"].to_numpy(float)
     hh = int(round(h))
     if len(t) <= hh + 1:
-        return np.zeros((0, len(A_GRID), 4)), np.zeros(0, int)
+        return np.zeros((0, len(A_GRID), 5)), np.zeros(0, int)
     i = np.arange(len(t) - hh)
     ok = np.isclose(t[i + hh] - t[i], h) & (v[i] * 3.6 >= min_speed_kmh)
     has_lead = gap[i] > 0
@@ -77,7 +84,7 @@ def decisions(ps, h=H_S, min_speed_kmh=5.0):
 
 
 def fit(features, choice, theta0=None, lam=0.0, iters=200):
-    """theta (4,) maximising the conditional logit likelihood of the choices, pulled toward theta0."""
+    """theta (5,) maximising the conditional logit likelihood of the choices, pulled toward theta0."""
     X = torch.tensor(features, dtype=torch.float64)
     y = torch.tensor(choice, dtype=torch.long)
     th0 = torch.zeros(features.shape[-1], dtype=torch.float64) if theta0 is None else torch.tensor(theta0, dtype=torch.float64)
