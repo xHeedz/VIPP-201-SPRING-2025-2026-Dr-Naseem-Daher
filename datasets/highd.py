@@ -11,8 +11,8 @@ Files per recording XX (01 to 60):
 Per second table of datasets/uah.py (t, speed_kmh, accel, gap_m, wave_m) plus vehicle_id, class, lane,
 speed limit. How each input is measured here:
     speed   |velocity| at each whole second, 3 s mean (UAH way); accel = its derivative
-    gap     own front bumper to the leader's rear bumper (precedingId), from the boxes; highD's dhw is front to
-            front (it includes the leader's length), so it is not used; no leader = 0 (no car ahead)
+    gap     own front bumper to the leader's rear bumper (precedingId), from the boxes; equals highD's dhw to
+            within 1 cm on recording 01 (10,481 vehicle-seconds), kept as dhw_m; no leader = 0 (no car ahead)
     wave    |box centre y - centre of the lane it is in|, lanes from the lane markings
 """
 import glob
@@ -75,6 +75,7 @@ def per_second(root, rec):
             "t": t, "vehicle_id": f"{rec}_{vid}", "speed_kmh": v * 3.6, "accel": accel,
             "gap_m": g["gap_m"].to_numpy(), "wave_m": np.nan_to_num(g["wave_m"].to_numpy(), nan=0.0),
             "lane_valid": np.isfinite(g["wave_m"].to_numpy()), "lane": g["laneId"].to_numpy(),
+            "direction": int(g["drivingDirection"].iloc[0]),
             "dhw_m": g["dhw"].to_numpy(), "class": g["class"].iloc[0], "recording": rec,
             "speed_limit_kmh": float(meta["speedLimit"]) * 3.6 if float(meta["speedLimit"]) > 0 else np.nan,
             "label": "unlabelled"}))

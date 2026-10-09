@@ -116,8 +116,8 @@ def attach_agent(seqs, agent):
             for s in seqs]
 
 
-def main(steps, wait_cost, horizon, seed, miss_cost, agent_obs):
-    tag = f"_wait{wait_cost:g}" + (f"_miss{miss_cost:g}" if miss_cost != 1 else "") + ("_agentobs" if agent_obs else "")
+def main(steps, wait_cost, horizon, seed, miss_cost, agent_obs, gamma=1.0):
+    tag = f"_wait{wait_cost:g}" + (f"_miss{miss_cost:g}" if miss_cost != 1 else "") + ("_agentobs" if agent_obs else "") + ("" if gamma == 1 else f"_g{gamma:g}")
     from stable_baselines3 import PPO
     seqs = uah_sequences(UAH_ROOT)
     drivers = sorted({s["driver"] for s in seqs})
@@ -132,7 +132,7 @@ def main(steps, wait_cost, horizon, seed, miss_cost, agent_obs):
         t = time.time()
         costs = {"aggressive": miss_cost}
         env = LabelingEnv(train, CLASSES, horizon=horizon, wait_cost=wait_cost, wrong_cost=costs, agent_obs=agent_obs)
-        model = PPO("MlpPolicy", env, seed=seed, verbose=0, ent_coef=0.01, n_steps=2048, batch_size=256)
+        model = PPO("MlpPolicy", env, seed=seed, verbose=0, ent_coef=0.01, n_steps=2048, batch_size=256, gamma=gamma)
         model.learn(total_timesteps=steps)
         test_env = LabelingEnv(test, CLASSES, horizon=horizon, wait_cost=wait_cost, wrong_cost=costs, agent_obs=agent_obs)
         methods = {"rl_ppo": run_policy(model, test_env, test_starts)}
@@ -166,7 +166,8 @@ if __name__ == "__main__":
     p.add_argument("--wait-cost", type=float, default=0.01)
     p.add_argument("--horizon", type=int, default=120)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--gamma", type=float, default=1.0, help="PPO discount; episodes are short, 1 = no discount")
     p.add_argument("--miss-aggressive-cost", type=float, default=1.0, help="cost of a wrong label on an aggressive driver")
     p.add_argument("--agent-obs", action="store_true", help="add the DynamicWeightAgent margin to the observation")
     a = p.parse_args()
-    main(a.steps, a.wait_cost, a.horizon, a.seed, a.miss_aggressive_cost, a.agent_obs)
+    main(a.steps, a.wait_cost, a.horizon, a.seed, a.miss_aggressive_cost, a.agent_obs, a.gamma)

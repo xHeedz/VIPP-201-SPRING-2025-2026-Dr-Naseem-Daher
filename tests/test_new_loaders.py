@@ -86,3 +86,26 @@ def test_highd_gap_wave_speed(tmp_path):
     # left: own front 500 - 25t, leader rear 470 - 25t + 4 -> 26 m; centre y 10.0 in lane 8.5..12 (10.25) -> 0.25
     assert np.allclose(v3["gap_m"], 26.0) and np.allclose(v3["wave_m"], 0.25) and np.allclose(v3["accel"], 0.0)
     assert (ps.loc[ps["vehicle_id"].isin(["01_2", "01_4"]), "gap_m"] == 0).all()   # leaders: no car ahead
+
+
+def test_exid_reads_lead_gap_and_lane_offset(tmp_path):
+    from datasets.exid import per_second, recordings
+    root = str(tmp_path)
+    pd.DataFrame([{"recordingId": 0, "locationId": 2, "frameRate": 25, "speedLimit": 27.7778}]).to_csv(
+        os.path.join(root, "00_recordingMeta.csv"), index=False)
+    pd.DataFrame({"trackId": [0, 1, 2], "class": ["car", "car", "pedestrian"]}).to_csv(
+        os.path.join(root, "00_tracksMeta.csv"), index=False)
+    rows = []
+    for f in range(251):
+        # follower 0 at 25 m/s, 30 m behind leader 1; pedestrian 2 not scored
+        for vid, lead, dhw, off in [(0, 1, 30.0, -0.4), (1, -1, -1.0, 0.1), (2, -1, -1.0, 0.0)]:
+            rows.append({"frame": f, "trackId": vid, "xCenter": 0.0, "yCenter": 0.0, "length": 4.5,
+                         "lonVelocity": 25.0 if vid < 2 else 1.0, "lonAcceleration": 0.0, "latLaneCenterOffset": off,
+                         "laneChange": 0, "leadId": lead, "leadDHW": dhw})
+    pd.DataFrame(rows).to_csv(os.path.join(root, "00_tracks.csv"), index=False)
+    assert recordings(root) == ["00"]
+    ps = per_second(root, "00")
+    assert set(ps["vehicle_id"]) == {"00_0", "00_1"} and len(ps) == 2 * 11
+    f, l = ps[ps["vehicle_id"] == "00_0"], ps[ps["vehicle_id"] == "00_1"]
+    assert np.allclose(f["gap_m"], 30.0) and np.allclose(f["wave_m"], 0.4) and np.allclose(f["speed_kmh"], 90.0)
+    assert (l["gap_m"] == 0).all() and abs(ps["speed_limit_kmh"].iloc[0] - 100.0) < 1e-3

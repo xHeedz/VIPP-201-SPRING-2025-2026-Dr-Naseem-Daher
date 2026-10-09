@@ -18,7 +18,11 @@ read `CLAUDE.md` first (working style, writing style, repo map, history), then t
 - result: PPO 0.78 balanced acc in 5 to 9 s, top reward at wait cost 0.002 and 0.005 by a margin inside the spread across drivers; less accurate than the DynamicWeightAgent at 10 s (0.80) and 30 s (0.83); misses about a third of aggressive episodes. not a win yet.
 - 5 oct follow up: missed aggressive cost 2 + weight agent score in the observation: 0.792, 75% of aggressive caught, 12 s (still below the weight agent).
 - 7 oct, planted SUMO drivers (three classes, split by seed, `scripts/train_labeling_rl_planted.py`): PPO 0.666 to 0.676 balanced acc in 7 to 12 s, equal to the per environment index at 30 s (0.667), 0.015 below it at 60 s; catches 86 to 90% of aggressive drivers. gain is speed. write-up `docs/research_notebook/fall_2026_10_07_rl_planted_highd.md`.
-- next: headway features in the labeling env, confirm the direction with Dr. Daher before option b (inverse RL on NGSIM / highD).
+- 7 oct, later: gamma 1 + wait bias 4 fixed the early commit; headway features: PPO 0.736 (3 seeds) after about 30 s vs per environment index 0.677 at 30 s, 0.741 at 60 s. hand traced decisions in `docs/hand_checks/rl_decision_trace_*.md`.
+- proximity: Dr. Daher wants metres and headway mixed per environment. fitted shares of metres: highway 0.5, urban 0.5, weather 0.2 (`PROX_MIX`, proposal, reference still metres). decision to ask: adopt as reference (then refit cut offs and rerun everything, old 2.5 list).
+- US-101: EIDM with a lane drop to 3 lanes at 5,750 veh/h: median 42 km/h, speed KS 0.26, headway KS 0.063 (was 0.43 / 0.14). target 0.2.
+- deck for the meeting: `../28:9:2026/Presentation/VIPP 301A Update 7 October 2026.pptx` (`scripts/build_week_deck.py`). paper outline: `docs/paper_outline.md`.
+- skipped: 100-DrivingStyle (Hadi, 7 oct). waiting: highD / exiD and full DriveDNA downloads, then train and score on them.
 - highD: loader `datasets/highd.py` ready and tested on a fixture; download in progress (Hadi). put the files in `../28:9:2026/highD/` (`XX_tracks.csv`, `XX_tracksMeta.csv`, `XX_recordingMeta.csv`), then run it, check gap against dhw, hand check one window, score in metres and headway.
 
 ## 1. waiting on Hadi (check these first)

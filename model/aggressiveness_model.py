@@ -59,6 +59,21 @@ def headway_features(speed_kmh, accel_ms2, prox_m, wave_m, thw_max=THW_MAX_S):
     return f
 
 
+# share of the metres term per environment, fitted by scripts/fit_proximity_mix.py (data/proximity_mix.json):
+# max mean AUC aggressive vs normal on planted SUMO drivers and UAH. proposal, the reference still uses metres
+PROX_MIX = {"highway": 0.5, "urban": 0.5, "weather": 0.2}
+
+
+def mixed_features(speed_kmh, accel_ms2, prox_m, wave_m, alpha, thw_max=THW_MAX_S):
+    """index_features with a proximity term mixing both measures (Dr. Daher, Oct 2026: metres or time headway
+    depending on the environment): n_p^2 = alpha * metres term + (1 - alpha) * headway term.
+    alpha = 1 is index_features, alpha = 0 is headway_features. Per environment alphas: PROX_MIX."""
+    f = index_features(speed_kmh, accel_ms2, prox_m, wave_m)
+    h = headway_features(speed_kmh, accel_ms2, prox_m, wave_m, thw_max)
+    f[..., 2] = alpha * f[..., 2] + (1.0 - alpha) * h[..., 2]
+    return f
+
+
 def original_score(features):
     """The score from index_features (the hand-set reference index)."""
     # explicit weighted sum: numpy 2.0 matmul on macOS raises spurious divide-by-zero warnings

@@ -121,7 +121,8 @@ def uah_sequences(root, min_speed_kmh=5.0, behaviors=("normal", "aggressive"), f
 
 def planted_sequences(paths, min_speed_kmh=5.0, min_seconds=10, features=index_features):
     """One sequence per planted SUMO vehicle (data/sumo_planted/<scenario>_s<seed>.per_second.csv.gz):
-    true type as label, environment from scripts/planted_drivers.py ENVIRONMENT, seed and scenario kept."""
+    true type as label, environment from scripts/planted_drivers.py ENVIRONMENT, seed and scenario kept.
+    features: one feature function, or {environment: function} (e.g. a proximity mix per environment)."""
     import os
     import re
     import pandas as pd
@@ -135,9 +136,11 @@ def planted_sequences(paths, min_speed_kmh=5.0, min_seconds=10, features=index_f
         for vid, g in ps.groupby("vehicle_id", sort=False):
             if len(g) < min_seconds:
                 continue
-            f = features(g["speed_kmh"], g["accel"], g["gap_m"], g["wave_m"])
+            env = env_of[m.group("scenario")]
+            fn = features[env] if isinstance(features, dict) else features
+            f = fn(g["speed_kmh"], g["accel"], g["gap_m"], g["wave_m"])
             out.append({"features": np.asarray(f, float), "label": g["label"].iloc[0],
-                        "environment": env_of[m.group("scenario")], "driver": vid,
+                        "environment": env, "driver": vid,
                         "trip": f"{m.group('scenario')}_{m.group('density')}_s{m.group('seed')}/{vid}",
                         "scenario": f"{m.group('scenario')}_{m.group('density')}", "seed": int(m.group("seed"))})
     return out

@@ -61,11 +61,14 @@ TYPES = {   # plan table (part 2) with tau x 0.7: calibrated on the time headway
 }
 MIX = {"conservative": 0.2, "normal": 0.6, "aggressive": 0.2}
 LC_SIGMA = 0.2
+CAR_FOLLOW = "IDM"     # car following model of every planted type (us101 sweep tries EIDM and Krauss)
 MIN_GAP = 2.5
 SIM_END, WARMUP, STEP = 900.0, 120.0, 0.1
 
 # scenario -> (network, demand level -> veh/h per route group, environment of the UAH agent)
 DENSITY = {"low": 1200, "medium": 2400, "jam": 4500}
+US101_MAIN2_SPEED = 29.06       # m/s after the weaving section (us101 sweep tries a slower bottleneck)
+US101_MAIN2_LANES = 5          # lanes after the weaving section (us101 sweep tries a lane drop)
 US101_DEMAND = (7000, 1200)      # veh/h on the main road and the on ramp (us101 scenario)       # highway, veh/h entering
 RUNS = ([("highway", d) for d in DENSITY] +
         [("urban", "medium"), ("merge", "medium"), ("roundabout", "medium"), ("weather", "medium")])
@@ -134,11 +137,11 @@ def networks():
   <node id="m" x="1000" y="0" type="priority"/>
   <node id="m2" x="1400" y="0" type="priority"/>
   <node id="x" x="1600" y="-150" type="priority"/>
-  <node id="b" x="2600" y="0" type="priority"/>""", """
+  <node id="b" x="2600" y="0" type="priority"/>""", f"""
   <edge id="main1" from="a" to="m" numLanes="5" speed="29.06"/>
   <edge id="ramp" from="r" to="m" numLanes="1" speed="22.22"/>
   <edge id="aux" from="m" to="m2" numLanes="6" speed="29.06"/>
-  <edge id="main2" from="m2" to="b" numLanes="5" speed="29.06"/>
+  <edge id="main2" from="m2" to="b" numLanes="{US101_MAIN2_LANES}" speed="{US101_MAIN2_SPEED}"/>
   <edge id="off" from="m2" to="x" numLanes="1" speed="22.22"/>""")
     return nets
 
@@ -191,7 +194,7 @@ def write_routes(path, scenario, density):
         for k, f in scale.items():
             q[k] = round(q[k] * f, 3)
         attrs = " ".join(f'{k}="{v}"' for k, v in q.items())
-        lines.append(f'  <vType id="{name}" carFollowModel="IDM" laneChangeModel="SL2015" lcSigma="{LC_SIGMA}" '
+        lines.append(f'  <vType id="{name}" carFollowModel="{CAR_FOLLOW}" laneChangeModel="SL2015" lcSigma="{LC_SIGMA}" '
                      f'minGap="{MIN_GAP}" speedDev="0.1" {attrs}/>')
     total = demand(scenario, density)
     for rid, edges, share in routes(scenario):

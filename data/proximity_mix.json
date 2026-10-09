@@ -1,0 +1,8 @@
+{
+  "alpha_metres": {
+    "highway": 0.5,
+    "urban": 0.5,
+    "weather": 0.2
+  },
+  "criterion": "max mean AUC aggressive vs normal, planted seeds 0-6 and UAH"
+}
