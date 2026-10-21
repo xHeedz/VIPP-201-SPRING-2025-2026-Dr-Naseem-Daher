@@ -26,8 +26,16 @@ def find_drives(root):
 
 
 def per_second(path):
-    d = pd.read_csv(path, usecols=NEEDED)
-    d = d[(d["is_human"] == 1) & (d["cs_enabled"] == 0)]
+    return per_second_frame(pd.read_csv(path, usecols=NEEDED))
+
+
+def per_second_frame(d, human_only=True):
+    """10 Hz signal table (sample CSV or full release parquet) -> per second table. human_only uses the is_human /
+    cs_enabled flags; pass False when the rows are already a human segment (full release: index/human_segments)."""
+    if "time_s" not in d:
+        d = d.assign(time_s=np.arange(len(d)) / 10.0)
+    if human_only and {"is_human", "cs_enabled"} <= set(d.columns):
+        d = d[(d["is_human"] == 1) & (d["cs_enabled"] == 0)]
     whole = np.isclose(d["time_s"] % 1.0, 0.0, atol=0.051) | np.isclose(d["time_s"] % 1.0, 1.0, atol=0.051)
     s = d[whole].copy()
     s["t"] = np.round(s["time_s"])

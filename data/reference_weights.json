@@ -1,0 +1,25 @@
+{
+  "terms": [
+    "speed",
+    "accel^2",
+    "prox^2 (mix per environment)",
+    "wave"
+  ],
+  "weights": [
+    0.25,
+    0.35,
+    0.3,
+    0.1
+  ],
+  "cutoffs": [
+    19.0,
+    27.5
+  ],
+  "criterion": "max mean AUC: UAH A vs N, planted A vs N, planted N vs C (seeds 0-6)",
+  "fit_criterion": 0.8311052778205128,
+  "tests": {
+    "planted test aggressive vs normal": 0.8878,
+    "planted test normal vs conservative": 0.7913,
+    "uah lodo": 0.841
+  }
+}

@@ -1,0 +1,21 @@
+test,held_out,auc,weights
+uah lodo,D1,0.7614727342549923,0.25 / 0.35 / 0.30 / 0.10
+uah lodo,D2,0.902185960591133,0.25 / 0.40 / 0.30 / 0.05
+uah lodo,D3,0.8027768319903151,0.25 / 0.35 / 0.30 / 0.10
+uah lodo,D4,0.8685770076331708,0.25 / 0.35 / 0.30 / 0.10
+uah lodo,D5,0.8892580187133652,0.25 / 0.35 / 0.30 / 0.10
+uah lodo,D6,0.8215127490893508,0.25 / 0.35 / 0.30 / 0.10
+planted test aggressive vs normal,highway_low,0.8722904027465871,
+planted test normal vs conservative,highway_low,0.7599274554019847,
+planted test aggressive vs normal,highway_medium,0.8632488422931606,
+planted test normal vs conservative,highway_medium,0.8111177948351787,
+planted test aggressive vs normal,jam_jam,0.8533383736961743,
+planted test normal vs conservative,jam_jam,0.8548576944268159,
+planted test aggressive vs normal,merge_medium,0.8665923632320146,
+planted test normal vs conservative,merge_medium,0.8561747061659641,
+planted test aggressive vs normal,roundabout_medium,0.9909789481675904,
+planted test normal vs conservative,roundabout_medium,0.7034785607317522,
+planted test aggressive vs normal,urban_medium,0.9168970097046525,
+planted test normal vs conservative,urban_medium,0.776266807338374,
+planted test aggressive vs normal,weather_medium,0.8513157953584012,
+planted test normal vs conservative,weather_medium,0.7770028842034936,

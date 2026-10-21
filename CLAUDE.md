@@ -30,7 +30,7 @@ Context file for Claude Code. Read fully before doing anything in this repo. The
 ## machine and environment
 
 - MacBook Air (Apple silicon). Repo path:
-  `~/Documents/VIPP 301A/VIPP-201---SPRING-2025-2026---Dr-Naseem-Daher` (moved from `~/Documents/E3/FALL 26-27/` in Oct 2026)
+  `~/Documents/Research/Dr. Naseem Daher/VIPP 301A/VIPP-201---SPRING-2025-2026---Dr-Naseem-Daher` (moved twice in Oct 2026; the .venv broke on the move, see docs/next_session.md)
   (the path has spaces: quote it, e.g. `cd ~/Documents/"VIPP 301A"/VIPP-201---SPRING-2025-2026---Dr-Naseem-Daher`).
 - `.venv` in the repo root uses Python 3.9.6 (the README says 3.11; the Mac runs 3.9.6, so avoid 3.10+ syntax such as `match` or `X | Y` type hints). Activate with `source .venv/bin/activate`.
 - SUMO installed via pip (`eclipse-sumo`); `main.py` sets `SUMO_HOME` itself in its check stage. When running a SUMO script directly, SUMO_HOME may need exporting, e.g. `export SUMO_HOME="$(python -c 'import sumo; print(sumo.SUMO_HOME)')"`. Note that `scripts/sumo_urban_agent.py` line 31 falls back to a Windows path.
@@ -216,3 +216,9 @@ Diagram: window + context -> retriever -> similar labelled windows -> scorer (pe
 - Full DriveDNA: access requested (Hadi's HF account xHeedz, logged in via `hf auth login`), waiting for approval. 100-DrivingStyle: email draft in `../drafts/`, not yet sent.
 - US-101 synchronized flow not reproduced (IDM breaks down); urban ego: crash-flag bug fixed, collisions in 4 of 200 episodes remain.
 - October deck: `scripts/build_october_deck.py` -> `../28:9:2026/Presentation/VIPP 301A Session Results October 2026.pptx` (18 slides). Render check via Keynote (osascript export). python-pptx installed in .venv.
+
+## where things stood (21 oct 2026, Dr. Daher's revision list done)
+- write-up: `docs/research_notebook/fall_2026_10_20_revision.md`. cleaned data `data/clean/`, cleaning `datasets/cleaning.py`, windows `datasets/windows.py`, reference formula `reference_*` in `model/aggressiveness_model.py` (speed linear, accel squared, gap mix, unknown terms left out; weights 0.25 / 0.35 / 0.30 / 0.10, cut offs 19 / 27.5).
+- supervised AUC is measured on the margin (score minus environment threshold): old agents 0.897, not 0.762.
+- agents: env/labeling_ref.py, best PPO 8 inputs + wait 5 s (0.722); DQN 0.721; formula at 60 s 0.749. backtrack pages in docs/hand_checks/backtrace_*.md.
+- deck `../20-10-2026/Weekly Update.pptx` (scripts/build_revision_deck.py), explainer GIFs (scripts/make_explainer_video.py). full DriveDNA: scripts/drivedna_full.py on the workstation.

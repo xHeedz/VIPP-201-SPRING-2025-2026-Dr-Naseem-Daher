@@ -22,3 +22,4 @@ env/sumo_scenarios/planted/
 
 # per vehicle windows derived from highD / exiD (levelXdata licence: no redistribution); rebuild with scripts/score_german.py
 data/german_windows.csv.gz
+data/clean/

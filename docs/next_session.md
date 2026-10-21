@@ -66,3 +66,12 @@ read `CLAUDE.md` first (working style, writing style, repo map, history), then t
 - percentile thresholds from retrieval with a dense traffic reference (needs 2.1 or a calibrated 2.3)
 - paper outline for IEEE ITSC
 - validate the deck with the pptx skill validator (needs Python 3.10+; not on this Mac)
+
+## 20 to 21 oct 2026: Dr. Daher's revision list (done, `docs/research_notebook/fall_2026_10_20_revision.md`)
+
+- cleaned data in `data/clean/` (git-ignored, rebuild with `scripts/build_clean_tables.py`); reference formula `reference_terms` / `reference_score` in `model/aggressiveness_model.py`, weights and cut offs in `data/reference_weights.json` (0.25 / 0.35 / 0.30 / 0.10, 19 / 27.5)
+- new labeling env `env/labeling_ref.py`; best agent state small6 + wait 5 s (`scripts/state_reward_ablation.py`)
+- supervised AUC must be measured on the margin (score minus environment threshold); 18 oct number corrected
+- deck `../20-10-2026/Weekly Update.pptx`, speaker notes, explainer GIFs
+- next: full DriveDNA on the workstation (`docs/workstation_drivedna.md`), 3 seeds PPO / DQN, agents on UAH with the new state, Dr. Daher's decisions (squared acceleration, speed relative to limit or traffic, simulated type overlap)
+- the .venv is broken (Xcode python moved); run with `PYTHONPATH=.venv/lib/python3.9/site-packages /Library/Developer/CommandLineTools/usr/bin/python3` until it is rebuilt

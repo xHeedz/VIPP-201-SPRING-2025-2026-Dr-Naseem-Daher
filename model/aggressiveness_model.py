@@ -106,3 +106,62 @@ class AggressivenessModel:
     def get_ai_score(self, speed, accel, prox, wave):
         b = breakdown(speed, accel, prox, wave)
         return b["score"], b["label"]
+
+
+# ── reference formula, Oct 2026 revision (Dr. Daher) ────────────────────────
+# speed linear, acceleration squared, proximity mixed per environment (PROX_MIX), unknown terms (NaN, from
+# datasets/cleaning.py) left out of the score with the remaining weights rescaled. Weights and cut offs are fitted
+# by scripts/fit_reference_weights.py (data/reference_weights.json); the old functions above stay unchanged.
+REF_TERMS = ("speed", "accel2", "prox2", "wave")
+_REF_FILE = __import__("os").path.join(__import__("os").path.dirname(__file__), "..", "data", "reference_weights.json")
+
+
+def _load_reference():
+    import json
+    import os
+    if os.path.exists(_REF_FILE):
+        with open(_REF_FILE) as f:
+            d = json.load(f)
+        return tuple(d["weights"]), tuple(d["cutoffs"])
+    w = np.array(WEIGHTS) / sum(WEIGHTS)
+    return tuple(float(x) for x in w), THRESHOLDS
+
+
+REF_WEIGHTS, REF_CUTOFFS = _load_reference()
+
+
+def reference_terms(speed_kmh, accel_ms2, gap_m, wave_m, environment, thw_max=THW_MAX_S):
+    """(..., 4) terms (speed, accel^2, prox^2 mixed, wave), each 0 to 1, NaN where the input is unknown.
+    gap: NaN unknown, 0 no car ahead (term 0), else metres. environment: a name or an array of names."""
+    speed_kmh, accel_ms2, gap_m, wave_m = (np.asarray(x, dtype=float) for x in (speed_kmh, accel_ms2, gap_m, wave_m))
+    ns = np.minimum(speed_kmh / SPEED_MAX_KMH, 1.0)
+    na2 = np.minimum(np.abs(accel_ms2) / ACCEL_MAX_MS2, 1.0) ** 2
+    with np.errstate(invalid="ignore", divide="ignore"):
+        metres = np.where((gap_m > 0) & (gap_m <= PROX_MAX_M), 1.0 - gap_m / PROX_MAX_M, 0.0) ** 2
+        v = speed_kmh / 3.6
+        thw = np.where((gap_m > 0) & (v >= 0.5), gap_m / np.maximum(v, 0.5), 0.0)
+        headway = np.where((thw > 0) & (thw <= thw_max), 1.0 - thw / thw_max, 0.0) ** 2
+    if isinstance(environment, str):
+        alpha = PROX_MIX.get(environment, 0.5)
+    else:
+        alpha = np.array([PROX_MIX.get(e, 0.5) for e in np.asarray(environment)], dtype=float)
+    prox = np.where(np.isnan(gap_m), np.nan, alpha * metres + (1.0 - alpha) * headway)
+    nw = np.where(np.isnan(wave_m), np.nan, np.minimum(np.abs(wave_m) / WAVE_MAX_M, 1.0))
+    return np.stack([ns, na2, prox, nw], axis=-1)
+
+
+def reference_score(terms, weights=None):
+    """0 to 100: weighted mean of the known terms (unknown terms left out, weights rescaled to sum to 1)."""
+    t = np.asarray(terms, dtype=float)
+    w = np.asarray(REF_WEIGHTS if weights is None else weights, dtype=float)
+    known = ~np.isnan(t)
+    num = np.where(known, t, 0.0) * w
+    den = (known * w).sum(axis=-1)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        return 100.0 * num.sum(axis=-1) / np.where(den > 0, den, np.nan)
+
+
+def reference_label(score, cutoffs=None):
+    lo, hi = REF_CUTOFFS if cutoffs is None else cutoffs
+    s = np.asarray(score, dtype=float)
+    return np.where(s < lo, "conservative", np.where(s < hi, "normal", "aggressive"))
