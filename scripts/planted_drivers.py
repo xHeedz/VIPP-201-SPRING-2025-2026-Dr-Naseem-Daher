@@ -16,6 +16,10 @@ Scenarios (networks generated under env/sumo_scenarios/planted/):
     weather     highway at medium density, every type with speedFactor x 0.8 and decel x 0.7
     us101       US-101 like weaving section: 5 lanes at 65 mph, on ramp onto an auxiliary lane, off ramp
                 400 m later (US101_DEMAND veh/h on the main road and the ramp)
+    autobahn    German style motorway: 3 lanes, 2 km at 120 km/h then 2 km without a speed limit (desired top speed
+                140 km/h x speedFactor), stronger keep right rule for every type, overtaking on the right only by
+                aggressive drivers (lcOvertakeRight), 15% trucks limited to 80 km/h (label "truck", not scored);
+                3000 veh/h; output in data/sumo_planted_de/
 
 Driver types: IDM car following, SL2015 sublane lane changing (--lateral-resolution 0.8);
 tau / accel / decel / speedFactor / lcAssertive / sigma from the plan table. Lateral
@@ -60,6 +64,11 @@ TYPES = {   # plan table (part 2) with tau x 0.7: calibrated on the time headway
     "aggressive":   dict(tau=0.42, accel=3.5, decel=6.0, speedFactor=1.2, lcAssertive=3.0, sigma=0.7),
 }
 MIX = {"conservative": 0.2, "normal": 0.6, "aggressive": 0.2}
+AUTOBAHN = {"conservative": dict(lcOvertakeRight=0.0), "normal": dict(lcOvertakeRight=0.05),
+            "aggressive": dict(lcOvertakeRight=0.5)}
+AUTOBAHN_ALL = dict(lcKeepRight=2.0, desiredMaxSpeed=38.89)          # 140 km/h where there is no limit
+TRUCK = dict(vClass="truck", maxSpeed=22.22, length=12.0, tau=1.2, accel=1.0, decel=3.5, speedFactor=1.0)
+TRUCK_SHARE = 0.15
 LC_SIGMA = 0.2
 CAR_FOLLOW = "IDM"     # car following model of every planted type (us101 sweep tries EIDM and Krauss)
 MIN_GAP = 2.5
@@ -71,9 +80,11 @@ US101_MAIN2_SPEED = 29.06       # m/s after the weaving section (us101 sweep tri
 US101_MAIN2_LANES = 5          # lanes after the weaving section (us101 sweep tries a lane drop)
 US101_DEMAND = (7000, 1200)      # veh/h on the main road and the on ramp (us101 scenario)       # highway, veh/h entering
 RUNS = ([("highway", d) for d in DENSITY] +
-        [("urban", "medium"), ("merge", "medium"), ("roundabout", "medium"), ("weather", "medium")])
+        [("urban", "medium"), ("merge", "medium"), ("roundabout", "medium"), ("weather", "medium"),
+         ("autobahn", "medium")])
 ENVIRONMENT = {"highway": "highway", "jam": "highway", "merge": "highway", "weather": "weather", "us101": "highway",
-               "urban": "urban", "roundabout": "urban"}
+               "urban": "urban", "roundabout": "urban", "autobahn": "highway"}
+OUT_DIR_DE = os.path.join(DATA_DIR, "sumo_planted_de")
 
 
 def _write(path, content):
@@ -143,6 +154,12 @@ def networks():
   <edge id="aux" from="m" to="m2" numLanes="6" speed="29.06"/>
   <edge id="main2" from="m2" to="b" numLanes="{US101_MAIN2_LANES}" speed="{US101_MAIN2_SPEED}"/>
   <edge id="off" from="m2" to="x" numLanes="1" speed="22.22"/>""")
+    nets["autobahn"] = _netconvert("autobahn", """
+  <node id="s" x="0" y="0" type="priority"/>
+  <node id="l" x="2000" y="0" type="priority"/>
+  <node id="e" x="4000" y="0" type="priority"/>""", """
+  <edge id="abl" from="s" to="l" numLanes="3" speed="33.33"/>
+  <edge id="abf" from="l" to="e" numLanes="3" speed="69.44"/>""")
     return nets
 
 
@@ -150,6 +167,8 @@ def routes(scenario):
     """[(route_id, edges, share of the scenario demand)]"""
     if scenario in ("highway", "jam", "weather"):
         return [("r0", "hw1 hw2", 1.0)]
+    if scenario == "autobahn":
+        return [("r0", "abl abf", 1.0)]
     if scenario == "merge":
         return [("main", "main1 acc main2", 0.8), ("onramp", "ramp acc main2", 0.2)]
     if scenario == "us101":      # shares of US101_DEMAND (main, ramp); 10% of each leaves at the off ramp
@@ -183,7 +202,7 @@ def demand(scenario, density):
         return DENSITY[density]
     if scenario == "us101":
         return sum(US101_DEMAND)
-    return {"jam": DENSITY["jam"], "urban": 1200, "merge": 3000, "roundabout": 1000}[scenario]
+    return {"jam": DENSITY["jam"], "urban": 1200, "merge": 3000, "roundabout": 1000, "autobahn": 3000}[scenario]
 
 
 def write_routes(path, scenario, density):
@@ -193,17 +212,26 @@ def write_routes(path, scenario, density):
         q = dict(p)
         for k, f in scale.items():
             q[k] = round(q[k] * f, 3)
+        if scenario == "autobahn":
+            q.update(AUTOBAHN_ALL, **AUTOBAHN[name])
         attrs = " ".join(f'{k}="{v}"' for k, v in q.items())
         lines.append(f'  <vType id="{name}" carFollowModel="{CAR_FOLLOW}" laneChangeModel="SL2015" lcSigma="{LC_SIGMA}" '
                      f'minGap="{MIN_GAP}" speedDev="0.1" {attrs}/>')
+    if scenario == "autobahn":
+        attrs = " ".join(f'{k}="{v}"' for k, v in TRUCK.items())
+        lines.append(f'  <vType id="truck" carFollowModel="{CAR_FOLLOW}" laneChangeModel="SL2015" lcSigma="{LC_SIGMA}" '
+                     f'minGap="{MIN_GAP}" speedDev="0.05" lcKeepRight="2.0" {attrs}/>')
     total = demand(scenario, density)
     for rid, edges, share in routes(scenario):
         lines.append(f'  <route id="{rid}" edges="{edges}"/>')
-        for name, mix in MIX.items():
+        mixes = dict(MIX)
+        if scenario == "autobahn":
+            mixes = {k: v * (1 - TRUCK_SHARE) for k, v in MIX.items()} | {"truck": TRUCK_SHARE}
+        for name, mix in mixes.items():
             vph = total * share * mix
             # highway family: random start lane, so traffic has to merge at the lane drop ("best" would put
             # every car in the lanes that continue and cap insertion at their capacity)
-            lane = "random" if scenario in ("highway", "jam", "weather") or rid == "thru" else "best"
+            lane = "random" if scenario in ("highway", "jam", "weather", "autobahn") or rid == "thru" else "best"
             if rid == "exit":       # cars bound for the off ramp start on the right, as drivers who plan ahead:
                 lane = "0"          # starting anywhere made them stop at the end of the auxiliary lane and deadlock it
             lines.append(f'  <flow id="{name}_{rid}" type="{name}" route="{rid}" begin="0" end="{SIM_END - 120}" '
@@ -245,10 +273,11 @@ def run(job):
     from datasets.sumo_log import per_second
     ps = pd.concat([per_second(g).assign(vehicle_id=v, label=g["label"].iloc[0])
                     for v, g in raw.groupby("vehicle_id", sort=False) if len(g) >= 30], ignore_index=True)
-    os.makedirs(OUT_DIR, exist_ok=True)
-    ps.to_csv(os.path.join(OUT_DIR, f"{tag}.per_second.csv.gz"), index=False)
+    out_dir = OUT_DIR_DE if scenario == "autobahn" else OUT_DIR
+    os.makedirs(out_dir, exist_ok=True)
+    ps.to_csv(os.path.join(out_dir, f"{tag}.per_second.csv.gz"), index=False)
     if seed == 0:
-        raw.to_csv(os.path.join(OUT_DIR, f"{tag}.raw10hz.csv.gz"), index=False)
+        raw.to_csv(os.path.join(out_dir, f"{tag}.raw10hz.csv.gz"), index=False)
     return tag, len(raw), raw["vehicle_id"].nunique()
 
 

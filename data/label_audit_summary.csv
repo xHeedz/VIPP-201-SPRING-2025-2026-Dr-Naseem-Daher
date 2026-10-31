@@ -1,0 +1,5 @@
+group,windows,share_of_label,drivesafe_says_aggressive,drivesafe_sides_with_formula
+agree: aggressive,1243,0.7927295918367347,0.5197103781174578,0.5197103781174578
+agree: normal,1903,0.7319230769230769,0.0,1.0
+"label aggressive, formula calm",325,0.2072704081632653,0.28307692307692306,0.7169230769230769
+"label normal, formula aggressive",697,0.2680769230769231,0.0,0.0

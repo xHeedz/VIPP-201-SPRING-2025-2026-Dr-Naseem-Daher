@@ -1,0 +1,21 @@
+test,held_out,auc_extended,auc_reference,weights
+uah lodo,D1,0.8402745775729646,0.7614727342549923,0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1
+uah lodo,D2,0.922829433497537,0.9059883004926108,0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1
+uah lodo,D3,0.8053947716869065,0.8027768319903151,0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1
+uah lodo,D4,0.8888001310884437,0.8685770076331708,0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1
+uah lodo,D5,0.8905504787563258,0.8892580187133652,0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1
+uah lodo,D6,0.8119318007897395,0.8215127490893508,0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1
+planted test aggressive vs normal,highway_low,0.895469262273843,0.8722904027465871,
+planted test normal vs conservative,highway_low,0.7253462158233746,0.7599274554019847,
+planted test aggressive vs normal,highway_medium,0.9000211765143389,0.8632488422931606,
+planted test normal vs conservative,highway_medium,0.8105256092113801,0.8111177948351787,
+planted test aggressive vs normal,jam_jam,0.8845357508772541,0.8533383736961743,
+planted test normal vs conservative,jam_jam,0.8926511786805392,0.8548576944268159,
+planted test aggressive vs normal,merge_medium,0.8831873847468265,0.8665923632320146,
+planted test normal vs conservative,merge_medium,0.8663601334269869,0.8561747061659641,
+planted test aggressive vs normal,roundabout_medium,0.9950384021245509,0.9909789481675904,
+planted test normal vs conservative,roundabout_medium,0.6931881084283456,0.7034785607317522,
+planted test aggressive vs normal,urban_medium,0.9657285064303185,0.9168970097046525,
+planted test normal vs conservative,urban_medium,0.7227066408768537,0.776266807338374,
+planted test aggressive vs normal,weather_medium,0.8719809165968624,0.8513157953584012,
+planted test normal vs conservative,weather_medium,0.7967242508430715,0.7770028842034936,

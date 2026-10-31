@@ -222,3 +222,10 @@ Diagram: window + context -> retriever -> similar labelled windows -> scorer (pe
 - supervised AUC is measured on the margin (score minus environment threshold): old agents 0.897, not 0.762.
 - agents: env/labeling_ref.py, best PPO 8 inputs + wait 5 s (0.722); DQN 0.721; formula at 60 s 0.749. backtrack pages in docs/hand_checks/backtrace_*.md.
 - deck `../20-10-2026/Weekly Update.pptx` (scripts/build_revision_deck.py), explainer GIFs (scripts/make_explainer_video.py). full DriveDNA: scripts/drivedna_full.py on the workstation.
+
+## where things stood (31 oct 2026, label audit, new signals, KAN, German transfer)
+- write-up: `docs/research_notebook/fall_2026_10_26_audit_signals_kan.md`. deck `../26-10-2026/Progress Presentation.pptx` (scripts/make_presentation_figures.py, scripts/build_long_deck.py); label audit `../26-10-2026/label_audit/` (scripts/label_audit_uah.py, manual verdicts pending in review.csv).
+- new signals `datasets/signals.py` (TTC, speed vs limit / traffic, IDM residual); clean tables carry speed_limit_kmh and traffic_kmh; extended formula `data/extended_weights.json` (UAH 0.860); KAN `model/kan.py`, `scripts/kan_formula.py` (UAH 0.894; acceleration learned straight, speed curved).
+- agents: extended state + risk reward in `env/labeling_ref.py`, 0.80 on SUMO (was 0.72); FSM experts 0.801 vs joint 0.797 (`scripts/fsm_vs_joint.py`); training plateaus from 0.5M steps (`scripts/learning_curve.py`).
+- German: autobahn scenario (`scripts/planted_drivers.py`, data/sumo_planted_de, clean source planted_de); transfer best with relative features, 0.808 (`scripts/german_transfer.py`).
+- slide style: figures, equations and videos only; all talking in the notes (Dr. Daher). Charbel's deck style still to match.

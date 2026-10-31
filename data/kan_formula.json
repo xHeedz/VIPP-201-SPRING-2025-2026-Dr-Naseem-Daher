@@ -1,0 +1,121 @@
+{
+  "grid_size": 5,
+  "degree": 3,
+  "epochs": 400,
+  "equations": {
+    "planted": {
+      "speed": {
+        "shape": "x^2",
+        "a": 2.422,
+        "c": -0.196,
+        "r2": 0.996
+      },
+      "accel": {
+        "shape": "sqrt(x)",
+        "a": 1.292,
+        "c": -0.097,
+        "r2": 0.996
+      },
+      "gap (m)": {
+        "shape": "x^3",
+        "a": 1.497,
+        "c": -0.232,
+        "r2": 0.926
+      },
+      "headway": {
+        "shape": "x^3",
+        "a": 1.375,
+        "c": -0.33,
+        "r2": 0.437
+      },
+      "lane": {
+        "shape": "x",
+        "a": 4.187,
+        "c": -0.357,
+        "r2": 0.998
+      },
+      "TTC": {
+        "shape": "x",
+        "a": -2.8,
+        "c": -0.013,
+        "r2": 1.0
+      },
+      "speed vs limit": {
+        "shape": "x",
+        "a": 1.761,
+        "c": 0.08,
+        "r2": 0.998
+      },
+      "speed vs traffic": {
+        "shape": "x^2",
+        "a": 1.371,
+        "c": -0.255,
+        "r2": 0.575
+      },
+      "IDM residual": {
+        "shape": "x^3",
+        "a": 3.937,
+        "c": -0.892,
+        "r2": 0.948
+      }
+    },
+    "uah": {
+      "speed": {
+        "shape": "x^3",
+        "a": 4.938,
+        "c": -0.701,
+        "r2": 0.986
+      },
+      "accel": {
+        "shape": "x",
+        "a": 9.688,
+        "c": -0.296,
+        "r2": 1.0
+      },
+      "gap (m)": {
+        "shape": "x^2",
+        "a": 3.614,
+        "c": -0.24,
+        "r2": 0.989
+      },
+      "headway": {
+        "shape": "x^3",
+        "a": 1.242,
+        "c": 0.239,
+        "r2": 0.733
+      },
+      "lane": {
+        "shape": "x",
+        "a": 2.091,
+        "c": -0.422,
+        "r2": 0.996
+      },
+      "speed vs limit": {
+        "shape": "sqrt(x)",
+        "a": 2.48,
+        "c": -0.271,
+        "r2": 0.972
+      },
+      "IDM residual": {
+        "shape": "x",
+        "a": 0.51,
+        "c": -0.227,
+        "r2": 0.995
+      }
+    }
+  },
+  "auc": {
+    "kan": {
+      "planted test seeds 7-9": 0.9168,
+      "uah lodo": 0.8937
+    },
+    "reference": {
+      "planted test seeds 7-9": 0.8585,
+      "uah lodo": 0.8416
+    },
+    "extended": {
+      "planted test seeds 7-9": 0.8888,
+      "uah lodo": 0.86
+    }
+  }
+}

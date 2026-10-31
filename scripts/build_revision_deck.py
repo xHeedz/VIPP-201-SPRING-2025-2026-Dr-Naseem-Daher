@@ -4,7 +4,7 @@ action space, rerun everything, backtrack every model, explain with a video). Sa
 (helpers from scripts/build_october_deck.py); every number is read from data/.
 
     python scripts/build_revision_deck.py
-writes ../20-10-2026/Weekly Update.pptx (the two explainer GIFs in ../20-10-2026/ are embedded and play in
+writes ../20-10-2026/Weekly Update (detailed).pptx (the two explainer GIFs in ../20-10-2026/ are embedded and play in
 PowerPoint and Keynote)
 """
 import json
@@ -27,7 +27,7 @@ from build_october_deck import (GREY_BAR, INK, MAROON, MAROON2, MUTED, PALE, PIN
 
 DATA, ROOT = B.DATA, B.ROOT
 OUT_DIR = os.path.abspath(os.path.join(ROOT, "..", "20-10-2026"))
-OUT = os.path.join(OUT_DIR, "Weekly Update.pptx")
+OUT = os.path.join(OUT_DIR, "Weekly Update (detailed).pptx")
 GOLD, BLUE = "D9A441", "4A6FA5"
 B.TOTAL = 10
 SOURCES = [("uah", "UAH"), ("planted", "SUMO"), ("ngsim_us_101", "US-101"), ("ngsim_i_80", "I-80"),

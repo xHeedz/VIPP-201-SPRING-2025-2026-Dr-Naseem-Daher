@@ -75,3 +75,6 @@ read `CLAUDE.md` first (working style, writing style, repo map, history), then t
 - deck `../20-10-2026/Weekly Update.pptx`, speaker notes, explainer GIFs
 - next: full DriveDNA on the workstation (`docs/workstation_drivedna.md`), 3 seeds PPO / DQN, agents on UAH with the new state, Dr. Daher's decisions (squared acceleration, speed relative to limit or traffic, simulated type overlap)
 - the .venv is broken (Xcode python moved); run with `PYTHONPATH=.venv/lib/python3.9/site-packages /Library/Developer/CommandLineTools/usr/bin/python3` until it is rebuilt
+
+## 26 to 31 oct 2026 (done, `docs/research_notebook/fall_2026_10_26_audit_signals_kan.md`)
+- open: manual verdicts in `../26-10-2026/label_audit/review.csv` (Hadi); Charbel's slide style; repeat German agent C with 3 seeds; RAG context percentile in the agent state; Dr. Daher on acceleration straight / speed curved (KAN); full DriveDNA waits for access from the owners.

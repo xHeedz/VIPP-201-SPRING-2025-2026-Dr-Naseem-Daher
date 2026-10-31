@@ -50,3 +50,23 @@ def test_state_and_reward():
     seq[0]["label"] = "aggressive"
     _, r, _, _, _ = env.step(2)                         # conservative for an aggressive driver: cost 2
     assert r == -2.0
+
+
+def test_risk_reward():
+    T = 12
+    ext = np.zeros((T, 4))
+    ext[3, 3] = 0.5                                     # danger 0.5 at second 3
+    seq = [{"terms": np.tile([0.5, 0.0, 0.0, 0.0], (T, 1)), "leader": np.zeros(T), "label": "aggressive",
+            "environment": "highway", "group": 0, "scenario": "x", "trip": "a", "ext": ext}]
+    env = LabelingRefEnv(seq, features=["time", "danger_rec"], risk=True)
+    env.reset(options={"seq": 0})
+    for _ in range(3):
+        env.step(0)                                     # waits through seconds 1, 2, 3
+    _, r, _, _, _ = env.step(0)                         # waiting at second 4 sees danger index 4 = 0: plain cost
+    assert np.isclose(r, -0.002)
+    env.reset(options={"seq": 0})
+    env.n = 3
+    _, r, _, _, _ = env.step(0)                         # waiting during the dangerous second: 0.002 x (1 + 5 x 0.5)
+    assert np.isclose(r, -0.002 * 3.5)
+    _, r, _, _, _ = env.step(2)                         # labelled normal, max danger seen 0.5: -(1 + 2 x 0.5)
+    assert np.isclose(r, -2.0)

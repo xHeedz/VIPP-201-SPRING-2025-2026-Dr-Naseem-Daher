@@ -1,0 +1,20 @@
+unknown share per term, UAH: {'t_speed': 0.0, 't_accel2': 0.0, 't_prox2': 0.476, 't_wave': 0.006, 't_ttc': 0.549, 't_rel_limit': 0.15, 't_rel_traffic': 1.0, 't_idm': 0.549}
+unknown share per term, planted: {'t_speed': 0.0, 't_accel2': 0.0, 't_prox2': 0.0, 't_wave': 0.0, 't_ttc': 0.02, 't_rel_limit': 0.0, 't_rel_traffic': 0.0, 't_idm': 0.02}
+               test  speed  accel2  gap2  lane   ttc  rel_limit  rel_traffic   idm
+         UAH A vs N  0.690   0.731 0.792 0.542 0.513      0.676          NaN 0.784
+planted test A vs N  0.547   0.587 0.767 0.558 0.494      0.564        0.574 0.885
+planted test N vs C  0.543   0.557 0.691 0.537 0.501      0.529        0.552 0.757
+19448 weight vectors; best {'speed': np.float64(0.2), 'accel2': np.float64(0.2), 'gap2': np.float64(0.2), 'lane': np.float64(0.1), 'ttc': np.float64(0.1), 'rel_limit': np.float64(0.1), 'rel_traffic': np.float64(0.0), 'idm': np.float64(0.1)} criterion 0.854
+reference formula on the same criterion: 0.832
+{'test': 'uah lodo', 'held_out': 'D1', 'auc_extended': 0.8402745775729646, 'auc_reference': 0.7614727342549923, 'weights': '0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1'}
+{'test': 'uah lodo', 'held_out': 'D2', 'auc_extended': 0.922829433497537, 'auc_reference': 0.9059883004926108, 'weights': '0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1'}
+{'test': 'uah lodo', 'held_out': 'D3', 'auc_extended': 0.8053947716869065, 'auc_reference': 0.8027768319903151, 'weights': '0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1'}
+{'test': 'uah lodo', 'held_out': 'D4', 'auc_extended': 0.8888001310884437, 'auc_reference': 0.8685770076331708, 'weights': '0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1'}
+{'test': 'uah lodo', 'held_out': 'D5', 'auc_extended': 0.8905504787563258, 'auc_reference': 0.8892580187133652, 'weights': '0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1'}
+{'test': 'uah lodo', 'held_out': 'D6', 'auc_extended': 0.8119318007897395, 'auc_reference': 0.8215127490893508, 'weights': '0.2 / 0.2 / 0.2 / 0.1 / 0.1 / 0.1 / 0.0 / 0.1'}
+                                     auc_extended  auc_reference
+test                                                            
+planted test aggressive vs normal           0.914          0.888
+planted test normal vs conservative         0.787          0.791
+uah lodo                                    0.860          0.842
+written data/extended_weights.json

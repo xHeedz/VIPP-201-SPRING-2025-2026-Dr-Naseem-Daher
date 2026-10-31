@@ -1,0 +1,2 @@
+proxy,windows,share_proxy_aggressive,auc_reference_all_terms,auc_reference_without_gap_and_limit,auc_extended_all_terms,auc_extended_without_gap_and_limit,single_speed,single_accel2,single_gap2,single_lane,single_ttc,single_rel_limit,single_rel_traffic,single_idm
+tailgating or speeding,81310,0.25649981552084616,0.9746985249281587,0.6160478801122142,0.9486229065814736,0.8333484947911525,0.6037628290710506,0.6175971207963311,0.9443948664668006,0.5371315701506472,0.5095128674778405,0.5629800895990852,0.5798535876196922,0.9331989032278462

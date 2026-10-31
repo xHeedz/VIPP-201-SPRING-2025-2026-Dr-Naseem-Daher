@@ -1,0 +1,42 @@
+{
+  "terms": [
+    "speed",
+    "accel2",
+    "gap2",
+    "lane",
+    "ttc",
+    "rel_limit",
+    "rel_traffic",
+    "idm"
+  ],
+  "weights": [
+    0.2,
+    0.2,
+    0.2,
+    0.1,
+    0.1,
+    0.1,
+    0.0,
+    0.1
+  ],
+  "cutoffs": [
+    17.0,
+    29.0
+  ],
+  "grid_step": 0.1,
+  "fit_criterion": 0.8538227497668469,
+  "tests": {
+    "planted test aggressive vs normal": {
+      "extended": 0.9137,
+      "reference": 0.8878
+    },
+    "planted test normal vs conservative": {
+      "extended": 0.7868,
+      "reference": 0.7913
+    },
+    "uah lodo": {
+      "extended": 0.86,
+      "reference": 0.8416
+    }
+  }
+}
