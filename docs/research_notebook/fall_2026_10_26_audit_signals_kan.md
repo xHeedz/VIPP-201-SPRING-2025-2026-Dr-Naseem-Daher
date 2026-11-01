@@ -13,7 +13,20 @@ requests (Dr. Daher, meeting of 26 oct): check by hand where the model and the l
 | agree aggressive | 1,243 | 52% | |
 | agree normal | 1,903 | 0% | |
 
-DriveSafe never flags a second of a normal trip, so it cannot judge the second group. 22 windows sampled (seed 0). examples: 02 (label aggressive, formula 23.8): gap closes 50 to 10 m at the end of the window, UAH TTC about 1 s: label probably right, formula late. 10 (label normal, formula 31.7): 100 km/h in a 120 zone behind trucks: label right, formula wrong (raw speed). manual verdicts pending (Hadi, review.csv).
+DriveSafe never flags a second of a normal trip, so it cannot judge the second group. 22 windows sampled (seed 0). examples: 02 (label aggressive, formula 23.8): gap closes 50 to 10 m at the end of the window, UAH TTC about 1 s: label probably right, formula late. 10 (label normal, formula 31.7): 100 km/h in a 120 zone behind trucks: label right, formula wrong (raw speed).
+
+manual verdict (Hadi, from the clips): label aggressive / formula calm: the label is wrong. label normal / formula aggressive: the drivers are not aggressive, so these are formula false alarms. the 697 windows have median score 30.4, 79% between 27.5 and 32.5 (just over the cut-off). the share of windows from aggressive trips rises gradually with the score (under 15: 0.21, 25 to 27.5: 0.24, 27.5 to 30: 0.36, 30 to 35: 0.59, 35 to 40: 0.93, over 40: 1.00), so a hard cut-off splits near identical drivers. proposed smoothing: calibrated probability, borderline band (agent keeps watching), hysteresis (switch only after N seconds).
+
+smoothing (`scripts/smooth_labels.py`, `data/smoothing_summary.csv`, band 25 to 30, hold 2 windows, probability = logistic on the score fitted leave one driver out):
+
+| method | false alarms (697) still aggressive | missed (325) still calm | accuracy, UAH normal vs aggressive |
+|---|---|---|---|
+| hard cut off 27.5 | 697 | 325 | 0.755 |
+| probability >= 0.5 | 382 | 325 | 0.786 |
+| borderline band | 401 (296 borderline) | 196 (129 borderline) | 0.811 on the 76% decided |
+| hysteresis | 501 | 215 | 0.769 |
+
+P(aggressive trip) = 0.5 at score 30.3 on UAH, above the 27.5 cut off. probability removes the most false alarms, the band gives the best accuracy at the cost of 24% undecided windows, hysteresis is the only method that also recovers missed aggressive windows (110 of 325).
 
 ## 2. training length
 
@@ -59,7 +72,7 @@ highD proxy labels (81,310 windows, 25.6% proxy aggressive): all terms reference
 
 ## 8. deck
 
-`scripts/make_presentation_figures.py` (results/figures/pres_*.png), `scripts/build_long_deck.py` -> `../26-10-2026/Progress Presentation.pptx` (18 slides, figures / equations / videos, explanation in the notes).
+`scripts/make_presentation_figures.py` (results/figures/pres_*.png), `scripts/build_long_deck.py` -> `../26-10-2026/Progress Presentation.pptx` (20 slides, short bullets on each slide; plain speaker notes in `scripts/speaker_notes_long.py`, printable copy `../26-10-2026/Speaker Notes.pdf` via `scripts/speaker_notes_pdf.py`).
 
 ## status
 
@@ -69,7 +82,8 @@ highD proxy labels (81,310 windows, 25.6% proxy aggressive): all terms reference
 - [x] KAN learns the formula
 - [x] risk reward, extended state, FSM experts vs joint
 - [x] German autobahn scenario, transfer, highD proxy
-- [ ] manual verdicts in review.csv (Hadi)
+- [x] manual verdicts (Hadi)
+- [x] smooth the label: probability, borderline band, hysteresis (UAH only; not yet inside the agents)
 - [ ] Charbel's slide style (file from Hadi)
 - [ ] repeat C (German data + one hot) with 3 seeds
 - [ ] RAG context percentile in the agent state
